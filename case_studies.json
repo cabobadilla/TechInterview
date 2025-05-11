@@ -1,0 +1,29 @@
+{
+    "E-commerce Platform Migration": {
+        "description": "Design a migration strategy for a legacy e-commerce platform to a modern microservices architecture",
+        "key_considerations": [
+            "Data consistency during migration",
+            "Zero downtime deployment",
+            "Scalability of the new architecture",
+            "Integration with existing systems"
+        ]
+    },
+    "Real-time Analytics System": {
+        "description": "Design a real-time analytics system for processing and analyzing IoT device data",
+        "key_considerations": [
+            "Data ingestion pipeline",
+            "Real-time processing requirements",
+            "Storage and query optimization",
+            "System reliability and fault tolerance"
+        ]
+    },
+    "Multi-tenant SaaS Platform": {
+        "description": "Design a multi-tenant SaaS platform with data isolation and customization capabilities",
+        "key_considerations": [
+            "Data isolation strategies",
+            "Customization and configuration management",
+            "Performance and scalability",
+            "Security and compliance"
+        ]
+    }
+} 

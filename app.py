@@ -15,9 +15,19 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize session state
+# Initialize session state variables
+if 'transcript' not in st.session_state:
+    st.session_state.transcript = None
+if 'qa_pairs' not in st.session_state:
+    st.session_state.qa_pairs = None
 if 'evaluation_results' not in st.session_state:
     st.session_state.evaluation_results = None
+if 'current_step' not in st.session_state:
+    st.session_state.current_step = 1
+if 'selected_case_study' not in st.session_state:
+    st.session_state.selected_case_study = None
+if 'selected_level' not in st.session_state:
+    st.session_state.selected_level = None
 
 def load_case_studies() -> Dict:
     """Load case studies from Streamlit secrets or local file."""
@@ -167,8 +177,10 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
         st.error(f"Failed to evaluate answers: {str(e)}")
         return []
 
-def main():
-    st.title("🏢 Tech Architecture Interview Analyzer")
+def show_step_1():
+    """Show the first step of the process."""
+    st.title("🏢 Tech Architecture Interview Analyzer - Step 1")
+    st.subheader("Upload and Process Transcript")
     
     # Load case studies
     case_studies = load_case_studies()
@@ -189,7 +201,11 @@ def main():
         horizontal=True
     )
     
-    if uploaded_file and case_study and level:
+    if st.button("Process Transcript"):
+        if not uploaded_file:
+            st.error("Please upload a transcript file.")
+            return
+        
         # Read transcript with encoding detection
         transcript = read_file_content(uploaded_file)
         
@@ -206,35 +222,66 @@ def main():
             qa_pairs = extract_qa_from_transcript(transcript)
         
         if qa_pairs:
-            # Evaluate answers
-            with st.spinner("Evaluating answers..."):
-                evaluation_results = evaluate_answers(qa_pairs, case_study, level)
-                st.session_state.evaluation_results = evaluation_results
+            # Store data in session state
+            st.session_state.transcript = transcript
+            st.session_state.qa_pairs = qa_pairs
+            st.session_state.selected_case_study = case_study
+            st.session_state.selected_level = level
+            st.session_state.current_step = 2
             
-            # Display results
-            if st.session_state.evaluation_results:
-                df = pd.DataFrame(st.session_state.evaluation_results)
-                st.dataframe(
-                    df,
-                    column_config={
-                        "question": "Question",
-                        "answer": "Answer",
-                        "completeness": "Completeness",
-                        "accuracy": "Accuracy",
-                        "feedback": "Feedback"
-                    },
-                    hide_index=True,
-                    use_container_width=True
-                )
-                
-                # Download button for results
-                csv = df.to_csv(index=False)
-                st.download_button(
-                    label="Download Results as CSV",
-                    data=csv,
-                    file_name="interview_evaluation.csv",
-                    mime="text/csv"
-                )
+            # Show success message and button to proceed
+            st.success("Transcript processed successfully!")
+            st.button("Proceed to Evaluation", on_click=lambda: setattr(st.session_state, 'current_step', 2))
+
+def show_step_2():
+    """Show the second step of the process."""
+    st.title("🏢 Tech Architecture Interview Analyzer - Step 2")
+    st.subheader("Evaluate Responses")
+    
+    if st.button("Evaluate Responses"):
+        with st.spinner("Evaluating answers..."):
+            evaluation_results = evaluate_answers(
+                st.session_state.qa_pairs,
+                st.session_state.selected_case_study,
+                st.session_state.selected_level
+            )
+            st.session_state.evaluation_results = evaluation_results
+        
+        if st.session_state.evaluation_results:
+            df = pd.DataFrame(st.session_state.evaluation_results)
+            st.dataframe(
+                df,
+                column_config={
+                    "question": "Question",
+                    "answer": "Answer",
+                    "completeness": "Completeness",
+                    "accuracy": "Accuracy",
+                    "feedback": "Feedback"
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+            # Download button for results
+            csv = df.to_csv(index=False)
+            st.download_button(
+                label="Download Results as CSV",
+                data=csv,
+                file_name="interview_evaluation.csv",
+                mime="text/csv"
+            )
+    
+    # Add button to go back to step 1
+    if st.button("Back to Step 1"):
+        st.session_state.current_step = 1
+        st.experimental_rerun()
+
+def main():
+    # Show the appropriate step
+    if st.session_state.current_step == 1:
+        show_step_1()
+    else:
+        show_step_2()
 
 if __name__ == "__main__":
     main() 

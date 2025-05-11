@@ -29,6 +29,19 @@ def load_case_studies() -> Dict:
             st.error("No case studies found. Please ensure case_studies.json exists or is configured in Streamlit secrets.")
             return {}
 
+def read_file_content(uploaded_file) -> str:
+    """Read file content with encoding detection."""
+    try:
+        # First try UTF-8
+        return uploaded_file.getvalue().decode('utf-8')
+    except UnicodeDecodeError:
+        try:
+            # Try with latin-1 (which can read any byte sequence)
+            return uploaded_file.getvalue().decode('latin-1')
+        except Exception as e:
+            st.error(f"Error reading file: {str(e)}")
+            return ""
+
 def extract_qa_from_transcript(transcript: str) -> List[Dict]:
     """Extract Q&A pairs from transcript using GPT-3.5."""
     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -120,8 +133,12 @@ def main():
     )
     
     if uploaded_file and case_study and level:
-        # Read transcript
-        transcript = uploaded_file.getvalue().decode()
+        # Read transcript with encoding detection
+        transcript = read_file_content(uploaded_file)
+        
+        if not transcript:
+            st.error("Could not read the file. Please ensure it's a valid text file.")
+            return
         
         # Extract Q&A
         with st.spinner("Extracting Q&A from transcript..."):

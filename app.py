@@ -1,8 +1,10 @@
 import streamlit as st
-import openai=0.28
+import openai
 import json
 import pandas as pd
 from typing import List, Dict, Tuple
+import time
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Set page config
 st.set_page_config(
@@ -42,6 +44,24 @@ def read_file_content(uploaded_file) -> str:
             st.error(f"Error reading file: {str(e)}")
             return ""
 
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+def make_openai_request(messages: List[Dict], temperature: float = 0.3) -> Dict:
+    """Make OpenAI API request with retry logic."""
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            temperature=temperature
+        )
+        return response
+    except openai.error.RateLimitError:
+        st.warning("Rate limit reached. Waiting before retrying...")
+        time.sleep(2)  # Wait before retry
+        raise  # Re-raise to trigger retry
+    except Exception as e:
+        st.error(f"Error calling OpenAI API: {str(e)}")
+        raise
+
 def extract_qa_from_transcript(transcript: str) -> List[Dict]:
     """Extract Q&A pairs from transcript using GPT-3.5."""
     openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -53,19 +73,16 @@ def extract_qa_from_transcript(transcript: str) -> List[Dict]:
     {transcript}
     """
     
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that extracts Q&A pairs from interview transcripts."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3
-    )
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant that extracts Q&A pairs from interview transcripts."},
+        {"role": "user", "content": prompt}
+    ]
     
     try:
+        response = make_openai_request(messages)
         return json.loads(response.choices[0].message.content)
-    except:
-        st.error("Failed to parse Q&A from transcript. Please check the transcript format.")
+    except Exception as e:
+        st.error(f"Failed to parse Q&A from transcript: {str(e)}")
         return []
 
 def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[Dict]:
@@ -95,19 +112,16 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
     {json.dumps(qa_pairs, indent=2)}
     """
     
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a senior tech architect evaluating interview responses."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3
-    )
+    messages = [
+        {"role": "system", "content": "You are a senior tech architect evaluating interview responses."},
+        {"role": "user", "content": prompt}
+    ]
     
     try:
+        response = make_openai_request(messages)
         return json.loads(response.choices[0].message.content)
-    except:
-        st.error("Failed to evaluate answers. Please try again.")
+    except Exception as e:
+        st.error(f"Failed to evaluate answers: {str(e)}")
         return []
 
 def main():

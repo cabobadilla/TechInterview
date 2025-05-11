@@ -192,6 +192,8 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
     
     Be more lenient for L1, and stricter for L4. Calibrate your expectations accordingly.
     
+    IMPORTANT: Output ONLY valid JSON as a list of objects, with NO commentary, NO explanation, and NO markdown. Do not include any text before or after the JSON. The JSON must be parseable by Python's json.loads().
+    
     Provide your evaluation in JSON format with the following structure:
     [
         {{
@@ -208,13 +210,19 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
     """
     
     messages = [
-        {"role": "system", "content": "You are a senior tech architect evaluating interview responses. The responses are in Spanish, but provide your evaluation in English."},
+        {"role": "system", "content": "You are a senior tech architect evaluating interview responses. The responses are in Spanish, but provide your evaluation in English. Output ONLY valid JSON as a list of objects, with NO commentary, NO explanation, and NO markdown. The JSON must be parseable by Python's json.loads()."},
         {"role": "user", "content": prompt}
     ]
     
     try:
         response = make_openai_request(messages)
-        return json.loads(response.choices[0].message.content)
+        content = response.choices[0].message.content.strip()
+        try:
+            return json.loads(content)
+        except Exception as e:
+            st.error(f"Failed to parse JSON. Here is the raw output for debugging:")
+            st.code(content, language="json")
+            raise e
     except Exception as e:
         st.error(f"Failed to evaluate answers: {str(e)}")
         return []

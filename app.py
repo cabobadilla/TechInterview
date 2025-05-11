@@ -44,7 +44,7 @@ def read_file_content(uploaded_file) -> str:
 
 def extract_qa_from_transcript(transcript: str) -> List[Dict]:
     """Extract Q&A pairs from transcript using GPT-3.5."""
-    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
     
     prompt = f"""From the transcript below, extract a list of questions asked by the interviewer and the candidate's corresponding answers.
     Format the response as a JSON array of objects with 'question' and 'answer' fields.
@@ -53,7 +53,7 @@ def extract_qa_from_transcript(transcript: str) -> List[Dict]:
     {transcript}
     """
     
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant that extracts Q&A pairs from interview transcripts."},
@@ -70,7 +70,7 @@ def extract_qa_from_transcript(transcript: str) -> List[Dict]:
 
 def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[Dict]:
     """Evaluate answers using GPT-3.5 based on rubric."""
-    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
     
     prompt = f"""As a senior tech architect evaluating a peer, analyze the following Q&A pairs from an architecture interview.
     The candidate is applying for a {level} position.
@@ -95,7 +95,7 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
     {json.dumps(qa_pairs, indent=2)}
     """
     
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a senior tech architect evaluating interview responses."},

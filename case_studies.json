@@ -17,6 +17,15 @@
             "System reliability and fault tolerance"
         ]
     },
+    "Cloud Mkgration Strategy": {
+        "description": "Design a migration strategy to a cloud adoption in a banking company",
+        "key_considerations": [
+            "Migration objectives and process",
+            "Workload prioritization regarding the business criticality",
+            "Security concerns and compliance requirements",
+            "Cost optimization not just because cloud prices but also because operating moddel optimization"
+        ]
+    },
     "Multi-tenant SaaS Platform": {
         "description": "Design a multi-tenant SaaS platform with data isolation and customization capabilities",
         "key_considerations": [

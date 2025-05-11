@@ -5,6 +5,8 @@ import pandas as pd
 from typing import List, Dict, Tuple
 import time
 from tenacity import retry, stop_after_attempt, wait_exponential
+import chardet
+import re
 
 # Set page config
 st.set_page_config(
@@ -32,17 +34,46 @@ def load_case_studies() -> Dict:
             return {}
 
 def read_file_content(uploaded_file) -> str:
-    """Read file content with encoding detection."""
+    """Read file content with automatic encoding detection."""
     try:
-        # First try UTF-8
-        return uploaded_file.getvalue().decode('utf-8')
-    except UnicodeDecodeError:
+        # Read the raw bytes
+        raw_data = uploaded_file.getvalue()
+        
+        # Detect the encoding
+        result = chardet.detect(raw_data)
+        encoding = result['encoding']
+        
+        # Try to decode with detected encoding
         try:
-            # Try with latin-1 (which can read any byte sequence)
-            return uploaded_file.getvalue().decode('latin-1')
-        except Exception as e:
-            st.error(f"Error reading file: {str(e)}")
-            return ""
+            return raw_data.decode(encoding)
+        except UnicodeDecodeError:
+            # If detected encoding fails, try common encodings
+            for enc in ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']:
+                try:
+                    return raw_data.decode(enc)
+                except UnicodeDecodeError:
+                    continue
+            
+            # If all else fails, use latin-1 which can read any byte sequence
+            return raw_data.decode('latin-1')
+            
+    except Exception as e:
+        st.error(f"Error reading file: {str(e)}")
+        return ""
+
+def preprocess_transcript(transcript: str) -> str:
+    """Preprocess the transcript to better handle the A: and C: format."""
+    # Replace multiple spaces with single space
+    transcript = re.sub(r'\s+', ' ', transcript)
+    
+    # Add newlines before A: and C: markers if they don't exist
+    transcript = re.sub(r'([^A]):', r'\n\1:', transcript)
+    transcript = re.sub(r'([^C]):', r'\n\1:', transcript)
+    
+    # Clean up any double newlines
+    transcript = re.sub(r'\n\s*\n', '\n', transcript)
+    
+    return transcript.strip()
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def make_openai_request(messages: List[Dict], temperature: float = 0.3) -> Dict:
@@ -66,15 +97,27 @@ def extract_qa_from_transcript(transcript: str) -> List[Dict]:
     """Extract Q&A pairs from transcript using GPT-3.5."""
     openai.api_key = st.secrets["OPENAI_API_KEY"]
     
-    prompt = f"""From the transcript below, extract a list of questions asked by the interviewer and the candidate's corresponding answers.
+    # Preprocess the transcript
+    processed_transcript = preprocess_transcript(transcript)
+    
+    prompt = f"""From the transcript below, extract a list of questions asked by the interviewer (marked with A:) and the candidate's corresponding answers (marked with C:).
     Format the response as a JSON array of objects with 'question' and 'answer' fields.
+    The transcript is in Spanish, please maintain the original language in the output.
     
     Transcript:
-    {transcript}
+    {processed_transcript}
+    
+    Example format:
+    [
+        {{
+            "question": "¿Podrías describir una estrategia de migración a cloud?",
+            "answer": "Claro. Para desarrollar una estrategia de migración efectiva..."
+        }}
+    ]
     """
     
     messages = [
-        {"role": "system", "content": "You are a helpful assistant that extracts Q&A pairs from interview transcripts."},
+        {"role": "system", "content": "You are a helpful assistant that extracts Q&A pairs from interview transcripts. Maintain the original language of the transcript and preserve the exact wording."},
         {"role": "user", "content": prompt}
     ]
     
@@ -113,7 +156,7 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
     """
     
     messages = [
-        {"role": "system", "content": "You are a senior tech architect evaluating interview responses."},
+        {"role": "system", "content": "You are a senior tech architect evaluating interview responses. The responses are in Spanish, but provide your evaluation in English."},
         {"role": "user", "content": prompt}
     ]
     
@@ -153,6 +196,10 @@ def main():
         if not transcript:
             st.error("Could not read the file. Please ensure it's a valid text file.")
             return
+        
+        # Show the processed transcript for verification
+        with st.expander("View Processed Transcript"):
+            st.text(preprocess_transcript(transcript))
         
         # Extract Q&A
         with st.spinner("Extracting Q&A from transcript..."):

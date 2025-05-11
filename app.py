@@ -12,6 +12,15 @@ import chardet
 import re
 
 # =============================
+# Streamlit Page Configuration (MUST BE FIRST)
+# =============================
+st.set_page_config(
+    page_title="Tech Architecture Interview Analyzer",
+    page_icon="🏢",
+    layout="wide"
+)
+
+# =============================
 # Vintage Style CSS Injection
 # =============================
 st.markdown(
@@ -100,15 +109,6 @@ def app_log(message: str, level: str = "info"):
             st.success(message)
         else:
             st.write(message)
-
-# =============================
-# Streamlit Page Configuration
-# =============================
-st.set_page_config(
-    page_title="Tech Architecture Interview Analyzer",
-    page_icon="🏢",
-    layout="wide"
-)
 
 # =============================
 # Session State Initialization

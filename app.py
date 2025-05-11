@@ -12,6 +12,69 @@ import chardet
 import re
 
 # =============================
+# Vintage Style CSS Injection
+# =============================
+st.markdown(
+    """
+    <style>
+    body, .stApp {
+        background: #f4ecd8 !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        color: #3e2c1c;
+    }
+    .stApp {
+        background: linear-gradient(135deg, #f4ecd8 0%, #e2cfa5 100%) !important;
+    }
+    .stButton>button, .stDownloadButton>button {
+        background-color: #e2cfa5 !important;
+        color: #3e2c1c !important;
+        border: 2px solid #bfa76a !important;
+        border-radius: 0.5em !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 1.1em !important;
+        box-shadow: 2px 2px 0 #bfa76a;
+        margin-bottom: 0.5em;
+    }
+    .stButton>button:hover, .stDownloadButton>button:hover {
+        background-color: #f4ecd8 !important;
+        color: #bfa76a !important;
+        border-color: #3e2c1c !important;
+    }
+    .stRadio>div>label {
+        font-family: 'Courier New', Courier, monospace !important;
+        color: #3e2c1c !important;
+    }
+    .stSelectbox>div>div {
+        font-family: 'Courier New', Courier, monospace !important;
+        color: #3e2c1c !important;
+    }
+    .stDataFrame, .stTable {
+        background: #f9f6ef !important;
+        border: 1.5px solid #bfa76a !important;
+        border-radius: 0.5em !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        color: #3e2c1c !important;
+    }
+    .stExpanderHeader {
+        font-family: 'Courier New', Courier, monospace !important;
+        color: #3e2c1c !important;
+    }
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
+        color: #3e2c1c !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        text-shadow: 1px 1px 0 #bfa76a;
+    }
+    .stAlert {
+        background: #f9f6ef !important;
+        border: 1.5px solid #bfa76a !important;
+        color: #3e2c1c !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# =============================
 # Feature Flags and Logging
 # =============================
 def get_log_level() -> str:
@@ -66,6 +129,13 @@ if 'selected_level' not in st.session_state:
 # =============================
 # Utility Functions
 # =============================
+def safe_rerun():
+    """Safely rerun the Streamlit app if supported."""
+    try:
+        st.experimental_rerun()
+    except AttributeError:
+        pass  # Rerun not supported in this Streamlit version
+
 def reset_all():
     """Reset all session state variables to start over."""
     for key in [
@@ -270,7 +340,7 @@ def show_step_1():
     reset_pressed = st.button("Reset / Start Again")
     if reset_pressed:
         reset_all()
-        st.experimental_rerun()
+        safe_rerun()
     # Load case studies
     case_studies = load_case_studies()
     # File uploader
@@ -325,7 +395,7 @@ def show_step_2():
     reset_pressed = st.button("Reset / Start Again")
     if reset_pressed:
         reset_all()
-        st.experimental_rerun()
+        safe_rerun()
     # Evaluate Responses button
     if st.button("Evaluate Responses"):
         with st.spinner("Evaluating answers..."):
@@ -360,7 +430,7 @@ def show_step_2():
     # Add button to go back to step 1
     if st.button("Back to Step 1"):
         st.session_state.current_step = 1
-        st.experimental_rerun()
+        safe_rerun()
 
 # =============================
 # Main App Entry Point

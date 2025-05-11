@@ -29,6 +29,16 @@ if 'selected_case_study' not in st.session_state:
 if 'selected_level' not in st.session_state:
     st.session_state.selected_level = None
 
+def reset_all():
+    """Reset all session state variables to start over."""
+    for key in [
+        'transcript', 'qa_pairs', 'evaluation_results',
+        'current_step', 'selected_case_study', 'selected_level']:
+        if key in st.session_state:
+            del st.session_state[key]
+    st.session_state.current_step = 1
+    st.experimental_rerun()
+
 def load_case_studies() -> Dict:
     """Load case studies from Streamlit secrets or local file."""
     try:
@@ -138,17 +148,49 @@ def extract_qa_from_transcript(transcript: str) -> List[Dict]:
         st.error(f"Failed to parse Q&A from transcript: {str(e)}")
         return []
 
+def get_level_expectations(level: str) -> str:
+    """Return expectations for each proficiency level."""
+    if level == "L1":
+        return (
+            "L1 (Junior): Answers may be basic, incomplete, or lack structure. "
+            "Some inaccuracies are acceptable. Focus on basic understanding."
+        )
+    elif level == "L2":
+        return (
+            "L2 (Intermediate): Answers should show some structure and understanding. "
+            "Some missing details or minor inaccuracies are acceptable."
+        )
+    elif level == "L3":
+        return (
+            "L3 (Senior): Answers should be mostly complete, structured, and accurate. "
+            "Minor gaps are acceptable, but most key points should be covered."
+        )
+    elif level == "L4":
+        return (
+            "L4 (Expert): Answers should be highly complete, well-structured, and highly accurate. "
+            "Expect depth, clarity, and minimal inaccuracies."
+        )
+    else:
+        return ""
+
 def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[Dict]:
     """Evaluate answers using GPT-3.5 based on rubric."""
     openai.api_key = st.secrets["OPENAI_API_KEY"]
+    
+    expectations = get_level_expectations(level)
     
     prompt = f"""As a senior tech architect evaluating a peer, analyze the following Q&A pairs from an architecture interview.
     The candidate is applying for a {level} position.
     The case study being discussed is: {case_study}
     
+    Evaluation rubric:
+    {expectations}
+    
     For each answer, evaluate:
     1. Level of Completeness (High/Medium/Low)
     2. Level of Accuracy (Correct/Partially Correct/Incorrect)
+    
+    Be more lenient for L1, and stricter for L4. Calibrate your expectations accordingly.
     
     Provide your evaluation in JSON format with the following structure:
     [
@@ -182,6 +224,9 @@ def show_step_1():
     st.title("🏢 Tech Architecture Interview Analyzer - Step 1")
     st.subheader("Upload and Process Transcript")
     
+    # Reset button (always visible)
+    st.button("Reset / Start Again", on_click=reset_all)
+    
     # Load case studies
     case_studies = load_case_studies()
     
@@ -194,10 +239,10 @@ def show_step_1():
         options=list(case_studies.keys()) if case_studies else ["No case studies available"]
     )
     
-    # Architecture level selection
+    # Architecture level selection (L1-L4)
     level = st.radio(
         "Select Architecture Level",
-        options=["L2", "L3", "L4"],
+        options=["L1", "L2", "L3", "L4"],
         horizontal=True
     )
     
@@ -229,6 +274,11 @@ def show_step_1():
             st.session_state.selected_level = level
             st.session_state.current_step = 2
             
+            # Show Q&A table
+            st.markdown("**Extracted Questions and Answers:**")
+            df_qa = pd.DataFrame(qa_pairs)
+            st.dataframe(df_qa, hide_index=True, use_container_width=True)
+            
             # Show success message and button to proceed
             st.success("Transcript processed successfully!")
             st.button("Proceed to Evaluation", on_click=lambda: setattr(st.session_state, 'current_step', 2))
@@ -237,6 +287,9 @@ def show_step_2():
     """Show the second step of the process."""
     st.title("🏢 Tech Architecture Interview Analyzer - Step 2")
     st.subheader("Evaluate Responses")
+    
+    # Reset button (always visible)
+    st.button("Reset / Start Again", on_click=reset_all)
     
     if st.button("Evaluate Responses"):
         with st.spinner("Evaluating answers..."):

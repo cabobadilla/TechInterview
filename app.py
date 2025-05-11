@@ -37,7 +37,6 @@ def reset_all():
         if key in st.session_state:
             del st.session_state[key]
     st.session_state.current_step = 1
-    st.experimental_rerun()
 
 def load_case_studies() -> Dict:
     """Load case studies from Streamlit secrets or local file."""
@@ -233,7 +232,10 @@ def show_step_1():
     st.subheader("Upload and Process Transcript")
     
     # Reset button (always visible)
-    st.button("Reset / Start Again", on_click=reset_all)
+    reset_pressed = st.button("Reset / Start Again")
+    if reset_pressed:
+        reset_all()
+        st.experimental_rerun()
     
     # Load case studies
     case_studies = load_case_studies()
@@ -297,7 +299,10 @@ def show_step_2():
     st.subheader("Evaluate Responses")
     
     # Reset button (always visible)
-    st.button("Reset / Start Again", on_click=reset_all)
+    reset_pressed = st.button("Reset / Start Again")
+    if reset_pressed:
+        reset_all()
+        st.experimental_rerun()
     
     if st.button("Evaluate Responses"):
         with st.spinner("Evaluating answers..."):

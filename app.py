@@ -416,23 +416,33 @@ def show_step_2():
         st.dataframe(df_expert, hide_index=True, use_container_width=True)
         # Button to evaluate candidate answers
         if st.button("Evaluate Candidate Answers"):
-            with st.spinner("Evaluating candidate answers..."):
-                evaluation_results = evaluate_candidate_vs_expert(
-                    st.session_state.qa_pairs,
-                    st.session_state.expert_solution
-                )
-                st.session_state.evaluation_results = evaluation_results
-            if st.session_state.evaluation_results:
-                st.markdown("**Evaluation Results:**")
-                df = pd.DataFrame(st.session_state.evaluation_results)
-                st.dataframe(df, hide_index=True, use_container_width=True)
-                csv = df.to_csv(index=False)
-                st.download_button(
-                    label="Download Results as CSV",
-                    data=csv,
-                    file_name="interview_evaluation.csv",
-                    mime="text/csv"
-                )
+            # Check for candidate Q&A pairs
+            qa_pairs = st.session_state.get('qa_pairs', [])
+            if not qa_pairs or len(qa_pairs) == 0:
+                app_log("No candidate Q&A pairs found. Please upload and process a transcript in Step 1.", "warning")
+                st.code("qa_pairs: " + str(qa_pairs))
+            else:
+                # Debug: Show Q&A pairs and expert solution
+                app_log("Evaluating with the following Q&A pairs and expert solution:", "info")
+                st.code(json.dumps(qa_pairs, indent=2))
+                st.code(json.dumps(st.session_state.expert_solution, indent=2))
+                with st.spinner("Evaluating candidate answers..."):
+                    evaluation_results = evaluate_candidate_vs_expert(
+                        qa_pairs,
+                        st.session_state.expert_solution
+                    )
+                    st.session_state.evaluation_results = evaluation_results
+                if st.session_state.evaluation_results:
+                    st.markdown("**Evaluation Results:**")
+                    df = pd.DataFrame(st.session_state.evaluation_results)
+                    st.dataframe(df, hide_index=True, use_container_width=True)
+                    csv = df.to_csv(index=False)
+                    st.download_button(
+                        label="Download Results as CSV",
+                        data=csv,
+                        file_name="interview_evaluation.csv",
+                        mime="text/csv"
+                    )
     if st.button("Back to Step 1"):
         st.session_state.current_step = 1
         safe_rerun()

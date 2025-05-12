@@ -341,7 +341,7 @@ def show_step_1():
     if reset_pressed:
         reset_all()
         safe_rerun()
-    # File uploader
+    # File uploader (ONLY this in step 1)
     uploaded_file = st.file_uploader("Upload Interview Transcript", type=['txt'])
     # Process Transcript button
     if st.button("Process Transcript"):

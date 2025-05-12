@@ -1,6 +1,6 @@
 {
-    "cloud_migration": {
-        "name": "Cloud Migration Strategy",
+    "migration a la nube": {
+        "name": "Estrtegia de migracion a la nube",
         "objective": "Definition of a main strategy to migrate workloads to cloud from ompremise applications with focus in modernization of applications avoiding osolescense and reduce the cos of IT services."
     },
     "IT efficiency": {

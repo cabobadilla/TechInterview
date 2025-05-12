@@ -475,25 +475,14 @@ Example:
 def evaluate_candidate_vs_expert(qa_pairs, expert_solution):
     """Evaluate candidate answers against expert solution using the new rubric."""
     openai.api_key = st.secrets["OPENAI_API_KEY"]
-    prompt = f"""You are an expert IT architect. For each candidate answer, compare it to the expert process and key considerations below. Rate the approach and key considerations as follows:
-
-- Approach evaluation:
-    - High: The answer contains almost all the definitions of the process recommended by the expert
-    - Medium: The answer contains several definitions of the process recommended by the expert
-    - Low: The answer contains one or two definitions of the process recommended by the expert
-- Key Considerations:
-    - Correct: The answers are highly connected with all the key considerations recommended by the expert
-    - Partially correct: The answers are connected with some key considerations recommended by the expert
-    - Incorrect: The answers are not connected or related with key considerations recommended by the expert
-
-IMPORTANT: Output ONLY a valid JSON array of objects as described below, with NO commentary, NO explanation, and NO markdown. If unsure, return an empty array [].
-
-Output as a JSON array of objects with these fields:
+    prompt = f"""You are an expert IT architect. For each candidate answer, compare it to the expert process and key considerations below. For each question, output a JSON object with these fields:
 - question
 - expert_answer (summary of process and key considerations)
 - candidate_answer
-- approach_evaluation
-- key_considerations_evaluation
+- approach_evaluation (High/Medium/Low)
+- key_considerations_evaluation (Correct/Partially correct/Incorrect)
+
+Do not include any commentary, explanation, or markdown. Always return a JSON array of such objects, even if you are unsure. Do not return an empty array unless there are no questions.
 
 Expert process and considerations:
 {json.dumps(expert_solution, indent=2)}
@@ -502,18 +491,24 @@ Q&A pairs:
 {json.dumps(qa_pairs, indent=2)}
 """
     messages = [
-        {"role": "system", "content": "You are an expert IT architect evaluating candidate answers. Output ONLY a valid JSON array as described, with NO commentary, NO explanation, and NO markdown. If unsure, return []."},
+        {"role": "system", "content": "You are an expert IT architect evaluating candidate answers. Output ONLY a valid JSON array as described, with NO commentary, NO explanation, and NO markdown."},
         {"role": "user", "content": prompt}
     ]
     try:
         response = make_openai_request(messages)
         content = response.choices[0].message.content.strip()
+        st.markdown("**Raw GPT Output:**")
+        st.code(content, language="json")
         if not content:
             app_log("OpenAI returned an empty response.", "error")
-            st.code("<empty response>")
             return []
         try:
-            return json.loads(content)
+            parsed = json.loads(content)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                return parsed
+            else:
+                app_log("GPT did not return a valid evaluation array.", "error")
+                return []
         except Exception as e:
             app_log(f"Failed to parse JSON. Here is the raw output for debugging:", "error")
             st.code(content, language="json")

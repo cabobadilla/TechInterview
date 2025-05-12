@@ -373,7 +373,7 @@ def show_step_1():
             st.button("Proceed to Evaluation", on_click=lambda: setattr(st.session_state, 'current_step', 2))
 
 def show_step_2():
-    """Show the second step: select case, generate expert solution."""
+    """Show the second step: select case, generate expert solution, and evaluate candidate answers."""
     st.title("🏢 Tech Architecture Interview Analyzer - Step 2")
     st.subheader("Select Case and Generate Expert Solution")
     reset_pressed = st.button("Reset / Start Again")
@@ -406,17 +406,33 @@ def show_step_2():
         if expert_solution:
             st.session_state.expert_solution = expert_solution
             st.session_state.selected_case_key = selected_case_key
-            st.session_state.current_step = 3
             app_log("Expert solution generated!", "success")
             safe_rerun()
     # Show expert solution table if already generated
     if 'expert_solution' in st.session_state and st.session_state.expert_solution:
-        st.markdown("**Expert Solution:**")
+        st.markdown("**Expert Solution (Process & Key Considerations):**")
         df_expert = pd.DataFrame(st.session_state.expert_solution)
+        df_expert.columns = ["Process Task", "Key Consideration"]
         st.dataframe(df_expert, hide_index=True, use_container_width=True)
-        if st.button("Proceed to Evaluation"):
-            st.session_state.current_step = 3
-            safe_rerun()
+        # Button to evaluate candidate answers
+        if st.button("Evaluate Candidate Answers"):
+            with st.spinner("Evaluating candidate answers..."):
+                evaluation_results = evaluate_candidate_vs_expert(
+                    st.session_state.qa_pairs,
+                    st.session_state.expert_solution
+                )
+                st.session_state.evaluation_results = evaluation_results
+            if st.session_state.evaluation_results:
+                st.markdown("**Evaluation Results:**")
+                df = pd.DataFrame(st.session_state.evaluation_results)
+                st.dataframe(df, hide_index=True, use_container_width=True)
+                csv = df.to_csv(index=False)
+                st.download_button(
+                    label="Download Results as CSV",
+                    data=csv,
+                    file_name="interview_evaluation.csv",
+                    mime="text/csv"
+                )
     if st.button("Back to Step 1"):
         st.session_state.current_step = 1
         safe_rerun()
@@ -446,44 +462,7 @@ Example:
         app_log(f"Failed to generate expert solution: {str(e)}", "error")
         return []
 
-def show_step_3():
-    """Show the third step: evaluate candidate answers against expert solution."""
-    st.title("🏢 Tech Architecture Interview Analyzer - Step 3")
-    st.subheader("Evaluate Candidate Answers")
-    reset_pressed = st.button("Reset / Start Again")
-    if reset_pressed:
-        reset_all()
-        safe_rerun()
-    # Proficiency level selection
-    level = st.radio(
-        "Select Architecture Level",
-        options=["L1", "L2", "L3", "L4"],
-        horizontal=True
-    )
-    # Button to evaluate
-    if st.button("Evaluate Candidate Answers"):
-        with st.spinner("Evaluating candidate answers..."):
-            evaluation_results = evaluate_candidate_vs_expert(
-                st.session_state.qa_pairs,
-                st.session_state.expert_solution,
-                level
-            )
-            st.session_state.evaluation_results = evaluation_results
-        if st.session_state.evaluation_results:
-            df = pd.DataFrame(st.session_state.evaluation_results)
-            st.dataframe(df, hide_index=True, use_container_width=True)
-            csv = df.to_csv(index=False)
-            st.download_button(
-                label="Download Results as CSV",
-                data=csv,
-                file_name="interview_evaluation.csv",
-                mime="text/csv"
-            )
-    if st.button("Back to Step 2"):
-        st.session_state.current_step = 2
-        safe_rerun()
-
-def evaluate_candidate_vs_expert(qa_pairs, expert_solution, level):
+def evaluate_candidate_vs_expert(qa_pairs, expert_solution):
     """Evaluate candidate answers against expert solution using the new rubric."""
     openai.api_key = st.secrets["OPENAI_API_KEY"]
     prompt = f"""You are an expert IT architect. For each candidate answer, compare it to the expert process and key considerations below. Rate the approach and key considerations as follows:
@@ -529,10 +508,8 @@ def main():
     # Show the appropriate step based on session state
     if st.session_state.current_step == 1:
         show_step_1()
-    elif st.session_state.current_step == 2:
-        show_step_2()
     else:
-        show_step_3()
+        show_step_2()
 
 if __name__ == "__main__":
     main() 

@@ -451,6 +451,10 @@ def show_step_2():
                         qa_pairs,
                         st.session_state.expert_solution
                     )
+                    # Add percentage columns
+                    for row in evaluation_results:
+                        row["approach_score"] = map_approach_to_percentage(row.get("approach_evaluation", ""))
+                        row["key_considerations_score"] = map_key_consideration_to_percentage(row.get("key_considerations_evaluation", ""))
                     st.session_state.evaluation_results = evaluation_results
                 if st.session_state.evaluation_results:
                     st.markdown("**Evaluation Results:**")
@@ -550,6 +554,14 @@ Q&A pairs:
     except Exception as e:
         app_log(f"Failed to evaluate candidate answers: {str(e)}", "error")
         return []
+
+def map_approach_to_percentage(value: str) -> int:
+    mapping = {"High": 100, "Medium": 66, "Low": 33}
+    return mapping.get(value.strip().capitalize(), 0)
+
+def map_key_consideration_to_percentage(value: str) -> int:
+    mapping = {"Correct": 100, "Partially correct": 66, "Incorrect": 0}
+    return mapping.get(value.strip().capitalize(), 0)
 
 # =============================
 # Main App Entry Point

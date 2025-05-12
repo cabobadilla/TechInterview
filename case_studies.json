@@ -1,10 +1,34 @@
 {
-    "migration a la nube": {
-        "name": "Estrtegia de migracion a la nube",
-        "objective": "Definition of a main strategy to migrate workloads to cloud from ompremise applications with focus in modernization of applications avoiding osolescense and reduce the cos of IT services."
+    "cloud_migration": {
+        "name": "Estrategia de Migración a la Nube",
+        "objective": "Definir una estrategia principal para migrar cargas de trabajo a la nube desde aplicaciones on-premise, enfocándose en la modernización de aplicaciones, evitando la obsolescencia y reduciendo el costo de los servicios de TI.",
+        "process_answer": [
+            "Evaluar las aplicaciones y cargas de trabajo actuales",
+            "Evaluar proveedores y opciones de servicios en la nube",
+            "Desarrollar una hoja de ruta y cronograma de migración",
+            "Implementar la migración en fases"
+        ],
+        "key_considerations_answer": [
+            "Identificar funciones críticas del negocio",
+            "Considerar requisitos de seguridad, cumplimiento y escalabilidad",
+            "Priorizar aplicaciones según complejidad e impacto",
+            "Realizar pruebas exhaustivas y tener planes de reversión"
+        ]
     },
-    "IT efficiency": {
-        "name": "Improve IT efficiency in a Banking Company",
-        "objective": "Define a strategy to get efficiencies and reducing costs in IT services by reducing costs without compromising the quality of services."
+    "it_efficiency": {
+        "name": "Mejorar la eficiencia de TI en una empresa bancaria",
+        "objective": "Definir una estrategia para lograr eficiencias y reducir costos en los servicios de TI sin comprometer la calidad de los servicios.",
+        "process_answer": [
+            "Analizar el gasto actual de TI y la asignación de recursos",
+            "Identificar áreas para automatización y mejora de procesos",
+            "Implementar iniciativas de optimización de costos",
+            "Monitorear y revisar las ganancias de eficiencia"
+        ],
+        "key_considerations_answer": [
+            "Mantener la calidad del servicio",
+            "Asegurar el cumplimiento de regulaciones",
+            "Involucrar a las partes interesadas en la gestión del cambio",
+            "Rastrear y reportar los ahorros de costos"
+        ]
     }
 } 

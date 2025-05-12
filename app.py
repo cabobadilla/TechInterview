@@ -110,6 +110,13 @@ def app_log(message: str, level: str = "info"):
         else:
             st.write(message)
 
+def get_feature_flag(flag_name: str) -> bool:
+    """Get a boolean feature flag from Streamlit secrets."""
+    try:
+        return st.secrets["feature_flags"][flag_name].lower() == "on"
+    except Exception:
+        return False
+
 # =============================
 # Session State Initialization
 # =============================
@@ -373,9 +380,9 @@ def show_step_1():
             st.button("Proceed to Evaluation", on_click=lambda: setattr(st.session_state, 'current_step', 2))
 
 def show_step_2():
-    """Show the second step: select case, generate expert solution, and evaluate candidate answers."""
+    """Show the second step: select case, show expert solution from file, and (optionally) generate expert solution."""
     st.title("🏢 Tech Architecture Interview Analyzer - Step 2")
-    st.subheader("Select Case and Generate Expert Solution")
+    st.subheader("Select Case and Review Expert Solution")
     reset_pressed = st.button("Reset / Start Again")
     if reset_pressed:
         reset_all()
@@ -395,26 +402,36 @@ def show_step_2():
     # Show objective
     if selected_case:
         st.markdown(f"**Objective:** {selected_case['objective']}")
-    # Button to generate expert solution
-    if st.button("Generate Expert Solution"):
-        if not selected_case:
-            app_log("Please select a case study.", "error")
-            return
-        # Prompt expert solution from GPT
-        with st.spinner("Generating expert solution..."):
-            expert_solution = generate_expert_solution(selected_case['objective'])
-        if expert_solution:
-            st.session_state.expert_solution = expert_solution
-            st.session_state.selected_case_key = selected_case_key
-            app_log("Expert solution generated!", "success")
-            safe_rerun()
-    # Show expert solution table if already generated
+        # Show process and key considerations as a table
+        process = selected_case.get("process_answer", [])
+        considerations = selected_case.get("key_considerations_answer", [])
+        if process and considerations:
+            st.markdown("**Expert Solution (Process & Key Considerations):**")
+            df_expert = pd.DataFrame({
+                "Process Task": process,
+                "Key Consideration": considerations
+            })
+            st.dataframe(df_expert, hide_index=True, use_container_width=True)
+            st.session_state.expert_solution = [
+                {"process_task": p, "key_consideration": c}
+                for p, c in zip(process, considerations)
+            ]
+    # Feature flag for Generate Expert Solution button
+    if get_feature_flag("show_generate_expert"):
+        if st.button("Generate Expert Solution (GPT)"):
+            if not selected_case:
+                app_log("Please select a case study.", "error")
+                return
+            # Prompt expert solution from GPT
+            with st.spinner("Generating expert solution..."):
+                expert_solution = generate_expert_solution(selected_case['objective'])
+            if expert_solution:
+                st.session_state.expert_solution = expert_solution
+                st.session_state.selected_case_key = selected_case_key
+                app_log("Expert solution generated!", "success")
+                safe_rerun()
+    # Button to evaluate candidate answers
     if 'expert_solution' in st.session_state and st.session_state.expert_solution:
-        st.markdown("**Expert Solution (Process & Key Considerations):**")
-        df_expert = pd.DataFrame(st.session_state.expert_solution)
-        df_expert.columns = ["Process Task", "Key Consideration"]
-        st.dataframe(df_expert, hide_index=True, use_container_width=True)
-        # Button to evaluate candidate answers
         if st.button("Evaluate Candidate Answers"):
             # Check for candidate Q&A pairs
             qa_pairs = st.session_state.get('qa_pairs', [])

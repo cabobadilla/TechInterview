@@ -437,12 +437,15 @@ def show_step_2():
             qa_pairs = st.session_state.get('qa_pairs', [])
             if not qa_pairs or len(qa_pairs) == 0:
                 app_log("No candidate Q&A pairs found. Please upload and process a transcript in Step 1.", "warning")
-                st.code("qa_pairs: " + str(qa_pairs))
+                with st.expander("Ver Q&A Pairs (JSON)"):
+                    st.code("qa_pairs: " + str(qa_pairs))
             else:
                 # Debug: Show Q&A pairs and expert solution
                 app_log("Evaluating with the following Q&A pairs and expert solution:", "info")
-                st.code(json.dumps(qa_pairs, indent=2))
-                st.code(json.dumps(st.session_state.expert_solution, indent=2))
+                with st.expander("Ver Q&A Pairs (JSON)"):
+                    st.code(json.dumps(qa_pairs, indent=2))
+                with st.expander("Ver Solución Experta (JSON)"):
+                    st.code(json.dumps(st.session_state.expert_solution, indent=2))
                 with st.spinner("Evaluating candidate answers..."):
                     evaluation_results = evaluate_candidate_vs_expert(
                         qa_pairs,
@@ -527,8 +530,8 @@ Q&A pairs:
     try:
         response = make_openai_request(messages)
         content = response.choices[0].message.content.strip()
-        st.markdown("**Raw GPT Output:**")
-        st.code(content, language="json")
+        with st.expander("Ver Salida GPT (JSON)"):
+            st.code(content, language="json")
         if not content:
             app_log("OpenAI returned an empty response.", "error")
             return []
@@ -541,7 +544,8 @@ Q&A pairs:
                 return []
         except Exception as e:
             app_log(f"Failed to parse JSON. Here is the raw output for debugging:", "error")
-            st.code(content, language="json")
+            with st.expander("Ver Salida GPT (JSON)"):
+                st.code(content, language="json")
             return []
     except Exception as e:
         app_log(f"Failed to evaluate candidate answers: {str(e)}", "error")

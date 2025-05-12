@@ -450,7 +450,10 @@ def show_step_2():
 def generate_expert_solution(objective: str) -> list:
     """Generate expert process steps and key considerations for the case using GPT."""
     openai.api_key = st.secrets["OPENAI_API_KEY"]
-    prompt = f"""You are an expert IT architect. For the following case objective, list the process required to execute the challenge, including 3-4 main steps and key considerations to tackle the main challenge. Output as a JSON array of objects with 'process_task' and 'key_consideration' fields. Do not include any commentary or markdown.
+    prompt = f"""
+You are an expert IT architect. For the following case objective, list the process required to execute the challenge, including 3-4 main steps and key considerations to tackle the main challenge. 
+Output ONLY a JSON array of objects with 'process_task' and 'key_consideration' fields. 
+Do not include any commentary, explanation, or markdown. If unsure, return at least one example.
 
 Objective: {objective}
 
@@ -467,7 +470,17 @@ Example:
     try:
         response = make_openai_request(messages)
         content = response.choices[0].message.content.strip()
-        return json.loads(content)
+        st.markdown("**Raw GPT Output (Expert Solution):**")
+        st.code(content, language="json")
+        if not content:
+            app_log("OpenAI returned an empty response for expert solution.", "error")
+            return []
+        try:
+            return json.loads(content)
+        except Exception as e:
+            app_log(f"Failed to parse JSON for expert solution. Here is the raw output for debugging:", "error")
+            st.code(content, language="json")
+            return []
     except Exception as e:
         app_log(f"Failed to generate expert solution: {str(e)}", "error")
         return []

@@ -16,67 +16,78 @@ import re
 # =============================
 st.set_page_config(
     page_title="Tech Architecture Interview Analyzer",
-    page_icon="🏢",
+    page_icon="🧩",
     layout="wide"
 )
 
 # =============================
-# Vintage Style CSS Injection
+# Minimalist Responsive CSS Injection
 # =============================
 st.markdown(
     """
     <style>
-    body, .stApp {
-        background: #f4ecd8 !important;
-        font-family: 'Courier New', Courier, monospace !important;
-        color: #3e2c1c;
+    html, body, .stApp {
+        background: #f9f9f9 !important;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+        color: #222;
+        margin: 0;
+        padding: 0;
     }
     .stApp {
-        background: linear-gradient(135deg, #f4ecd8 0%, #e2cfa5 100%) !important;
+        max-width: 900px;
+        margin: auto;
+        padding: 1.5rem 0.5rem;
     }
     .stButton>button, .stDownloadButton>button {
-        background-color: #e2cfa5 !important;
-        color: #3e2c1c !important;
-        border: 2px solid #bfa76a !important;
-        border-radius: 0.5em !important;
-        font-family: 'Courier New', Courier, monospace !important;
-        font-size: 1.1em !important;
-        box-shadow: 2px 2px 0 #bfa76a;
+        background: #222 !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-size: 1em !important;
+        padding: 0.6em 1.2em !important;
         margin-bottom: 0.5em;
+        transition: background 0.2s;
     }
     .stButton>button:hover, .stDownloadButton>button:hover {
-        background-color: #f4ecd8 !important;
-        color: #bfa76a !important;
-        border-color: #3e2c1c !important;
+        background: #444 !important;
+        color: #fff !important;
     }
-    .stRadio>div>label {
-        font-family: 'Courier New', Courier, monospace !important;
-        color: #3e2c1c !important;
-    }
-    .stSelectbox>div>div {
-        font-family: 'Courier New', Courier, monospace !important;
-        color: #3e2c1c !important;
+    .stRadio>div>label, .stSelectbox>div>div {
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+        color: #222 !important;
     }
     .stDataFrame, .stTable {
-        background: #f9f6ef !important;
-        border: 1.5px solid #bfa76a !important;
-        border-radius: 0.5em !important;
-        font-family: 'Courier New', Courier, monospace !important;
-        color: #3e2c1c !important;
+        background: #fff !important;
+        border: 1px solid #eee !important;
+        border-radius: 6px !important;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+        color: #222 !important;
     }
     .stExpanderHeader {
-        font-family: 'Courier New', Courier, monospace !important;
-        color: #3e2c1c !important;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+        color: #222 !important;
     }
     .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
-        color: #3e2c1c !important;
-        font-family: 'Courier New', Courier, monospace !important;
-        text-shadow: 1px 1px 0 #bfa76a;
+        color: #222 !important;
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+        text-shadow: none;
     }
     .stAlert {
-        background: #f9f6ef !important;
-        border: 1.5px solid #bfa76a !important;
-        color: #3e2c1c !important;
+        background: #fff !important;
+        border: 1px solid #eee !important;
+        color: #222 !important;
+    }
+    @media (max-width: 600px) {
+        .stApp {
+            padding: 0.5rem 0.2rem;
+        }
+        .stDataFrame, .stTable {
+            font-size: 0.95em !important;
+        }
+        .stButton>button, .stDownloadButton>button {
+            font-size: 0.95em !important;
+            padding: 0.5em 1em !important;
+        }
     }
     </style>
     """,
@@ -340,31 +351,31 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
 # Streamlit UI Functions
 # =============================
 def show_step_1():
-    """Show the first step of the process: upload and process transcript only."""
-    st.title("🏢 Tech Architecture Interview Analyzer - Step 1")
-    st.subheader("Upload and Process Transcript")
+    """Show the first phase of the process: upload and process transcript only."""
+    st.title("🧩 Tech Architecture Interview Analyzer - Fase 1")
+    st.subheader("Sube y procesa el transcript de la entrevista")
     # Reset button (always visible)
-    reset_pressed = st.button("Reset / Start Again")
+    reset_pressed = st.button("Reiniciar / Comenzar de nuevo")
     if reset_pressed:
         reset_all()
         safe_rerun()
-    # File uploader (ONLY this in step 1)
-    uploaded_file = st.file_uploader("Upload Interview Transcript", type=['txt'])
+    # File uploader (ONLY this in phase 1)
+    uploaded_file = st.file_uploader("Sube el transcript de la entrevista", type=['txt'])
     # Process Transcript button
-    if st.button("Process Transcript"):
+    if st.button("Procesar Transcript"):
         if not uploaded_file:
-            app_log("Please upload a transcript file.", "error")
+            app_log("Por favor sube un archivo de transcript.", "error")
             return
         # Read transcript with encoding detection
         transcript = read_file_content(uploaded_file)
         if not transcript:
-            app_log("Could not read the file. Please ensure it's a valid text file.", "error")
+            app_log("No se pudo leer el archivo. Asegúrate de que sea un archivo de texto válido.", "error")
             return
         # Show the processed transcript for verification
-        with st.expander("View Processed Transcript"):
+        with st.expander("Ver transcript procesado"):
             st.text(preprocess_transcript(transcript))
         # Extract Q&A
-        with st.spinner("Extracting Q&A from transcript..."):
+        with st.spinner("Extrayendo preguntas y respuestas del transcript..."):
             qa_pairs = extract_qa_from_transcript(transcript)
         if qa_pairs:
             # Store data in session state
@@ -372,18 +383,18 @@ def show_step_1():
             st.session_state.qa_pairs = qa_pairs
             st.session_state.current_step = 2
             # Show Q&A table
-            st.markdown("**Extracted Questions and Answers:**")
+            st.markdown("**Preguntas y respuestas extraídas:**")
             df_qa = pd.DataFrame(qa_pairs)
             st.dataframe(df_qa, hide_index=True, use_container_width=True)
             # Show success message and button to proceed
-            app_log("Transcript processed successfully!", "success")
-            st.button("Proceed to Evaluation", on_click=lambda: setattr(st.session_state, 'current_step', 2))
+            app_log("¡Transcript procesado exitosamente!", "success")
+            st.button("Ir a Fase 2", on_click=lambda: setattr(st.session_state, 'current_step', 2))
 
 def show_step_2():
-    """Show the second step: select case, show expert solution from file, and (optionally) generate expert solution."""
-    st.title("🏢 Tech Architecture Interview Analyzer - Step 2")
-    st.subheader("Select Case and Review Expert Solution")
-    reset_pressed = st.button("Reset / Start Again")
+    """Show the second phase: select case, show expert solution from file, and (optionally) generate expert solution."""
+    st.title("🧩 Tech Architecture Interview Analyzer - Fase 2")
+    st.subheader("Selecciona el caso y revisa la solución experta")
+    reset_pressed = st.button("Reiniciar / Comenzar de nuevo")
     if reset_pressed:
         reset_all()
         safe_rerun()
@@ -436,7 +447,7 @@ def show_step_2():
             # Check for candidate Q&A pairs
             qa_pairs = st.session_state.get('qa_pairs', [])
             if not qa_pairs or len(qa_pairs) == 0:
-                app_log("No candidate Q&A pairs found. Please upload and process a transcript in Step 1.", "warning")
+                app_log("No candidate Q&A pairs found. Please upload and process a transcript in Fase 1.", "warning")
                 with st.expander("Ver Q&A Pairs (JSON)"):
                     st.code("qa_pairs: " + str(qa_pairs))
             else:
@@ -467,7 +478,7 @@ def show_step_2():
                         file_name="interview_evaluation.csv",
                         mime="text/csv"
                     )
-    if st.button("Back to Step 1"):
+    if st.button("Volver a Fase 1"):
         st.session_state.current_step = 1
         safe_rerun()
 
@@ -567,7 +578,7 @@ def map_key_consideration_to_percentage(value: str) -> int:
 # Main App Entry Point
 # =============================
 def main():
-    # Show the appropriate step based on session state
+    # Show the appropriate phase based on session state
     if st.session_state.current_step == 1:
         show_step_1()
     else:

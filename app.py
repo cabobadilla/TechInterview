@@ -476,6 +476,8 @@ def evaluate_candidate_vs_expert(qa_pairs, expert_solution):
     - Partially correct: The answers are connected with some key considerations recommended by the expert
     - Incorrect: The answers are not connected or related with key considerations recommended by the expert
 
+IMPORTANT: Output ONLY a valid JSON array of objects as described below, with NO commentary, NO explanation, and NO markdown. If unsure, return an empty array [].
+
 Output as a JSON array of objects with these fields:
 - question
 - expert_answer (summary of process and key considerations)
@@ -490,13 +492,22 @@ Q&A pairs:
 {json.dumps(qa_pairs, indent=2)}
 """
     messages = [
-        {"role": "system", "content": "You are an expert IT architect evaluating candidate answers."},
+        {"role": "system", "content": "You are an expert IT architect evaluating candidate answers. Output ONLY a valid JSON array as described, with NO commentary, NO explanation, and NO markdown. If unsure, return []."},
         {"role": "user", "content": prompt}
     ]
     try:
         response = make_openai_request(messages)
         content = response.choices[0].message.content.strip()
-        return json.loads(content)
+        if not content:
+            app_log("OpenAI returned an empty response.", "error")
+            st.code("<empty response>")
+            return []
+        try:
+            return json.loads(content)
+        except Exception as e:
+            app_log(f"Failed to parse JSON. Here is the raw output for debugging:", "error")
+            st.code(content, language="json")
+            return []
     except Exception as e:
         app_log(f"Failed to evaluate candidate answers: {str(e)}", "error")
         return []

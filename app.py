@@ -333,7 +333,7 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
 # Streamlit UI Functions
 # =============================
 def show_step_1():
-    """Show the first step of the process: upload, select, and process transcript."""
+    """Show the first step of the process: upload and process transcript only."""
     st.title("🏢 Tech Architecture Interview Analyzer - Step 1")
     st.subheader("Upload and Process Transcript")
     # Reset button (always visible)
@@ -341,21 +341,8 @@ def show_step_1():
     if reset_pressed:
         reset_all()
         safe_rerun()
-    # Load case studies
-    case_studies = load_case_studies()
     # File uploader
     uploaded_file = st.file_uploader("Upload Interview Transcript", type=['txt'])
-    # Case study selection
-    case_study = st.selectbox(
-        "Select Case Study",
-        options=list(case_studies.keys()) if case_studies else ["No case studies available"]
-    )
-    # Architecture level selection (L1-L4)
-    level = st.radio(
-        "Select Architecture Level",
-        options=["L1", "L2", "L3", "L4"],
-        horizontal=True
-    )
     # Process Transcript button
     if st.button("Process Transcript"):
         if not uploaded_file:
@@ -376,8 +363,6 @@ def show_step_1():
             # Store data in session state
             st.session_state.transcript = transcript
             st.session_state.qa_pairs = qa_pairs
-            st.session_state.selected_case_study = case_study
-            st.session_state.selected_level = level
             st.session_state.current_step = 2
             # Show Q&A table
             st.markdown("**Extracted Questions and Answers:**")
@@ -388,21 +373,34 @@ def show_step_1():
             st.button("Proceed to Evaluation", on_click=lambda: setattr(st.session_state, 'current_step', 2))
 
 def show_step_2():
-    """Show the second step of the process: evaluate and display results."""
+    """Show the second step of the process: select case, level, and evaluate results."""
     st.title("🏢 Tech Architecture Interview Analyzer - Step 2")
-    st.subheader("Evaluate Responses")
+    st.subheader("Select Case, Level, and Evaluate Responses")
     # Reset button (always visible)
     reset_pressed = st.button("Reset / Start Again")
     if reset_pressed:
         reset_all()
         safe_rerun()
+    # Load case studies
+    case_studies = load_case_studies()
+    # Case study selection
+    case_study = st.selectbox(
+        "Select Case Study",
+        options=list(case_studies.keys()) if case_studies else ["No case studies available"]
+    )
+    # Architecture level selection (L1-L4)
+    level = st.radio(
+        "Select Architecture Level",
+        options=["L1", "L2", "L3", "L4"],
+        horizontal=True
+    )
     # Evaluate Responses button
     if st.button("Evaluate Responses"):
         with st.spinner("Evaluating answers..."):
             evaluation_results = evaluate_answers(
                 st.session_state.qa_pairs,
-                st.session_state.selected_case_study,
-                st.session_state.selected_level
+                case_study,
+                level
             )
             st.session_state.evaluation_results = evaluation_results
         if st.session_state.evaluation_results:

@@ -21,72 +21,81 @@ st.set_page_config(
 )
 
 # =============================
-# Minimalist Responsive CSS Injection
+# Google-like Minimalist CSS Injection
 # =============================
 st.markdown(
     """
     <style>
     html, body, .stApp {
-        background: #f9f9f9 !important;
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
-        color: #222;
+        background: #fff !important;
+        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
+        color: #202124;
         margin: 0;
         padding: 0;
     }
     .stApp {
-        max-width: 900px;
+        max-width: 800px;
         margin: auto;
-        padding: 1.5rem 0.5rem;
+        padding: 2rem 1rem;
     }
     .stButton>button, .stDownloadButton>button {
-        background: #222 !important;
+        background: #1a73e8 !important;
         color: #fff !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 24px !important;
         font-size: 1em !important;
-        padding: 0.6em 1.2em !important;
+        font-weight: 500;
+        padding: 0.7em 2em !important;
         margin-bottom: 0.5em;
+        box-shadow: 0 1px 2px rgba(60,64,67,.08), 0 1.5px 6px 1.5px rgba(60,64,67,.08);
         transition: background 0.2s;
     }
     .stButton>button:hover, .stDownloadButton>button:hover {
-        background: #444 !important;
+        background: #1765c1 !important;
         color: #fff !important;
     }
     .stRadio>div>label, .stSelectbox>div>div {
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
-        color: #222 !important;
+        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
+        color: #202124 !important;
     }
     .stDataFrame, .stTable {
         background: #fff !important;
-        border: 1px solid #eee !important;
-        border-radius: 6px !important;
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
-        color: #222 !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 16px !important;
+        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
+        color: #202124 !important;
+        box-shadow: 0 1px 2px rgba(60,64,67,.08);
     }
     .stExpanderHeader {
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
-        color: #222 !important;
+        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
+        color: #202124 !important;
     }
     .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
-        color: #222 !important;
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+        color: #202124 !important;
+        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
+        font-weight: 400;
         text-shadow: none;
     }
     .stAlert {
-        background: #fff !important;
-        border: 1px solid #eee !important;
-        color: #222 !important;
+        background: #f8f9fa !important;
+        border: 1px solid #e0e0e0 !important;
+        color: #202124 !important;
+        border-radius: 16px !important;
+    }
+    .stFileUploader, .stSelectbox, .stRadio, .stTextInput, .stExpander {
+        border-radius: 16px !important;
+        box-shadow: 0 1px 2px rgba(60,64,67,.08);
     }
     @media (max-width: 600px) {
         .stApp {
             padding: 0.5rem 0.2rem;
         }
         .stDataFrame, .stTable {
-            font-size: 0.95em !important;
+            font-size: 0.97em !important;
         }
         .stButton>button, .stDownloadButton>button {
-            font-size: 0.95em !important;
-            padding: 0.5em 1em !important;
+            font-size: 0.97em !important;
+            padding: 0.5em 1.2em !important;
         }
     }
     </style>

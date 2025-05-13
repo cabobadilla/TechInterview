@@ -21,83 +21,104 @@ st.set_page_config(
 )
 
 # =============================
-# Google.com-like Minimalist CSS Injection
+# HackerRank-like Minimalist CSS Injection
 # =============================
 st.markdown(
     """
     <style>
     html, body, .stApp {
         background: #fff !important;
-        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
-        color: #202124;
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
+        color: #111;
         margin: 0;
         padding: 0;
     }
     .stApp {
-        max-width: 800px;
+        max-width: 900px;
         margin: auto;
-        padding: 2rem 1rem;
+        padding: 2.5rem 1rem 2rem 1rem;
         background: #fff !important;
     }
     .stButton>button, .stDownloadButton>button {
-        background: #1a73e8 !important;
+        background: #111 !important;
         color: #fff !important;
         border: none !important;
-        border-radius: 24px !important;
-        font-size: 1em !important;
+        border-radius: 8px !important;
+        font-size: 1.1em !important;
         font-weight: 500;
-        padding: 0.7em 2em !important;
+        padding: 0.7em 2.2em !important;
         margin-bottom: 0.5em;
         box-shadow: 0 1px 2px rgba(60,64,67,.08);
         transition: background 0.2s;
     }
     .stButton>button.secondary, .stDownloadButton>button.secondary {
-        background: #fbbc04 !important;
-        color: #202124 !important;
+        background: #fff !important;
+        color: #111 !important;
+        border: 2px solid #111 !important;
     }
     .stButton>button:hover, .stDownloadButton>button:hover {
-        background: #1765c1 !important;
+        background: #222 !important;
         color: #fff !important;
     }
     .stButton>button.secondary:hover, .stDownloadButton>button.secondary:hover {
-        background: #e2a800 !important;
-        color: #202124 !important;
+        background: #f5f6fa !important;
+        color: #111 !important;
+        border: 2px solid #111 !important;
     }
     .stRadio>div>label, .stSelectbox>div>div {
-        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
-        color: #202124 !important;
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
+        color: #111 !important;
     }
     .stDataFrame, .stTable {
         background: #fff !important;
         border: 1px solid #e0e0e0 !important;
-        border-radius: 16px !important;
-        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
-        color: #202124 !important;
+        border-radius: 12px !important;
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
+        color: #111 !important;
         box-shadow: 0 1px 2px rgba(60,64,67,.08);
     }
     .stExpanderHeader {
-        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
-        color: #202124 !important;
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
+        color: #111 !important;
     }
     .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
-        color: #202124 !important;
-        font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
-        font-weight: 400;
+        color: #111 !important;
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
+        font-weight: 700;
         text-shadow: none;
-        border-bottom: 3px solid #1a73e8;
-        display: inline-block;
-        padding-bottom: 0.2em;
+        border-bottom: none;
+        display: block;
+        padding-bottom: 0.1em;
         margin-bottom: 0.7em;
+        letter-spacing: -0.5px;
     }
     .stAlert {
-        background: #f8f9fa !important;
+        background: #f5f6fa !important;
         border: 1px solid #e0e0e0 !important;
-        color: #202124 !important;
-        border-radius: 16px !important;
+        color: #111 !important;
+        border-radius: 12px !important;
     }
     .stFileUploader, .stSelectbox, .stRadio, .stTextInput, .stExpander {
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         box-shadow: 0 1px 2px rgba(60,64,67,.08);
+    }
+    .accent {
+        color: #00EA64 !important;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    .stMarkdown .tag {
+        display: inline-block;
+        border: 1.5px solid #00EA64;
+        color: #00EA64;
+        border-radius: 16px;
+        padding: 0.1em 0.8em;
+        font-size: 0.95em;
+        margin-bottom: 0.5em;
+        margin-right: 0.5em;
+        background: #fff;
+        font-weight: 500;
+        letter-spacing: 1px;
     }
     @media (max-width: 600px) {
         .stApp {

@@ -21,7 +21,7 @@ st.set_page_config(
 )
 
 # =============================
-# Google-like Minimalist CSS Injection
+# Google.com-like Minimalist CSS Injection
 # =============================
 st.markdown(
     """
@@ -37,6 +37,7 @@ st.markdown(
         max-width: 800px;
         margin: auto;
         padding: 2rem 1rem;
+        background: #fff !important;
     }
     .stButton>button, .stDownloadButton>button {
         background: #1a73e8 !important;
@@ -47,12 +48,20 @@ st.markdown(
         font-weight: 500;
         padding: 0.7em 2em !important;
         margin-bottom: 0.5em;
-        box-shadow: 0 1px 2px rgba(60,64,67,.08), 0 1.5px 6px 1.5px rgba(60,64,67,.08);
+        box-shadow: 0 1px 2px rgba(60,64,67,.08);
         transition: background 0.2s;
+    }
+    .stButton>button.secondary, .stDownloadButton>button.secondary {
+        background: #fbbc04 !important;
+        color: #202124 !important;
     }
     .stButton>button:hover, .stDownloadButton>button:hover {
         background: #1765c1 !important;
         color: #fff !important;
+    }
+    .stButton>button.secondary:hover, .stDownloadButton>button.secondary:hover {
+        background: #e2a800 !important;
+        color: #202124 !important;
     }
     .stRadio>div>label, .stSelectbox>div>div {
         font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
@@ -75,6 +84,10 @@ st.markdown(
         font-family: 'Roboto', 'Google Sans', Arial, sans-serif !important;
         font-weight: 400;
         text-shadow: none;
+        border-bottom: 3px solid #1a73e8;
+        display: inline-block;
+        padding-bottom: 0.2em;
+        margin-bottom: 0.7em;
     }
     .stAlert {
         background: #f8f9fa !important;

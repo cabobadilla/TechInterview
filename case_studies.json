@@ -30,5 +30,165 @@
             "Involucrar a las partes interesadas en la gestión del cambio",
             "Rastrear y reportar los ahorros de costos"
         ]
+    },
+    "additional_case_1": {
+        "name": "Gobernanza de Datos en una Empresa Multinacional #1",
+        "objective": "Definir un marco de gobernanza de datos que garantice la calidad, seguridad y cumplimiento normativo en todas las regiones donde opera la empresa.",
+        "process_answer": [
+            "Evaluar el estado actual de la gestión de datos",
+            "Definir políticas de gobierno de datos claras",
+            "Establecer roles y responsabilidades de datos",
+            "Implementar herramientas de calidad y catalogación de datos"
+        ],
+        "key_considerations_answer": [
+            "Asegurar cumplimiento con GDPR, CCPA y otras normativas locales",
+            "Fomentar la cultura de datos en toda la organización",
+            "Automatizar controles de calidad y auditoría",
+            "Alinear gobernanza con objetivos de negocio"
+        ]
+    },
+    "additional_case_2": {
+        "name": "Transformación Digital de Procesos Empresariales #2",
+        "objective": "Modernizar procesos clave de negocio mediante tecnologías digitales, buscando eficiencia operativa y mejor experiencia del cliente.",
+        "process_answer": [
+            "Mapear procesos actuales y puntos de dolor",
+            "Identificar oportunidades de automatización y digitalización",
+            "Seleccionar tecnologías alineadas con la estrategia",
+            "Ejecutar pilotos y escalar soluciones efectivas"
+        ],
+        "key_considerations_answer": [
+            "Gestión del cambio organizacional",
+            "Alineación con objetivos estratégicos",
+            "Medición de KPIs de impacto",
+            "Interoperabilidad entre sistemas"
+        ]
+    },
+    "additional_case_3": {
+        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #3",
+        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
+        "process_answer": [
+            "Identificar fuentes de datos en tiempo real",
+            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
+            "Diseñar pipelines resilientes y escalables",
+            "Implementar dashboards e interfaces para consumo"
+        ],
+        "key_considerations_answer": [
+            "Baja latencia y alta disponibilidad",
+            "Gestión eficiente de eventos y flujos de datos",
+            "Seguridad en tránsito y en reposo",
+            "Costos de procesamiento y almacenamiento"
+        ]
+    },
+    "additional_case_4": {
+        "name": "Implementación de Infraestructura como Código (IaC) #4",
+        "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
+        "process_answer": [
+            "Seleccionar herramientas adecuadas de IaC (Terraform, Pulumi, etc.)",
+            "Diseñar plantillas reutilizables y modulares",
+            "Integrar IaC con CI/CD",
+            "Probar y versionar los cambios en infraestructuras"
+        ],
+        "key_considerations_answer": [
+            "Manejo de secretos y configuración segura",
+            "Control de cambios y auditoría",
+            "Formación del equipo en buenas prácticas de IaC",
+            "Evitar la deriva de configuración"
+        ]
+    },
+    "additional_case_5": {
+        "name": "Implementación de Infraestructura como Código (IaC) #5",
+        "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
+        "process_answer": [
+            "Seleccionar herramientas adecuadas de IaC (Terraform, Pulumi, etc.)",
+            "Diseñar plantillas reutilizables y modulares",
+            "Integrar IaC con CI/CD",
+            "Probar y versionar los cambios en infraestructuras"
+        ],
+        "key_considerations_answer": [
+            "Manejo de secretos y configuración segura",
+            "Control de cambios y auditoría",
+            "Formación del equipo en buenas prácticas de IaC",
+            "Evitar la deriva de configuración"
+        ]
+    },
+    "additional_case_6": {
+        "name": "Transformación Digital de Procesos Empresariales #6",
+        "objective": "Modernizar procesos clave de negocio mediante tecnologías digitales, buscando eficiencia operativa y mejor experiencia del cliente.",
+        "process_answer": [
+            "Mapear procesos actuales y puntos de dolor",
+            "Identificar oportunidades de automatización y digitalización",
+            "Seleccionar tecnologías alineadas con la estrategia",
+            "Ejecutar pilotos y escalar soluciones efectivas"
+        ],
+        "key_considerations_answer": [
+            "Gestión del cambio organizacional",
+            "Alineación con objetivos estratégicos",
+            "Medición de KPIs de impacto",
+            "Interoperabilidad entre sistemas"
+        ]
+    },
+    "additional_case_7": {
+        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #7",
+        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
+        "process_answer": [
+            "Identificar fuentes de datos en tiempo real",
+            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
+            "Diseñar pipelines resilientes y escalables",
+            "Implementar dashboards e interfaces para consumo"
+        ],
+        "key_considerations_answer": [
+            "Baja latencia y alta disponibilidad",
+            "Gestión eficiente de eventos y flujos de datos",
+            "Seguridad en tránsito y en reposo",
+            "Costos de procesamiento y almacenamiento"
+        ]
+    },
+    "additional_case_8": {
+        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #8",
+        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
+        "process_answer": [
+            "Identificar fuentes de datos en tiempo real",
+            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
+            "Diseñar pipelines resilientes y escalables",
+            "Implementar dashboards e interfaces para consumo"
+        ],
+        "key_considerations_answer": [
+            "Baja latencia y alta disponibilidad",
+            "Gestión eficiente de eventos y flujos de datos",
+            "Seguridad en tránsito y en reposo",
+            "Costos de procesamiento y almacenamiento"
+        ]
+    },
+    "additional_case_9": {
+        "name": "Implementación de Infraestructura como Código (IaC) #9",
+        "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
+        "process_answer": [
+            "Seleccionar herramientas adecuadas de IaC (Terraform, Pulumi, etc.)",
+            "Diseñar plantillas reutilizables y modulares",
+            "Integrar IaC con CI/CD",
+            "Probar y versionar los cambios en infraestructuras"
+        ],
+        "key_considerations_answer": [
+            "Manejo de secretos y configuración segura",
+            "Control de cambios y auditoría",
+            "Formación del equipo en buenas prácticas de IaC",
+            "Evitar la deriva de configuración"
+        ]
+    },
+    "additional_case_10": {
+        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #10",
+        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
+        "process_answer": [
+            "Identificar fuentes de datos en tiempo real",
+            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
+            "Diseñar pipelines resilientes y escalables",
+            "Implementar dashboards e interfaces para consumo"
+        ],
+        "key_considerations_answer": [
+            "Baja latencia y alta disponibilidad",
+            "Gestión eficiente de eventos y flujos de datos",
+            "Seguridad en tránsito y en reposo",
+            "Costos de procesamiento y almacenamiento"
+        ]
     }
-} 
+}

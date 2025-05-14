@@ -1,5 +1,6 @@
 {
-    "cloud_migration": {
+    "migración_cloud_1": {
+        "type": "Migración Cloud",
         "name": "Estrategia de Migración a la Nube",
         "objective": "Definir una estrategia principal para migrar cargas de trabajo a la nube desde aplicaciones on-premise, enfocándose en la modernización de aplicaciones, evitando la obsolescencia y reduciendo el costo de los servicios de TI.",
         "process_answer": [
@@ -15,7 +16,8 @@
             "Realizar pruebas exhaustivas y tener planes de reversión"
         ]
     },
-    "it_efficiency": {
+    "optimización_ti_2": {
+        "type": "Optimización TI",
         "name": "Mejorar la eficiencia de TI en una empresa bancaria",
         "objective": "Definir una estrategia para lograr eficiencias y reducir costos en los servicios de TI sin comprometer la calidad de los servicios.",
         "process_answer": [
@@ -31,7 +33,8 @@
             "Rastrear y reportar los ahorros de costos"
         ]
     },
-    "additional_case_1": {
+    "gobernanza_de_datos_3": {
+        "type": "Gobernanza de Datos",
         "name": "Gobernanza de Datos en una Empresa Multinacional #1",
         "objective": "Definir un marco de gobernanza de datos que garantice la calidad, seguridad y cumplimiento normativo en todas las regiones donde opera la empresa.",
         "process_answer": [
@@ -47,7 +50,8 @@
             "Alinear gobernanza con objetivos de negocio"
         ]
     },
-    "additional_case_2": {
+    "arquitectura_empresarial_4": {
+        "type": "Arquitectura Empresarial",
         "name": "Transformación Digital de Procesos Empresariales #2",
         "objective": "Modernizar procesos clave de negocio mediante tecnologías digitales, buscando eficiencia operativa y mejor experiencia del cliente.",
         "process_answer": [
@@ -63,7 +67,8 @@
             "Interoperabilidad entre sistemas"
         ]
     },
-    "additional_case_3": {
+    "arquitectura_de_datos_5": {
+        "type": "Arquitectura de Datos",
         "name": "Arquitectura de Plataforma de Datos en Tiempo Real #3",
         "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
         "process_answer": [
@@ -79,7 +84,8 @@
             "Costos de procesamiento y almacenamiento"
         ]
     },
-    "additional_case_4": {
+    "devops_/_iac_6": {
+        "type": "DevOps / IaC",
         "name": "Implementación de Infraestructura como Código (IaC) #4",
         "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
         "process_answer": [
@@ -95,23 +101,8 @@
             "Evitar la deriva de configuración"
         ]
     },
-    "additional_case_5": {
-        "name": "Implementación de Infraestructura como Código (IaC) #5",
-        "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
-        "process_answer": [
-            "Seleccionar herramientas adecuadas de IaC (Terraform, Pulumi, etc.)",
-            "Diseñar plantillas reutilizables y modulares",
-            "Integrar IaC con CI/CD",
-            "Probar y versionar los cambios en infraestructuras"
-        ],
-        "key_considerations_answer": [
-            "Manejo de secretos y configuración segura",
-            "Control de cambios y auditoría",
-            "Formación del equipo en buenas prácticas de IaC",
-            "Evitar la deriva de configuración"
-        ]
-    },
-    "additional_case_6": {
+    "arquitectura_empresarial_8": {
+        "type": "Arquitectura Empresarial",
         "name": "Transformación Digital de Procesos Empresariales #6",
         "objective": "Modernizar procesos clave de negocio mediante tecnologías digitales, buscando eficiencia operativa y mejor experiencia del cliente.",
         "process_answer": [
@@ -125,70 +116,6 @@
             "Alineación con objetivos estratégicos",
             "Medición de KPIs de impacto",
             "Interoperabilidad entre sistemas"
-        ]
-    },
-    "additional_case_7": {
-        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #7",
-        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
-        "process_answer": [
-            "Identificar fuentes de datos en tiempo real",
-            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
-            "Diseñar pipelines resilientes y escalables",
-            "Implementar dashboards e interfaces para consumo"
-        ],
-        "key_considerations_answer": [
-            "Baja latencia y alta disponibilidad",
-            "Gestión eficiente de eventos y flujos de datos",
-            "Seguridad en tránsito y en reposo",
-            "Costos de procesamiento y almacenamiento"
-        ]
-    },
-    "additional_case_8": {
-        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #8",
-        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
-        "process_answer": [
-            "Identificar fuentes de datos en tiempo real",
-            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
-            "Diseñar pipelines resilientes y escalables",
-            "Implementar dashboards e interfaces para consumo"
-        ],
-        "key_considerations_answer": [
-            "Baja latencia y alta disponibilidad",
-            "Gestión eficiente de eventos y flujos de datos",
-            "Seguridad en tránsito y en reposo",
-            "Costos de procesamiento y almacenamiento"
-        ]
-    },
-    "additional_case_9": {
-        "name": "Implementación de Infraestructura como Código (IaC) #9",
-        "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
-        "process_answer": [
-            "Seleccionar herramientas adecuadas de IaC (Terraform, Pulumi, etc.)",
-            "Diseñar plantillas reutilizables y modulares",
-            "Integrar IaC con CI/CD",
-            "Probar y versionar los cambios en infraestructuras"
-        ],
-        "key_considerations_answer": [
-            "Manejo de secretos y configuración segura",
-            "Control de cambios y auditoría",
-            "Formación del equipo en buenas prácticas de IaC",
-            "Evitar la deriva de configuración"
-        ]
-    },
-    "additional_case_10": {
-        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #10",
-        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
-        "process_answer": [
-            "Identificar fuentes de datos en tiempo real",
-            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
-            "Diseñar pipelines resilientes y escalables",
-            "Implementar dashboards e interfaces para consumo"
-        ],
-        "key_considerations_answer": [
-            "Baja latencia y alta disponibilidad",
-            "Gestión eficiente de eventos y flujos de datos",
-            "Seguridad en tránsito y en reposo",
-            "Costos de procesamiento y almacenamiento"
         ]
     }
 }

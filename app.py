@@ -406,6 +406,10 @@ def show_step_1():
     uploaded_file = st.file_uploader("Sube el transcript de la entrevista", type=['txt'])
     # Process Transcript button
     if st.button("Procesar Transcript"):
+        # Clear previous session state related to Q&A and evaluation
+        for key in ["qa_pairs", "expert_solution", "evaluation_results", "selected_case_key"]:
+            if key in st.session_state:
+                del st.session_state[key]
         if not uploaded_file:
             app_log("Por favor sube un archivo de transcript.", "error")
             return

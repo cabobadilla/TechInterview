@@ -26,113 +26,460 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* CSS Variables for Theme Support */
+    :root {
+        /* Light Theme (Default) */
+        --background: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-heading: #0f172a;
+        --border-color: #e2e8f0;
+        --border-hover: #cbd5e1;
+        --primary-color: #3b82f6;
+        --primary-hover: #2563eb;
+        --primary-light: #eff6ff;
+        --success-color: #10b981;
+        --success-bg: #f0fdf4;
+        --warning-color: #f59e0b;
+        --warning-bg: #fffbeb;
+        --danger-color: #ef4444;
+        --danger-bg: #fef2f2;
+        --table-header: #f1f5f9;
+        --table-stripe: #f8fafc;
+        --shadow-color: rgba(0,0,0,0.05);
+        --hover-shadow: rgba(0,0,0,0.08);
+    }
+
+    /* Dark Theme */
+    [data-theme="dark"] {
+        --background: #0f172a;
+        --card-bg: #1e293b;
+        --text-primary: #e2e8f0;
+        --text-secondary: #cbd5e1;
+        --text-heading: #f8fafc;
+        --border-color: #334155;
+        --border-hover: #475569;
+        --primary-color: #60a5fa;
+        --primary-hover: #3b82f6;
+        --primary-light: #1e293b;
+        --success-color: #34d399;
+        --success-bg: #064e3b;
+        --warning-color: #fbbf24;
+        --warning-bg: #713f12;
+        --danger-color: #f87171;
+        --danger-bg: #7f1d1d;
+        --table-header: #334155;
+        --table-stripe: #1e293b;
+        --shadow-color: rgba(0,0,0,0.2);
+        --hover-shadow: rgba(0,0,0,0.3);
+    }
+
+    /* Base Elements & Typography */
     html, body, .stApp {
-        background: #fff !important;
-        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
-        color: #111;
-        margin: 0;
-        padding: 0;
+        background: var(--background) !important;
+        font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        color: var(--text-primary);
+        line-height: 1.6;
+        transition: all 0.3s ease;
     }
+
     .stApp {
-        max-width: 900px;
+        max-width: 1100px;
         margin: auto;
-        padding: 2.5rem 1rem 2rem 1rem;
-        background: #fff !important;
+        padding: 2rem;
     }
-    .stButton>button, .stDownloadButton>button {
-        background: #111 !important;
-        color: #fff !important;
-        border: none !important;
-        border-radius: 8px !important;
-        font-size: 1.1em !important;
-        font-weight: 500;
-        padding: 0.7em 2.2em !important;
-        margin-bottom: 0.5em;
-        box-shadow: 0 1px 2px rgba(60,64,67,.08);
-        transition: background 0.2s;
-    }
-    .stButton>button.secondary, .stDownloadButton>button.secondary {
-        background: #fff !important;
-        color: #111 !important;
-        border: 2px solid #111 !important;
-    }
-    .stButton>button:hover, .stDownloadButton>button:hover {
-        background: #222 !important;
-        color: #fff !important;
-    }
-    .stButton>button.secondary:hover, .stDownloadButton>button.secondary:hover {
-        background: #f5f6fa !important;
-        color: #111 !important;
-        border: 2px solid #111 !important;
-    }
-    .stRadio>div>label, .stSelectbox>div>div {
-        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
-        color: #111 !important;
-    }
-    .stDataFrame, .stTable {
-        background: #fff !important;
-        border: 1px solid #e0e0e0 !important;
-        border-radius: 12px !important;
-        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
-        color: #111 !important;
-        box-shadow: 0 1px 2px rgba(60,64,67,.08);
-    }
-    .stExpanderHeader {
-        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
-        color: #111 !important;
-    }
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
-        color: #111 !important;
-        font-family: 'Google Sans', 'Roboto', Arial, sans-serif !important;
+
+    /* Typography Refinements */
+    .stMarkdown h1 {
+        font-size: 2.2rem;
         font-weight: 700;
-        text-shadow: none;
-        border-bottom: none;
-        display: block;
-        padding-bottom: 0.1em;
-        margin-bottom: 0.7em;
-        letter-spacing: -0.5px;
+        color: var(--text-heading);
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
     }
-    .stAlert {
-        background: #f5f6fa !important;
-        border: 1px solid #e0e0e0 !important;
-        color: #111 !important;
-        border-radius: 12px !important;
+
+    .stMarkdown h2 {
+        font-size: 1.7rem;
+        font-weight: 600;
+        color: var(--text-heading);
+        margin: 1.8rem 0 1rem;
+        letter-spacing: -0.01em;
     }
-    .stFileUploader, .stSelectbox, .stRadio, .stTextInput, .stExpander {
-        border-radius: 12px !important;
-        box-shadow: 0 1px 2px rgba(60,64,67,.08);
+
+    .stMarkdown h3, .stMarkdown h4 {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 1.5rem 0 0.8rem;
     }
+
+    .stMarkdown p, .stMarkdown li {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+
+    /* Card-based Components */
+    .stTextInput, .stSelectbox, .stRadio, .stFileUploader, .stExpander, .stAlert, .stDataFrame, .stTable {
+        background: var(--card-bg) !important;
+        border-radius: 8px !important;
+        border: 1px solid var(--border-color) !important;
+        padding: 1rem !important;
+        box-shadow: 0 1px 3px var(--shadow-color) !important;
+        margin-bottom: 1.2rem;
+        transition: all 0.2s ease;
+    }
+
+    .stTextInput:hover, .stSelectbox:hover, .stFileUploader:hover {
+        border-color: var(--border-hover) !important;
+        box-shadow: 0 3px 6px var(--hover-shadow) !important;
+    }
+
+    /* Button Styling */
+    .stButton>button, .stDownloadButton>button {
+        background: var(--primary-color) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-size: 0.95rem !important;
+        font-weight: 500;
+        padding: 0.6em 1.8em !important;
+        box-shadow: 0 1px 2px var(--shadow-color);
+        transition: all 0.2s ease;
+        letter-spacing: 0.01em;
+    }
+
+    .stButton>button:hover, .stDownloadButton>button:hover {
+        background: var(--primary-hover) !important;
+        box-shadow: 0 4px 6px var(--hover-shadow);
+        transform: translateY(-1px);
+    }
+
+    .stButton>button.secondary, .stDownloadButton>button.secondary {
+        background: var(--card-bg) !important;
+        color: var(--primary-color) !important;
+        border: 1px solid var(--primary-color) !important;
+    }
+
+    .stButton>button.secondary:hover, .stDownloadButton>button.secondary:hover {
+        background: var(--primary-light) !important;
+        color: var(--primary-hover) !important;
+    }
+
+    /* Danger/Warning Button */
+    .danger button {
+        background: var(--danger-color) !important;
+    }
+    .danger button:hover {
+        background: var(--danger-color) !important;
+        opacity: 0.9;
+    }
+
+    /* Data Components */
+    .stDataFrame, .stTable {
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .stDataFrame th {
+        background: var(--table-header) !important;
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+        text-align: left !important;
+        padding: 0.75rem 1rem !important;
+    }
+
+    .stDataFrame td {
+        padding: 0.75rem 1rem !important;
+        border-top: 1px solid var(--border-color) !important;
+        color: var(--text-secondary) !important;
+    }
+
+    .stDataFrame tr:nth-child(even) {
+        background: var(--table-stripe) !important;
+    }
+
+    /* Custom Status Tags */
+    .status-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35em 0.8em;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        line-height: 1;
+        margin-right: 0.5em;
+    }
+
+    .status-high {
+        background: var(--success-bg);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+    }
+
+    .status-medium {
+        background: var(--warning-bg);
+        color: var(--warning-color);
+        border: 1px solid var(--warning-color);
+    }
+
+    .status-low {
+        background: var(--danger-bg);
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+    /* Progress Indicator */
+    .progress-container {
+        display: flex;
+        justify-content: space-between;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .progress-container::before {
+        content: "";
+        position: absolute;
+        height: 2px;
+        background: var(--border-color);
+        width: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+
+    .progress-step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--text-secondary);
+        position: relative;
+        z-index: 2;
+    }
+
+    .progress-step.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #ffffff;
+    }
+
+    .progress-step.completed {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: #ffffff;
+    }
+
+    /* File Uploader Enhancement */
+    .stFileUploader>div>button {
+        background: var(--background) !important;
+        color: var(--text-secondary) !important;
+        border: 1px dashed var(--border-color) !important;
+        border-radius: 6px !important;
+        padding: 1.2rem !important;
+        width: 100%;
+        transition: all 0.2s ease;
+    }
+
+    .stFileUploader>div>button:hover {
+        background: var(--card-bg) !important;
+        border-color: var(--border-hover) !important;
+    }
+
+    /* Alerts & Info Boxes */
+    .info-box {
+        padding: 1rem 1.2rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        border-left: 4px solid;
+    }
+
+    .info-box.info {
+        background: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .info-box.success {
+        background: var(--success-bg);
+        border-color: var(--success-color);
+        color: var(--success-color);
+    }
+
+    .info-box.warning {
+        background: var(--warning-bg);
+        border-color: var(--warning-color);
+        color: var(--warning-color);
+    }
+
+    .info-box.error {
+        background: var(--danger-bg);
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    /* Expander Enhancement */
+    .stExpander {
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .stExpander>div>div>div:first-child {
+        background: var(--table-header) !important;
+        padding: 0.8rem 1rem !important;
+        border-radius: 8px 8px 0 0 !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    /* Keep accent and tag classes from original theme */
     .accent {
-        color: #00EA64 !important;
+        color: var(--primary-color) !important;
         font-weight: 600;
         letter-spacing: 1px;
     }
+    
     .stMarkdown .tag {
         display: inline-block;
-        border: 1.5px solid #00EA64;
-        color: #00EA64;
+        border: 1.5px solid var(--primary-color);
+        color: var(--primary-color);
         border-radius: 16px;
         padding: 0.1em 0.8em;
         font-size: 0.95em;
         margin-bottom: 0.5em;
         margin-right: 0.5em;
-        background: #fff;
+        background: var(--card-bg);
         font-weight: 500;
         letter-spacing: 1px;
     }
-    @media (max-width: 600px) {
+
+    /* Dark Mode Toggle */
+    .theme-toggle-container {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+    }
+
+    .theme-toggle {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        border-radius: 15px;
+        background: var(--border-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .theme-toggle:before {
+        content: "☀️";
+        position: absolute;
+        left: 8px;
+        top: 5px;
+        font-size: 14px;
+    }
+
+    .theme-toggle:after {
+        content: "🌙";
+        position: absolute;
+        right: 8px;
+        top: 5px;
+        font-size: 14px;
+    }
+
+    .theme-toggle-thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .theme-toggle[data-theme="dark"] .theme-toggle-thumb {
+        transform: translateX(30px);
+        background: #0f172a;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
         .stApp {
-            padding: 0.5rem 0.2rem;
+            padding: 1rem 0.8rem;
         }
-        .stDataFrame, .stTable {
-            font-size: 0.97em !important;
+        
+        .stMarkdown h1 {
+            font-size: 1.8rem;
         }
+        
+        .stMarkdown h2 {
+            font-size: 1.4rem;
+        }
+        
         .stButton>button, .stDownloadButton>button {
-            font-size: 0.97em !important;
-            padding: 0.5em 1.2em !important;
+            font-size: 0.9rem !important;
+            padding: 0.5em 1.4em !important;
+            width: 100%;
+        }
+        
+        .progress-container {
+            margin: 1.5rem 0;
+        }
+        
+        .theme-toggle-container {
+            top: 0.5rem;
+            right: 0.5rem;
         }
     }
     </style>
+
+    <!-- Dark Mode Toggle JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for saved user preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+        
+        // Create toggle switch
+        const toggleContainer = document.createElement('div');
+        toggleContainer.className = 'theme-toggle-container';
+        
+        const toggle = document.createElement('div');
+        toggle.className = 'theme-toggle';
+        toggle.setAttribute('data-theme', savedTheme);
+        
+        const toggleThumb = document.createElement('div');
+        toggleThumb.className = 'theme-toggle-thumb';
+        
+        toggle.appendChild(toggleThumb);
+        toggleContainer.appendChild(toggle);
+        document.body.appendChild(toggleContainer);
+        
+        // Toggle event
+        toggle.addEventListener('click', function() {
+            const currentTheme = toggle.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            applyTheme(newTheme);
+            toggle.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        }
+    });
+    </script>
     """,
     unsafe_allow_html=True
 )
@@ -153,14 +500,15 @@ def app_log(message: str, level: str = "info"):
     if log_level == "off":
         return
     if log_level == "on":
+        # Use custom styled info boxes instead of default Streamlit alerts
         if level == "info":
-            st.info(message)
+            st.markdown(f'<div class="info-box info">{message}</div>', unsafe_allow_html=True)
         elif level == "warning":
-            st.warning(message)
+            st.markdown(f'<div class="info-box warning">{message}</div>', unsafe_allow_html=True)
         elif level == "error":
-            st.error(message)
+            st.markdown(f'<div class="info-box error">{message}</div>', unsafe_allow_html=True)
         elif level == "success":
-            st.success(message)
+            st.markdown(f'<div class="info-box success">{message}</div>', unsafe_allow_html=True)
         else:
             st.write(message)
 
@@ -396,9 +744,22 @@ def evaluate_answers(qa_pairs: List[Dict], case_study: str, level: str) -> List[
 def show_step_1():
     """Show the first phase of the process: upload and process transcript only."""
     st.title("🧩 Tech Architecture Interview Analyzer - Fase 1")
+    
+    # Add progress indicator
+    st.markdown("""
+    <div class="progress-container">
+      <div class="progress-step active">1</div>
+      <div class="progress-step">2</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.subheader("Sube y procesa el transcript de la entrevista")
     # Reset button (always visible)
-    reset_pressed = st.button("Reiniciar / Comenzar de nuevo")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col3:
+        reset_pressed = st.button("Reiniciar / Comenzar de nuevo", key="reset_danger", use_container_width=True)
+        if reset_pressed:
+            st.markdown('<style>.stButton button#reset_danger {background-color: var(--danger-color) !important;}</style>', unsafe_allow_html=True)
     if reset_pressed:
         reset_all()
         safe_rerun()
@@ -440,6 +801,15 @@ def show_step_1():
 def show_step_2():
     """Show the second phase: select case, show expert solution from file, and (optionally) generate expert solution."""
     st.title("🧩 Tech Architecture Interview Analyzer - Fase 2")
+    
+    # Add progress indicator with first step completed
+    st.markdown("""
+    <div class="progress-container">
+      <div class="progress-step completed">1</div>
+      <div class="progress-step active">2</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.subheader("Selecciona el caso y revisa la solución experta")
     reset_pressed = st.button("Reiniciar / Comenzar de nuevo")
     if reset_pressed:
@@ -516,8 +886,37 @@ def show_step_2():
                     st.session_state.evaluation_results = evaluation_results
                 if st.session_state.evaluation_results:
                     st.markdown("**Evaluation Results:**")
+                    
+                    # Format status tags for better visual appearance
+                    def format_status(value, status_type):
+                        if not value:
+                            return ""
+                        
+                        if status_type == "approach":
+                            css_class = "high" if value == "High" else "medium" if value == "Medium" else "low"
+                        else:  # key considerations
+                            css_class = "high" if value == "Correct" else "medium" if value == "Partially correct" else "low"
+                            
+                        return f'<span class="status-tag status-{css_class}">{value}</span>'
+                    
+                    # Create a copy of the DataFrame
                     df = pd.DataFrame(st.session_state.evaluation_results)
+                    
+                    # Add formatted columns for display
+                    if "approach_evaluation" in df.columns:
+                        df["approach_display"] = df["approach_evaluation"].apply(
+                            lambda x: format_status(x, "approach")
+                        )
+                    
+                    if "key_considerations_evaluation" in df.columns:
+                        df["considerations_display"] = df["key_considerations_evaluation"].apply(
+                            lambda x: format_status(x, "considerations")
+                        )
+                    
+                    # Display the dataframe
                     st.dataframe(df, hide_index=True, use_container_width=True)
+                    
+                    # Provide download option
                     csv = df.to_csv(index=False)
                     st.download_button(
                         label="Download Results as CSV",

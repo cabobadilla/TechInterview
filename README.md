@@ -22,6 +22,7 @@ Aplicación para analizar y evaluar entrevistas técnicas de arquitectura utiliz
 ├── case_studies.json      # Datos de casos de estudio
 ├── server.js              # Servidor Express principal
 ├── package.json           # Dependencias del proyecto
+├── render.yaml            # Configuración para despliegue en Render.com
 └── .env                   # Variables de entorno (no incluido en repo)
 ```
 
@@ -61,29 +62,36 @@ Aplicación para analizar y evaluar entrevistas técnicas de arquitectura utiliz
 
 ## Despliegue en Render.com
 
-### Backend (Web Service)
+La aplicación está configurada para un despliegue sencillo en Render.com utilizando el archivo `render.yaml` que automatiza la configuración.
+
+### Despliegue Automático
+
+1. Crea una cuenta en [Render.com](https://render.com)
+2. Conecta tu repositorio de GitHub
+3. Haz clic en "Blueprint" y selecciona el repositorio
+4. Render detectará automáticamente el archivo `render.yaml` y configurará el servicio
+
+### Configuración Manual
+
+Si prefieres configurar manualmente, sigue estos pasos:
 
 1. Crear un nuevo Web Service en Render.com
 2. Conectar con el repositorio de GitHub
 3. Configurar:
-   - **Name:** tech-interview-analyzer-api
+   - **Name:** tech-interview-analyzer
    - **Environment:** Node
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
+   - **Build Command:** 
+     ```
+     npm install && mkdir -p uploads && cd client && npm install && npm run build
+     ```
+   - **Start Command:** 
+     ```
+     node server.js
+     ```
    - **Variables de Entorno:**
      - `NODE_ENV=production`
+     - `PORT=10000`
      - `OPENAI_API_KEY=your_openai_api_key_here`
-
-### Frontend (Static Site)
-
-1. Crear un nuevo Static Site en Render.com
-2. Conectar con el repositorio de GitHub
-3. Configurar:
-   - **Name:** tech-interview-analyzer
-   - **Build Command:** `cd client && npm install && npm run build`
-   - **Publish Directory:** `client/build`
-   - **Variables de Entorno:**
-     - `REACT_APP_API_URL=https://url-del-backend.onrender.com` (URL del backend)
 
 ## Flujo de la Aplicación
 

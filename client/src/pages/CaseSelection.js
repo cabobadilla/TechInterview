@@ -6,8 +6,6 @@ import {
   Grid, Card, CardContent, Divider, Chip,
   useTheme, useMediaQuery
 } from '@mui/material';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
-import SchoolIcon from '@mui/icons-material/School';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import axios from 'axios';
 
@@ -43,7 +41,7 @@ const CaseSelection = () => {
         const response = await axios.get('/api/cases');
         setCases(response.data);
       } catch (err) {
-        setError('Error al cargar los casos de estudio');
+        setError('Error loading case studies');
       }
     };
     
@@ -54,12 +52,12 @@ const CaseSelection = () => {
     e.preventDefault();
     
     if (!selectedCase) {
-      setError('Por favor selecciona un caso de estudio');
+      setError('Please select a case study');
       return;
     }
     
     if (!selectedLevel) {
-      setError('Por favor selecciona un nivel de experiencia');
+      setError('Please select an experience level');
       return;
     }
     
@@ -67,261 +65,231 @@ const CaseSelection = () => {
     navigate('/results');
   };
   
-  const getLevelColor = (level) => {
-    switch(level) {
-      case 'L1': return theme.palette.error.main;
-      case 'L2': return theme.palette.warning.main;
-      case 'L3': return theme.palette.primary.main;
-      case 'L4': return theme.palette.success.main;
-      default: return theme.palette.grey[500];
-    }
-  };
-  
   return (
     <Paper elevation={0} sx={{ 
-      p: { xs: 2.5, md: 4 }, 
-      borderRadius: 2, 
-      border: '1px solid #E8EAED' 
+      p: { xs: 3, sm: 4 }, 
+      borderRadius: 0, 
+      border: '1px solid #E0E0E0',
+      mb: 5
     }}>
-      <Typography variant="h4" gutterBottom fontWeight={500} color="text.primary">
-        Paso 2: Selecciona el caso de estudio y nivel
-      </Typography>
-      
-      <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 3 }}>
-        Selecciona el caso de estudio que se discutió en la entrevista y el nivel esperado del candidato.
-      </Typography>
-      
-      {error && (
-        <Alert 
-          severity="error" 
+      <Box sx={{ maxWidth: 720, mx: 'auto' }}>
+        <Typography 
+          variant="h3" 
+          gutterBottom 
           sx={{ 
+            fontWeight: 400, 
             mb: 3, 
-            borderRadius: 2,
-            '& .MuiAlert-icon': { alignItems: 'center' }
+            color: '#000000',
+            letterSpacing: '-0.02em'
           }}
         >
-          {error}
-        </Alert>
-      )}
-      
-      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <BookmarkIcon fontSize="small" color="primary" />
-              <Typography variant="subtitle1" fontWeight={500}>
-                Caso de Estudio
-              </Typography>
-            </Box>
-            <FormControl fullWidth>
-              <InputLabel>Caso de Estudio</InputLabel>
-              <Select
-                value={selectedCase || ''}
-                onChange={(e) => setSelectedCase(e.target.value)}
-                label="Caso de Estudio"
-                sx={{
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#DFE1E5',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#AECBFA',
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#4285F4',
-                  }
-                }}
-              >
-                {Object.keys(cases).map((caseKey) => (
-                  <MenuItem key={caseKey} value={caseKey}>
-                    {cases[caseKey].name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <SchoolIcon fontSize="small" color="primary" />
-              <Typography variant="subtitle1" fontWeight={500}>
-                Nivel Esperado
-              </Typography>
-            </Box>
-            <FormControl fullWidth>
-              <InputLabel>Nivel Esperado</InputLabel>
-              <Select
-                value={selectedLevel || ''}
-                onChange={(e) => setSelectedLevel(e.target.value)}
-                label="Nivel Esperado"
-                sx={{
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#DFE1E5',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#AECBFA',
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#4285F4',
-                  }
-                }}
-              >
-                <MenuItem value="L1">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    L1
-                    <Chip 
-                      label="Junior" 
-                      size="small" 
-                      sx={{ 
-                        backgroundColor: 'rgba(234, 67, 53, 0.1)', 
-                        color: theme.palette.error.main,
-                        fontWeight: 500
-                      }} 
-                    />
-                  </Box>
-                </MenuItem>
-                <MenuItem value="L2">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    L2
-                    <Chip 
-                      label="Intermedio" 
-                      size="small" 
-                      sx={{ 
-                        backgroundColor: 'rgba(251, 188, 5, 0.1)', 
-                        color: theme.palette.warning.main,
-                        fontWeight: 500
-                      }} 
-                    />
-                  </Box>
-                </MenuItem>
-                <MenuItem value="L3">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    L3
-                    <Chip 
-                      label="Senior" 
-                      size="small" 
-                      sx={{ 
-                        backgroundColor: 'rgba(66, 133, 244, 0.1)', 
-                        color: theme.palette.primary.main,
-                        fontWeight: 500
-                      }} 
-                    />
-                  </Box>
-                </MenuItem>
-                <MenuItem value="L4">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    L4
-                    <Chip 
-                      label="Experto" 
-                      size="small" 
-                      sx={{ 
-                        backgroundColor: 'rgba(52, 168, 83, 0.1)', 
-                        color: theme.palette.success.main,
-                        fontWeight: 500
-                      }} 
-                    />
-                  </Box>
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+          Select Case Study
+        </Typography>
         
-        {selectedCase && cases[selectedCase] && (
-          <Card 
-            variant="outlined" 
+        <Typography 
+          variant="body1" 
+          color="text.secondary" 
+          paragraph 
+          sx={{ mb: 4, maxWidth: 560 }}
+        >
+          Select the case study discussed in the interview and the expected level of the candidate.
+        </Typography>
+        
+        {error && (
+          <Alert 
+            severity="error" 
             sx={{ 
-              mt: 4, 
               mb: 4, 
-              borderColor: '#E8EAED',
-              borderRadius: 2,
-              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+              borderRadius: 0,
+              border: '1px solid #EB5757',
+              backgroundColor: 'transparent',
+              color: '#EB5757',
+              '& .MuiAlert-icon': { color: '#EB5757' }
             }}
           >
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1.5,
-                mb: 2 
-              }}>
-                <BookmarkIcon color="primary" />
-                <Typography variant="h6" fontWeight={500}>
-                  {cases[selectedCase].name}
-                </Typography>
-              </Box>
-              
-              <Typography variant="body2" color="text.secondary" paragraph sx={{ mb: 3 }}>
-                <strong>Objetivo:</strong> {cases[selectedCase].objective}
-              </Typography>
-              
-              <Divider sx={{ my: 3 }} />
-              
-              <Typography variant="subtitle2" fontWeight={500} gutterBottom sx={{ mb: 1.5, color: 'text.primary' }}>
-                Proceso Esperado:
-              </Typography>
-              
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-                {cases[selectedCase].process_answer.map((process, idx) => (
-                  <Chip 
-                    key={idx}
-                    label={process}
-                    color="primary"
-                    variant="outlined"
-                    size="medium"
-                    sx={{ fontWeight: 500 }}
-                  />
-                ))}
-              </Box>
-              
-              <Typography variant="subtitle2" fontWeight={500} gutterBottom sx={{ mb: 1.5, color: 'text.primary' }}>
-                Consideraciones Clave:
-              </Typography>
-              
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {cases[selectedCase].key_considerations_answer.map((consideration, idx) => (
-                  <Chip 
-                    key={idx}
-                    label={consideration}
-                    color="secondary"
-                    variant="outlined"
-                    size="medium"
-                    sx={{ fontWeight: 500 }}
-                  />
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
+            {error}
+          </Alert>
         )}
         
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, pt: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              prevStep();
-              navigate('/upload');
-            }}
-            sx={{
-              borderColor: '#DFE1E5',
-              color: 'text.primary',
-              '&:hover': {
-                borderColor: '#AECBFA',
-                backgroundColor: 'rgba(66, 133, 244, 0.04)',
-              },
-              px: 3
-            }}
-          >
-            Volver
-          </Button>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 400 }}>
+                Case Study
+              </Typography>
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={selectedCase || ''}
+                  onChange={(e) => setSelectedCase(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    height: 54,
+                    borderRadius: 0,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#E0E0E0',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000000',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000000',
+                      borderWidth: 1
+                    }
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    <Typography color="text.secondary">Select a case study</Typography>
+                  </MenuItem>
+                  {Object.keys(cases).map((caseKey) => (
+                    <MenuItem key={caseKey} value={caseKey}>
+                      {cases[caseKey].name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 400 }}>
+                Expected Level
+              </Typography>
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={selectedLevel || ''}
+                  onChange={(e) => setSelectedLevel(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    height: 54,
+                    borderRadius: 0,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#E0E0E0',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000000',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#000000',
+                      borderWidth: 1
+                    }
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    <Typography color="text.secondary">Select an experience level</Typography>
+                  </MenuItem>
+                  <MenuItem value="L1">L1 (Junior)</MenuItem>
+                  <MenuItem value="L2">L2 (Intermediate)</MenuItem>
+                  <MenuItem value="L3">L3 (Senior)</MenuItem>
+                  <MenuItem value="L4">L4 (Expert)</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
           
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={loading || !selectedCase || !selectedLevel}
-            sx={{ px: 3 }}
-          >
-            Continuar
-          </Button>
+          {selectedCase && cases[selectedCase] && (
+            <Card 
+              variant="outlined" 
+              sx={{ 
+                mt: 5, 
+                mb: 4, 
+                borderRadius: 0,
+                border: '1px solid #E0E0E0',
+                boxShadow: 'none'
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 400, mb: 2 }}>
+                  {cases[selectedCase].name}
+                </Typography>
+                
+                <Typography variant="body2" color="text.secondary" paragraph sx={{ mb: 3 }}>
+                  <strong>Objective:</strong> {cases[selectedCase].objective}
+                </Typography>
+                
+                <Divider sx={{ my: 3, borderColor: '#E0E0E0' }} />
+                
+                <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, fontWeight: 400 }}>
+                  Expected Process:
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
+                  {cases[selectedCase].process_answer.map((process, idx) => (
+                    <Chip 
+                      key={idx}
+                      label={process}
+                      variant="outlined"
+                      size="small"
+                      sx={{ 
+                        fontWeight: 400, 
+                        borderColor: '#E0E0E0',
+                        borderRadius: 1,
+                        color: '#000000'
+                      }}
+                    />
+                  ))}
+                </Box>
+                
+                <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, fontWeight: 400 }}>
+                  Key Considerations:
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {cases[selectedCase].key_considerations_answer.map((consideration, idx) => (
+                    <Chip 
+                      key={idx}
+                      label={consideration}
+                      variant="outlined"
+                      size="small"
+                      sx={{ 
+                        fontWeight: 400, 
+                        borderColor: '#E0E0E0',
+                        borderRadius: 1,
+                        color: '#000000'
+                      }}
+                    />
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          )}
+          
+          <Divider sx={{ my: 4, borderColor: '#E0E0E0' }} />
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Button
+              variant="text"
+              onClick={() => {
+                prevStep();
+                navigate('/upload');
+              }}
+              sx={{
+                color: '#4F4F4F',
+                '&:hover': {
+                  color: '#000000',
+                  backgroundColor: 'transparent'
+                }
+              }}
+            >
+              Back
+            </Button>
+            
+            <Button
+              type="submit"
+              variant="outlined"
+              disabled={loading || !selectedCase || !selectedLevel}
+              sx={{ 
+                minWidth: 120,
+                borderColor: '#E0E0E0',
+                color: '#000000',
+                '&:hover': {
+                  borderColor: '#000000',
+                  backgroundColor: 'transparent'
+                },
+                py: 1
+              }}
+            >
+              Continue
+            </Button>
+          </Box>
         </Box>
       </Box>
     </Paper>

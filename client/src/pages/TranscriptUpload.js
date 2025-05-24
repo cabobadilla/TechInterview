@@ -4,7 +4,6 @@ import {
   Paper, Typography, Button, Box, Alert, 
   CircularProgress, Divider, useTheme, useMediaQuery
 } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { useAnalyzer } from '../context/AnalyzerContext';
@@ -107,127 +106,157 @@ const TranscriptUpload = () => {
 
   return (
     <Paper elevation={0} sx={{ 
-      p: { xs: 2.5, md: 4 }, 
-      borderRadius: 2, 
-      border: '1px solid #E8EAED' 
+      p: { xs: 3, sm: 4 }, 
+      borderRadius: 0, 
+      border: '1px solid #E0E0E0',
+      mb: 5
     }}>
-      <Typography variant="h4" gutterBottom fontWeight={500} color="text.primary">
-        Paso 1: Sube el transcript de la entrevista
-      </Typography>
-      
-      <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 3 }}>
-        Sube un archivo de texto con el transcript de la entrevista en formato A: (pregunta) y C: (respuesta).
-      </Typography>
-      
-      {error && (
-        <Alert 
-          severity="error" 
+      <Box sx={{ maxWidth: 720, mx: 'auto' }}>
+        <Typography 
+          variant="h3" 
+          gutterBottom 
           sx={{ 
+            fontWeight: 400, 
             mb: 3, 
-            borderRadius: 2,
-            '& .MuiAlert-icon': { alignItems: 'center' }
+            color: '#000000',
+            letterSpacing: '-0.02em' 
           }}
         >
-          {error}
-        </Alert>
-      )}
-      
-      <Box 
-        component="form" 
-        onSubmit={handleSubmit} 
-        sx={{ mt: 3 }}
-      >
-        <Box
-          sx={{
-            border: `2px dashed ${isDragOver ? theme.palette.primary.main : '#E8EAED'}`,
-            borderRadius: 2,
-            p: 4,
-            textAlign: 'center',
-            backgroundColor: isDragOver ? 'rgba(66, 133, 244, 0.04)' : '#FAFAFA',
-            transition: 'all 0.2s ease',
-            mb: 3,
-            cursor: 'pointer'
-          }}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={() => document.getElementById('transcript-upload').click()}
-        >
-          <input
-            id="transcript-upload"
-            type="file"
-            accept=".txt"
-            hidden
-            onChange={handleFileChange}
-          />
-          
-          <FileUploadIcon 
-            sx={{ 
-              fontSize: 48, 
-              color: isDragOver ? theme.palette.primary.main : theme.palette.grey[400],
-              mb: 2
-            }} 
-          />
-          
-          <Typography variant="h6" gutterBottom color={isDragOver ? "primary" : "text.primary"}>
-            {file ? 'Cambiar archivo' : 'Arrastra tu archivo aquí'}
-          </Typography>
-          
-          <Typography variant="body2" color="text.secondary">
-            o haz clic para seleccionar un archivo (.txt)
-          </Typography>
-        </Box>
+          Upload Interview Transcript
+        </Typography>
         
-        {file && (
-          <Box sx={{ mb: 4 }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1.5,
-              mb: 2
-            }}>
-              <DescriptionIcon color="primary" />
-              <Typography variant="subtitle1" fontWeight={500}>
-                {file.name}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
-                {(file.size / 1024).toFixed(1)} KB
-              </Typography>
-            </Box>
-            
-            <Paper 
-              variant="outlined" 
-              sx={{ 
-                p: 2.5, 
-                bgcolor: '#FAFAFA', 
-                maxHeight: 200, 
-                overflow: 'auto',
-                borderColor: '#E8EAED',
-                borderRadius: 2,
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
-              }}
-            >
-              <Typography variant="body2" fontFamily="monospace" whiteSpace="pre-wrap" color="text.secondary">
-                {previewText}
-              </Typography>
-            </Paper>
-          </Box>
+        <Typography 
+          variant="body1" 
+          color="text.secondary" 
+          paragraph 
+          sx={{ mb: 4, maxWidth: 560 }}
+        >
+          Upload a text file with the interview transcript in A: (question) and C: (answer) format.
+        </Typography>
+        
+        {error && (
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 4, 
+              borderRadius: 0,
+              border: '1px solid #EB5757',
+              backgroundColor: 'transparent',
+              color: '#EB5757',
+              '& .MuiAlert-icon': { color: '#EB5757' }
+            }}
+          >
+            {error}
+          </Alert>
         )}
         
-        <Divider sx={{ my: 3 }} />
-        
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          size="large"
-          disabled={loading || !file}
-          fullWidth
-          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
-          sx={{ py: 1.5 }}
+        <Box 
+          component="form" 
+          onSubmit={handleSubmit} 
+          sx={{ mt: 3 }}
         >
-          {loading ? 'Procesando...' : 'Procesar Transcript'}
-        </Button>
+          <Box
+            sx={{
+              border: `1px solid ${isDragOver ? '#000000' : '#E0E0E0'}`,
+              borderRadius: 0,
+              p: 4,
+              textAlign: 'center',
+              backgroundColor: '#FFFFFF',
+              transition: 'all 0.2s ease',
+              mb: 4,
+              cursor: 'pointer'
+            }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById('transcript-upload').click()}
+          >
+            <input
+              id="transcript-upload"
+              type="file"
+              accept=".txt"
+              hidden
+              onChange={handleFileChange}
+            />
+            
+            <FileUploadIcon 
+              sx={{ 
+                fontSize: 36, 
+                color: isDragOver ? '#000000' : '#4F4F4F',
+                mb: 2
+              }} 
+            />
+            
+            <Typography variant="h6" gutterBottom color={isDragOver ? "primary" : "text.secondary"} sx={{ fontWeight: 400 }}>
+              {file ? 'Change file' : 'Drag your file here'}
+            </Typography>
+            
+            <Typography variant="body2" color="text.secondary">
+              or click to select a file (.txt)
+            </Typography>
+          </Box>
+          
+          {file && (
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.5,
+                mb: 2
+              }}>
+                <DescriptionIcon sx={{ color: '#000000' }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 400 }}>
+                  {file.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
+                  {(file.size / 1024).toFixed(1)} KB
+                </Typography>
+              </Box>
+              
+              <Paper 
+                variant="outlined" 
+                sx={{ 
+                  p: 3, 
+                  bgcolor: '#FFFFFF', 
+                  maxHeight: 200, 
+                  overflow: 'auto',
+                  borderColor: '#E0E0E0',
+                  borderRadius: 0,
+                }}
+              >
+                <Typography variant="body2" fontFamily="monospace" whiteSpace="pre-wrap" color="text.secondary">
+                  {previewText}
+                </Typography>
+              </Paper>
+            </Box>
+          )}
+          
+          <Divider sx={{ my: 4, borderColor: '#E0E0E0' }} />
+          
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              type="submit"
+              variant="outlined"
+              disabled={loading || !file}
+              sx={{ 
+                minWidth: 180,
+                borderColor: '#E0E0E0',
+                color: '#000000',
+                '&:hover': {
+                  borderColor: '#000000',
+                  backgroundColor: 'transparent'
+                },
+                py: 1
+              }}
+            >
+              {loading ? (
+                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+              ) : (
+                'Process Transcript'
+              )}
+            </Button>
+          </Box>
+        </Box>
       </Box>
     </Paper>
   );

@@ -5,78 +5,50 @@ import {
   CircularProgress, Grid, Card, CardContent, 
   Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow,
-  LinearProgress, Chip
+  LinearProgress, Chip, Divider
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import axios from 'axios';
 
 // Componente para mostrar puntuación con barra de progreso
-const ScoreDisplay = ({ label, value }) => {
-  const getColorByScore = (score) => {
-    if (score >= 80) return 'success.main';
-    if (score >= 50) return 'warning.main';
-    return 'error.main';
-  };
-
-  return (
-    <Box sx={{ mb: 2.5 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.8, alignItems: 'center' }}>
-        <Typography variant="body2" color="text.secondary" fontWeight={500}>
-          {label}
-        </Typography>
-        <Typography variant="body2" fontWeight={600} sx={{ 
-          color: getColorByScore(value),
-          display: 'flex',
-          alignItems: 'center',
-          backgroundColor: `${getColorByScore(value)}15`,
-          px: 1.5,
-          py: 0.5,
-          borderRadius: 4
-        }}>
-          {value}%
-        </Typography>
-      </Box>
-      <LinearProgress 
-        variant="determinate" 
-        value={value} 
-        sx={{ 
-          height: 8, 
-          borderRadius: 4,
-          backgroundColor: 'grey.100',
-          '& .MuiLinearProgress-bar': {
-            borderRadius: 4,
-            backgroundColor: getColorByScore(value),
-          }
-        }}
-      />
+const ScoreDisplay = ({ label, value }) => (
+  <Box sx={{ mb: 3 }}>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'center' }}>
+      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 400 }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ fontWeight: 400 }}>
+        {value}%
+      </Typography>
     </Box>
-  );
-};
+    <LinearProgress 
+      variant="determinate" 
+      value={value} 
+      sx={{ 
+        height: 4, 
+        borderRadius: 0,
+        backgroundColor: '#F2F2F2',
+        '& .MuiLinearProgress-bar': {
+          backgroundColor: '#000000',
+        }
+      }}
+    />
+  </Box>
+);
 
 // Componente para mostrar etiquetas de estado
-const StatusChip = ({ label, type }) => {
-  let color = 'default';
-  let icon = null;
-  
-  if (type === 'approach') {
-    if (label === 'High') color = 'success';
-    else if (label === 'Medium') color = 'warning';
-    else if (label === 'Low') color = 'error';
-  } else {
-    if (label === 'Correct') color = 'success';
-    else if (label === 'Partially Correct') color = 'warning';
-    else if (label === 'Incorrect') color = 'error';
-  }
-  
+const StatusChip = ({ label }) => {
   return (
     <Chip 
       label={label} 
-      color={color} 
-      size="medium" 
-      variant="filled"
+      variant="outlined"
+      size="small"
       sx={{ 
-        fontWeight: 500,
-        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+        fontWeight: 400, 
+        borderColor: '#E0E0E0',
+        borderRadius: 1,
+        color: '#000000',
+        fontSize: '0.75rem'
       }}
     />
   );
@@ -115,7 +87,7 @@ const Results = () => {
         const response = await axios.get('/api/cases');
         setCases(response.data);
       } catch (err) {
-        setError('Error al cargar los casos de estudio');
+        setError('Error loading case studies');
       }
     };
     
@@ -140,7 +112,7 @@ const Results = () => {
         const results = response.data.evaluation_results;
         
         if (!results || results.length === 0) {
-          throw new Error('No se obtuvieron resultados de evaluación');
+          throw new Error('No evaluation results were obtained');
         }
         
         setEvaluationResults(results);
@@ -154,7 +126,7 @@ const Results = () => {
           considerations: Math.round(considerationsSum / results.length)
         });
       } catch (err) {
-        setError(err.response?.data?.error || err.message || 'Error al evaluar las respuestas');
+        setError(err.response?.data?.error || err.message || 'Error evaluating responses');
       } finally {
         setLoading(false);
       }
@@ -170,12 +142,12 @@ const Results = () => {
     if (!evaluationResults) return;
     
     const headers = [
-      'Pregunta', 
-      'Respuesta', 
-      'Evaluación de Enfoque', 
-      'Evaluación de Consideraciones',
-      'Puntuación de Enfoque', 
-      'Puntuación de Consideraciones',
+      'Question', 
+      'Answer', 
+      'Approach Evaluation', 
+      'Considerations Evaluation',
+      'Approach Score', 
+      'Considerations Score',
       'Feedback'
     ];
     
@@ -198,7 +170,7 @@ const Results = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', 'evaluacion_entrevista.csv');
+    link.setAttribute('download', 'interview_evaluation.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -208,226 +180,230 @@ const Results = () => {
   return (
     <>
       {loading ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', my: 8, py: 6 }}>
-          <CircularProgress size={56} thickness={4} sx={{ mb: 3 }} />
-          <Typography variant="h6" sx={{ fontWeight: 500, color: 'text.secondary' }}>
-            Evaluando respuestas...
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', my: 12 }}>
+          <CircularProgress size={40} thickness={2} sx={{ mb: 3, color: '#000000' }} />
+          <Typography variant="body1" sx={{ color: '#4F4F4F' }}>
+            Evaluating responses...
           </Typography>
         </Box>
       ) : (
         <Box>
-          <Paper elevation={0} sx={{ p: { xs: 2.5, md: 4 }, borderRadius: 2, mb: 4, border: '1px solid #E8EAED' }}>
-            <Typography variant="h4" gutterBottom fontWeight={500} color="text.primary">
-              Paso 3: Resultados de la Evaluación
-            </Typography>
-            
-            <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 3 }}>
-              Análisis de las respuestas del candidato para el caso "{cases[selectedCase]?.name}" con nivel esperado {selectedLevel}.
-            </Typography>
-            
-            {error && (
-              <Alert 
-                severity="error" 
+          <Paper elevation={0} sx={{ 
+            p: { xs: 3, sm: 4 }, 
+            borderRadius: 0, 
+            border: '1px solid #E0E0E0',
+            mb: 5
+          }}>
+            <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+              <Typography 
+                variant="h3" 
+                gutterBottom 
                 sx={{ 
+                  fontWeight: 400, 
                   mb: 3, 
-                  borderRadius: 2,
-                  '& .MuiAlert-icon': { alignItems: 'center' }
+                  color: '#000000',
+                  letterSpacing: '-0.02em'
                 }}
               >
-                {error}
-              </Alert>
-            )}
-            
-            {evaluationResults && (
-              <>
-                <Grid container spacing={3} sx={{ mb: 4 }}>
-                  <Grid item xs={12} md={6}>
-                    <Card variant="outlined" sx={{ height: '100%', borderColor: '#E8EAED' }}>
-                      <CardContent sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 500, color: 'text.primary', mb: 2 }}>
-                          Puntuación General
-                        </Typography>
-                        
-                        <ScoreDisplay 
-                          label="Enfoque Metodológico" 
-                          value={averageScores.approach} 
-                        />
-                        
-                        <ScoreDisplay 
-                          label="Consideraciones Clave" 
-                          value={averageScores.considerations} 
-                        />
-                        
-                        <ScoreDisplay 
-                          label="Puntuación General" 
-                          value={Math.round((averageScores.approach + averageScores.considerations) / 2)} 
-                        />
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <Card variant="outlined" sx={{ height: '100%', borderColor: '#E8EAED' }}>
-                      <CardContent sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 500, color: 'text.primary', mb: 2 }}>
-                          Resumen de Evaluación
-                        </Typography>
-                        
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="subtitle2" sx={{ width: 140, color: 'text.secondary' }}>
-                              Caso:
-                            </Typography>
-                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                              {cases[selectedCase]?.name}
-                            </Typography>
-                          </Box>
-                          
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="subtitle2" sx={{ width: 140, color: 'text.secondary' }}>
-                              Nivel Esperado:
-                            </Typography>
-                            <Chip 
-                              label={selectedLevel} 
-                              color="primary" 
-                              variant="outlined" 
-                              size="small"
-                              sx={{ fontWeight: 500 }}
-                            />
-                          </Box>
-                          
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="subtitle2" sx={{ width: 140, color: 'text.secondary' }}>
-                              Preguntas:
-                            </Typography>
-                            <Chip 
-                              label={evaluationResults.length} 
-                              color="primary" 
-                              variant="filled" 
-                              size="small"
-                              sx={{ fontWeight: 500 }}
-                            />
-                          </Box>
-                        </Box>
-                        
-                        <Button 
-                          variant="outlined" 
-                          color="primary" 
-                          fullWidth
-                          onClick={downloadCSV}
-                          sx={{ mt: 3 }}
-                          startIcon={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
-                            </svg>
-                          </Box>}
-                        >
-                          Descargar Resultados (CSV)
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
-                
-                <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 3, fontWeight: 500 }}>
-                  Evaluación Detallada
-                </Typography>
-                
-                <TableContainer 
-                  component={Paper} 
-                  variant="outlined" 
+                Evaluation Results
+              </Typography>
+              
+              <Typography 
+                variant="body1" 
+                color="text.secondary" 
+                paragraph 
+                sx={{ mb: 4, maxWidth: 560 }}
+              >
+                Analysis of candidate responses for the case "{cases[selectedCase]?.name}" with expected level {selectedLevel}.
+              </Typography>
+              
+              {error && (
+                <Alert 
+                  severity="error" 
                   sx={{ 
-                    borderRadius: 2, 
-                    overflow: 'hidden', 
-                    borderColor: '#E8EAED',
-                    boxShadow: 'none',
-                    mb: 3
+                    mb: 4, 
+                    borderRadius: 0,
+                    border: '1px solid #EB5757',
+                    backgroundColor: 'transparent',
+                    color: '#EB5757',
+                    '& .MuiAlert-icon': { color: '#EB5757' }
                   }}
                 >
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell width="24%" sx={{ backgroundColor: '#F8F9FA', fontWeight: 500 }}>Pregunta</TableCell>
-                        <TableCell width="24%" sx={{ backgroundColor: '#F8F9FA', fontWeight: 500 }}>Respuesta</TableCell>
-                        <TableCell width="15%" sx={{ backgroundColor: '#F8F9FA', fontWeight: 500 }}>Enfoque</TableCell>
-                        <TableCell width="15%" sx={{ backgroundColor: '#F8F9FA', fontWeight: 500 }}>Consideraciones</TableCell>
-                        <TableCell width="22%" sx={{ backgroundColor: '#F8F9FA', fontWeight: 500 }}>Feedback</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {evaluationResults.map((result, index) => (
-                        <TableRow key={index} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#FAFAFA' } }}>
-                          <TableCell sx={{ verticalAlign: 'top' }}>
-                            <Typography variant="body2">{result.question}</Typography>
-                          </TableCell>
-                          <TableCell sx={{ verticalAlign: 'top' }}>
-                            <Typography variant="body2">{result.candidate_answer}</Typography>
-                          </TableCell>
-                          <TableCell sx={{ verticalAlign: 'top' }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
-                              <StatusChip 
-                                label={result.approach_evaluation} 
-                                type="approach"
-                              />
-                              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                                Puntuación: {result.approach_score}%
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell sx={{ verticalAlign: 'top' }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
-                              <StatusChip 
-                                label={result.key_considerations_evaluation} 
-                                type="considerations"
-                              />
-                              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                                Puntuación: {result.key_considerations_score}%
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell sx={{ verticalAlign: 'top' }}>
-                            <Typography variant="body2">{result.feedback}</Typography>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </>
-            )}
-            
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  prevStep();
-                  navigate('/case-selection');
-                }}
-                sx={{
-                  borderColor: '#DFE1E5',
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderColor: '#AECBFA',
-                    backgroundColor: 'rgba(66, 133, 244, 0.04)',
-                  }
-                }}
-              >
-                Volver
-              </Button>
+                  {error}
+                </Alert>
+              )}
               
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={downloadCSV}
-                disabled={!evaluationResults}
-                startIcon={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
-                  </svg>
-                </Box>}
-              >
-                Descargar Resultados
-              </Button>
+              {evaluationResults && (
+                <>
+                  <Grid container spacing={4} sx={{ mb: 5 }}>
+                    <Grid item xs={12} md={6}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 0, border: '1px solid #E0E0E0' }}>
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography variant="h6" gutterBottom sx={{ fontWeight: 400, mb: 3 }}>
+                            Overall Score
+                          </Typography>
+                          
+                          <ScoreDisplay 
+                            label="Methodological Approach" 
+                            value={averageScores.approach} 
+                          />
+                          
+                          <ScoreDisplay 
+                            label="Key Considerations" 
+                            value={averageScores.considerations} 
+                          />
+                          
+                          <ScoreDisplay 
+                            label="Overall Score" 
+                            value={Math.round((averageScores.approach + averageScores.considerations) / 2)} 
+                          />
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 0, border: '1px solid #E0E0E0' }}>
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography variant="h6" gutterBottom sx={{ fontWeight: 400, mb: 3 }}>
+                            Evaluation Summary
+                          </Typography>
+                          
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                              <strong>Case:</strong> {cases[selectedCase]?.name}
+                            </Typography>
+                            
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                              <strong>Expected Level:</strong> {selectedLevel}
+                            </Typography>
+                            
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                              <strong>Questions Evaluated:</strong> {evaluationResults.length}
+                            </Typography>
+                          </Box>
+                          
+                          <Button 
+                            variant="outlined" 
+                            onClick={downloadCSV}
+                            fullWidth
+                            sx={{ 
+                              mt: 3,
+                              borderColor: '#E0E0E0',
+                              color: '#000000',
+                              borderRadius: 0,
+                              py: 1,
+                              '&:hover': {
+                                borderColor: '#000000',
+                                backgroundColor: 'transparent'
+                              },
+                            }}
+                          >
+                            Download Results (CSV)
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  </Grid>
+                  
+                  <Typography variant="h5" gutterBottom sx={{ mt: 5, mb: 3, fontWeight: 400 }}>
+                    Detailed Evaluation
+                  </Typography>
+                  
+                  <TableContainer 
+                    component={Paper} 
+                    variant="outlined" 
+                    sx={{ 
+                      borderRadius: 0, 
+                      border: '1px solid #E0E0E0',
+                      boxShadow: 'none',
+                      mb: 5
+                    }}
+                  >
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: '#FAFAFA' }}>
+                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Question</TableCell>
+                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Answer</TableCell>
+                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Approach</TableCell>
+                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Considerations</TableCell>
+                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Feedback</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {evaluationResults.map((result, index) => (
+                          <TableRow key={index}>
+                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                              <Typography variant="body2">{result.question}</Typography>
+                            </TableCell>
+                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                              <Typography variant="body2">{result.candidate_answer}</Typography>
+                            </TableCell>
+                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <StatusChip label={result.approach_evaluation} />
+                                <Typography variant="caption" sx={{ color: '#4F4F4F' }}>
+                                  Score: {result.approach_score}%
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <StatusChip label={result.key_considerations_evaluation} />
+                                <Typography variant="caption" sx={{ color: '#4F4F4F' }}>
+                                  Score: {result.key_considerations_score}%
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                              <Typography variant="body2">{result.feedback}</Typography>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </>
+              )}
+              
+              <Divider sx={{ my: 4, borderColor: '#E0E0E0' }} />
+              
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Button
+                  variant="text"
+                  onClick={() => {
+                    prevStep();
+                    navigate('/case-selection');
+                  }}
+                  sx={{
+                    color: '#4F4F4F',
+                    '&:hover': {
+                      color: '#000000',
+                      backgroundColor: 'transparent'
+                    }
+                  }}
+                >
+                  Back
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  onClick={downloadCSV}
+                  disabled={!evaluationResults}
+                  sx={{ 
+                    minWidth: 180,
+                    borderColor: '#E0E0E0',
+                    color: '#000000',
+                    borderRadius: 0,
+                    '&:hover': {
+                      borderColor: '#000000',
+                      backgroundColor: 'transparent'
+                    },
+                    py: 1
+                  }}
+                >
+                  Download Results
+                </Button>
+              </Box>
             </Box>
           </Paper>
         </Box>

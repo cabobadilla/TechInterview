@@ -6,76 +6,67 @@ import {
   Paper, 
   styled,
   StepConnector,
-  stepConnectorClasses
+  stepConnectorClasses,
+  Typography
 } from '@mui/material';
-import { Check } from '@mui/icons-material';
 
 const steps = [
-  'Subir Transcript',
-  'Seleccionar Caso',
-  'Ver Resultados'
+  'Upload Transcript',
+  'Select Case Study',
+  'View Results'
 ];
 
-// Conector personalizado con estilo de Google
-const GoogleConnector = styled(StepConnector)(({ theme }) => ({
+// Conector personalizado con estilo minimalista
+const MinimalConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 22,
+    top: 10,
+    left: 'calc(-50% + 16px)',
+    right: 'calc(50% + 16px)',
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundColor: theme.palette.primary.main,
+      borderColor: '#000000',
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundColor: theme.palette.primary.main,
+      borderColor: '#000000',
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    height: 3,
-    border: 0,
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#E8EAED',
-    borderRadius: 1,
+    borderColor: '#E0E0E0',
+    borderTopWidth: 1,
+    borderRadius: 0,
   },
 }));
 
 // Icono personalizado para los pasos del stepper
 const StepIconRoot = styled('div')(({ theme, ownerState }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#E8EAED',
-  zIndex: 1,
-  color: '#FFF',
-  width: 48,
-  height: 48,
   display: 'flex',
-  borderRadius: '50%',
-  justifyContent: 'center',
+  height: 22,
   alignItems: 'center',
-  transition: 'all 0.2s ease',
+  color: '#E0E0E0',
+  zIndex: 1,
   ...(ownerState.active && {
-    backgroundColor: theme.palette.primary.main,
-    boxShadow: '0 4px 10px 0 rgba(66, 133, 244, 0.25)',
+    color: '#000000',
   }),
   ...(ownerState.completed && {
-    backgroundColor: theme.palette.primary.main,
+    color: '#000000',
   }),
+  '& .StepIcon-circle': {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    backgroundColor: 'currentColor',
+  },
 }));
 
 const StepIcon = (props) => {
-  const { active, completed, className, icon } = props;
+  const { active, completed, className } = props;
 
   return (
     <StepIconRoot ownerState={{ active, completed }} className={className}>
-      {completed ? (
-        <Check sx={{ fontSize: 24, color: 'white' }} />
-      ) : (
-        <span style={{ 
-          color: active ? 'white' : '#5F6368', 
-          fontSize: 18, 
-          fontWeight: 500 
-        }}>
-          {icon}
-        </span>
-      )}
+      <div className="StepIcon-circle" />
     </StepIconRoot>
   );
 };
@@ -83,17 +74,17 @@ const StepIcon = (props) => {
 const StepLabelStyled = styled(StepLabel)(({ theme }) => ({
   '& .MuiStepLabel-label': {
     marginTop: '8px',
-    fontSize: '0.95rem',
-    fontWeight: 500,
-    color: theme.palette.text.secondary,
+    fontSize: '0.875rem',
+    fontWeight: 400,
+    color: '#4F4F4F',
+    letterSpacing: '-0.01em',
+    textTransform: 'none',
     
     '&.Mui-active': {
-      color: theme.palette.primary.main,
-      fontWeight: 600,
+      color: '#000000',
     },
     '&.Mui-completed': {
-      color: theme.palette.text.primary,
-      fontWeight: 500,
+      color: '#000000',
     },
   },
 }));
@@ -103,17 +94,31 @@ const Stepper = ({ activeStep }) => {
     <Paper 
       elevation={0} 
       sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        borderRadius: 2, 
-        mb: 3,
+        p: { xs: 3, sm: 4 }, 
+        borderRadius: 0, 
+        mb: 5,
         background: 'white',
-        border: '1px solid #E8EAED'
+        border: '1px solid #E0E0E0',
       }}
     >
+      <Typography 
+        variant="h4" 
+        component="h2" 
+        sx={{ 
+          fontWeight: 400, 
+          letterSpacing: '-0.02em', 
+          mb: 4,
+          color: '#000000'
+        }}
+      >
+        Tech Interview Analyzer
+      </Typography>
+      
       <MuiStepper 
         activeStep={activeStep - 1} 
         alternativeLabel
-        connector={<GoogleConnector />}
+        connector={<MinimalConnector />}
+        sx={{ mt: 2 }}
       >
         {steps.map((label, index) => (
           <Step key={label}>

@@ -217,10 +217,29 @@ function mapKeyConsiderationToPercentage(value) {
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'));
+  // Asegurarse que la ruta al directorio build es correcta
+  const buildPath = path.join(__dirname, 'client', 'build');
+  console.log('Serving static files from:', buildPath);
+  
+  // Verificar si el directorio existe
+  if (fs.existsSync(buildPath)) {
+    console.log('Build directory exists');
+    // Listar archivos en el directorio build para debugging
+    const files = fs.readdirSync(buildPath);
+    console.log('Files in build directory:', files);
+  } else {
+    console.log('Build directory does not exist');
+  }
+  
+  app.use(express.static(buildPath));
   
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    const indexPath = path.join(buildPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send('index.html not found. Build may not be complete.');
+    }
   });
 }
 

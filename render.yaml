@@ -1,10 +1,13 @@
 services:
-  # Backend service
+  # Backend service with integrated frontend build
   - type: web
-    name: tech-interview-analyzer-api
+    name: tech-interview-analyzer
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: |
+      npm install
+      mkdir -p client/build
+      cd client && npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV

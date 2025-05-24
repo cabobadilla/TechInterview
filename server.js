@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
@@ -41,7 +42,6 @@ app.post('/api/transcript', upload.single('transcript'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const fs = require('fs');
     const util = require('util');
     const readFile = util.promisify(fs.readFile);
     
@@ -244,7 +244,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Create uploads directory if it doesn't exist
-const fs = require('fs');
 if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }

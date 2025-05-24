@@ -1,0 +1,35 @@
+services:
+  # Backend service
+  - type: web
+    name: tech-interview-analyzer-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+    autoDeploy: true
+
+  # Frontend static site
+  - type: web
+    name: tech-interview-analyzer
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/build
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: tech-interview-analyzer-api
+          type: web
+          property: url
+    autoDeploy: true
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable 

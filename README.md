@@ -1,65 +1,98 @@
 # Tech Architecture Interview Analyzer
 
-A Streamlit application that analyzes tech architecture interview transcripts using GPT-3.5 to evaluate candidate responses based on a structured rubric.
+Aplicación para analizar y evaluar entrevistas técnicas de arquitectura utilizando OpenAI GPT.
 
-## Features
+## Tecnologías Utilizadas
 
-- Upload and analyze interview transcripts
-- Extract Q&A pairs using GPT-3.5
-- Evaluate answers based on completeness and accuracy
-- Support for different architecture levels (L2-L4)
-- Multiple case study templates
-- Export results to CSV
+- **Backend:** Node.js con Express
+- **Frontend:** React con Material-UI
+- **API:** OpenAI para procesamiento de lenguaje natural
 
-## Setup
+## Estructura del Proyecto
 
-1. Clone this repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
+```
+/
+├── client/                # Frontend React
+│   ├── public/            # Archivos estáticos
+│   └── src/               # Código fuente React
+│       ├── components/    # Componentes reutilizables
+│       ├── context/       # Estado global con Context API
+│       └── pages/         # Páginas principales
+├── uploads/               # Directorio para subida de archivos
+├── case_studies.json      # Datos de casos de estudio
+├── server.js              # Servidor Express principal
+├── package.json           # Dependencias del proyecto
+└── .env                   # Variables de entorno (no incluido en repo)
+```
+
+## Instalación y Ejecución Local
+
+1. **Clonar el repositorio**
+   ```
+   git clone <repositorio>
+   cd tech-interview-analyzer
    ```
 
-3. Set up environment variables:
-   - Create a `.streamlit/secrets.toml` file with your OpenAI API key:
-     ```toml
-     OPENAI_API_KEY = "your-api-key-here"
-     ```
-   - Optionally, add your case studies to the secrets file:
-     ```toml
-     [case_studies]
-     "Case Study Name" = { description = "Case study description", key_considerations = ["consideration1", "consideration2"] }
-     ```
-
-4. Run the application:
-   ```bash
-   streamlit run app.py
+2. **Instalar dependencias del servidor**
+   ```
+   npm install
    ```
 
-## Deployment on Streamlit Cloud
+3. **Instalar dependencias del cliente**
+   ```
+   cd client
+   npm install
+   cd ..
+   ```
 
-1. Push your code to a GitHub repository
-2. Go to [Streamlit Cloud](https://streamlit.io/cloud)
-3. Create a new app and connect your repository
-4. Add your secrets in the Streamlit Cloud dashboard:
-   - OPENAI_API_KEY
-   - case_studies (optional)
+4. **Configurar variables de entorno**
+   Crear un archivo `.env` en la raíz del proyecto con:
+   ```
+   NODE_ENV=development
+   PORT=5000
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
 
-## Usage
+5. **Ejecutar en desarrollo**
+   ```
+   npm run dev
+   ```
+   Esto iniciará tanto el servidor (puerto 5000) como el cliente (puerto 3000).
 
-1. Upload an interview transcript (text file)
-2. Select the relevant case study
-3. Choose the architecture level (L2-L4)
-4. View the evaluation results in the table
-5. Download results as CSV if needed
+## Despliegue en Render.com
 
-## Evaluation Rubric
+### Backend (Web Service)
 
-### Completeness Levels
-- High: Clear process with objectives, stages, and key elements
-- Medium: Clear ideas with some structure
-- Low: Only isolated ideas or proposals
+1. Crear un nuevo Web Service en Render.com
+2. Conectar con el repositorio de GitHub
+3. Configurar:
+   - **Name:** tech-interview-analyzer-api
+   - **Environment:** Node
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Variables de Entorno:**
+     - `NODE_ENV=production`
+     - `OPENAI_API_KEY=your_openai_api_key_here`
 
-### Accuracy Levels
-- Correct: Accurate and detailed
-- Partially Correct: Some depth but incomplete
-- Incorrect: Inaccurate or unsatisfactory 
+### Frontend (Static Site)
+
+1. Crear un nuevo Static Site en Render.com
+2. Conectar con el repositorio de GitHub
+3. Configurar:
+   - **Name:** tech-interview-analyzer
+   - **Build Command:** `cd client && npm install && npm run build`
+   - **Publish Directory:** `client/build`
+   - **Variables de Entorno:**
+     - `REACT_APP_API_URL=https://url-del-backend.onrender.com` (URL del backend)
+
+## Flujo de la Aplicación
+
+La aplicación sigue un flujo tipo wizard con tres pasos principales:
+
+1. **Paso 1:** Subir y procesar el transcript de la entrevista
+2. **Paso 2:** Seleccionar el caso de estudio y nivel esperado
+3. **Paso 3:** Ver y descargar los resultados de la evaluación
+
+## Personalización
+
+Para agregar o modificar casos de estudio, editar el archivo `case_studies.json` siguiendo el formato existente. 

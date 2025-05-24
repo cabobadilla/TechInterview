@@ -117,5 +117,53 @@
             "Medición de KPIs de impacto",
             "Interoperabilidad entre sistemas"
         ]
+    },
+    "cloud_migration": {
+        "name": "Migración a Cloud",
+        "objective": "Desarrollar una estrategia de migración de aplicaciones on-premise a la nube",
+        "process_answer": [
+            "Evaluar la infraestructura y aplicaciones existentes",
+            "Priorizar aplicaciones para migración",
+            "Seleccionar el modelo de implementación en la nube (IaaS, PaaS, SaaS)",
+            "Desarrollar un plan de migración por fases"
+        ],
+        "key_considerations_answer": [
+            "Dependencias de aplicaciones",
+            "Requisitos de seguridad y conformidad",
+            "Estrategia de respaldo y recuperación",
+            "Optimización de costos"
+        ]
+    },
+    "microservices_transformation": {
+        "name": "Transformación a Microservicios",
+        "objective": "Diseñar una estrategia para transformar una aplicación monolítica en microservicios",
+        "process_answer": [
+            "Analizar la aplicación monolítica existente",
+            "Identificar límites de contexto y servicios potenciales",
+            "Definir la estrategia de descomposición",
+            "Establecer patrones de comunicación entre servicios"
+        ],
+        "key_considerations_answer": [
+            "Gestión de datos y consistencia",
+            "Patrones de comunicación (síncrono vs. asíncrono)",
+            "Observabilidad y monitoreo",
+            "Estrategia de CI/CD"
+        ]
+    },
+    "data_architecture": {
+        "name": "Arquitectura de Datos",
+        "objective": "Diseñar una arquitectura de datos para análisis en tiempo real y procesamiento por lotes",
+        "process_answer": [
+            "Identificar fuentes de datos y requisitos de procesamiento",
+            "Diseñar la capa de ingestión de datos",
+            "Definir arquitectura de procesamiento (streaming y batch)",
+            "Establecer estrategia de almacenamiento de datos"
+        ],
+        "key_considerations_answer": [
+            "Volumen, velocidad y variedad de datos",
+            "Requisitos de latencia para análisis en tiempo real",
+            "Escalabilidad y rendimiento",
+            "Gobernanza y calidad de datos"
+        ]
     }
 }

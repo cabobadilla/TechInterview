@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Paper, Typography, Button, Box, Alert, 
-  CircularProgress, FormControl, InputLabel,
-  Select, MenuItem, Grid, Card, CardContent, 
-  Divider, Chip
+  FormControl, InputLabel, Select, MenuItem, 
+  Grid, Card, CardContent, Divider, Chip
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import axios from 'axios';
@@ -20,7 +19,6 @@ const CaseSelection = () => {
     nextStep, 
     prevStep,
     loading, 
-    setLoading, 
     error, 
     setError 
   } = useAnalyzer();

@@ -154,7 +154,7 @@ async function evaluateAnswers(qa_pairs, expert_solution, level) {
     Q&A Pairs:
     ${JSON.stringify(qa_pairs, null, 2)}
     
-    Output ONLY valid JSON as a list of objects with the following structure:
+    IMPORTANT: Return ONLY a plain JSON array without any markdown formatting, code blocks, or explanations. The response must be a valid JSON array of objects with the following structure:
     [
         {
             "question": "original question",
@@ -169,21 +169,43 @@ async function evaluateAnswers(qa_pairs, expert_solution, level) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a senior tech architect evaluating interview responses. The responses are in Spanish, but provide your evaluation in English. Output ONLY valid JSON as a list of objects." },
+        { role: "system", content: "You are a senior tech architect evaluating interview responses. The responses are in Spanish, but provide your evaluation in English. Output ONLY valid JSON as a list of objects without any markdown formatting or explanation." },
         { role: "user", content: prompt }
       ],
       temperature: 0.3,
     });
     
-    const results = JSON.parse(response.data.choices[0].message.content);
+    let content = response.data.choices[0].message.content.trim();
     
-    // Add percentage scores
-    results.forEach(result => {
-      result.approach_score = mapApproachToPercentage(result.approach_evaluation);
-      result.key_considerations_score = mapKeyConsiderationToPercentage(result.key_considerations_evaluation);
-    });
+    // Limpiar el formato markdown si existe
+    if (content.startsWith('```')) {
+      // Eliminar bloques de código markdown
+      content = content.replace(/```(?:json)?\n([\s\S]*?)```/g, '$1').trim();
+    }
     
-    return results;
+    console.log("OpenAI response:", content.substring(0, 100) + "..."); // Log para debug
+    
+    try {
+      const results = JSON.parse(content);
+      
+      // Verificar que el resultado es un array
+      if (!Array.isArray(results)) {
+        console.error("Parsed result is not an array:", results);
+        throw new Error("Expected array result from OpenAI");
+      }
+      
+      // Add percentage scores
+      results.forEach(result => {
+        result.approach_score = mapApproachToPercentage(result.approach_evaluation);
+        result.key_considerations_score = mapKeyConsiderationToPercentage(result.key_considerations_evaluation);
+      });
+      
+      return results;
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError.message);
+      console.error("Raw content:", content);
+      throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+    }
   } catch (error) {
     console.error('Error evaluating answers:', error);
     throw error;

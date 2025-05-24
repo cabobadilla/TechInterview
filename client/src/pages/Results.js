@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Paper, Typography, Button, Box, Alert, 
   CircularProgress, Grid, Card, CardContent, 
-  Divider, Table, TableBody, TableCell, 
+  Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow,
   LinearProgress, Chip
 } from '@mui/material';

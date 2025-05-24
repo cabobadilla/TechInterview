@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Paper, Typography, Button, Box, Alert, 
-  CircularProgress, TextField, Divider 
+  CircularProgress, Divider 
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAnalyzer } from '../context/AnalyzerContext';

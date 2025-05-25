@@ -43,25 +43,33 @@ Una aplicación web moderna para analizar entrevistas técnicas de arquitectura,
    - **Build Command**: `npm install && npm run build-client`
    - **Start Command**: `npm start`
 
-### Paso 2: Configurar Variables de Entorno
+### Paso 2: Configurar Variables de Entorno Obligatorias
 
-En la sección "Environment" de tu servicio en Render, agrega:
+En la sección "Environment" de tu servicio en Render, agrega estas variables **obligatorias**:
 
 - `NODE_ENV`: production
 - `OPENAI_API_KEY`: Tu clave API de OpenAI
-- `JWT_SECRET`: Una clave secreta para firmar JWTs (genera una segura)
+- `JWT_SECRET`: Una clave secreta para firmar JWTs (utiliza un valor seguro generado aleatoriamente)
+  - Puedes generar un JWT_SECRET seguro con: `openssl rand -base64 64`
+  - **IMPORTANTE**: El JWT_SECRET NO es el secreto de cliente de Google, sino una clave que defines tú mismo para firmar tokens JWT
 - `PORT`: 10000 (Render asignará automáticamente el puerto)
 
-### Paso 3: Para Implementación Real de OAuth con Google
+### Paso 3: Configuración de OAuth con Google (Opcional pero Recomendado)
+
+Para implementar la autenticación real con Google OAuth (en lugar de la simulación actual), sigue estos pasos:
 
 1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
 2. Crea un nuevo proyecto
-3. Configura OAuth Consent Screen
-4. Crea credenciales OAuth 2.0 con:
+3. Configura OAuth Consent Screen (pantalla de consentimiento)
+4. Crea credenciales OAuth 2.0 para Cliente Web con:
+   - URI de origen autorizado: `https://tu-app.onrender.com`
    - URI de redirección autorizada: `https://tu-app.onrender.com/api/auth/google/callback`
-5. Agrega estas variables de entorno en Render:
-   - `GOOGLE_CLIENT_ID`: ID de cliente de Google OAuth
-   - `GOOGLE_CLIENT_SECRET`: Secreto de cliente de Google OAuth
+
+5. Agrega estas variables de entorno **adicionales** en Render:
+   - `GOOGLE_CLIENT_ID`: ID de cliente de Google OAuth (obtenido de Google Cloud Console)
+   - `GOOGLE_CLIENT_SECRET`: Secreto de cliente de Google OAuth (obtenido de Google Cloud Console)
+
+**Nota**: Si no agregas estas variables de Google, la aplicación funcionará con una autenticación simulada para desarrollo.
 
 ### Paso 4: Configuración de CORS (ya implementado)
 
@@ -71,7 +79,8 @@ El código ya está configurado para manejar CORS en producción, aceptando soli
 
 - La aplicación utiliza autenticación stateless con JWTs almacenados en localStorage
 - El servidor verifica los tokens en cada solicitud a rutas protegidas
-- Para una implementación completa, reemplaza la autenticación simulada con la integración real de Google OAuth
+- Para una implementación completa, configura las credenciales de Google OAuth como se indica en el Paso 3
+- JWT_SECRET y GOOGLE_CLIENT_SECRET son valores diferentes y ambos son necesarios para una implementación completa
 
 ## Estructura de la Aplicación
 

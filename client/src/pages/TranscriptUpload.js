@@ -38,7 +38,7 @@ const TranscriptUpload = () => {
     
     setFile(selectedFile);
     
-    // Vista previa del archivo
+    // File preview
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target.result;
@@ -70,7 +70,7 @@ const TranscriptUpload = () => {
     e.preventDefault();
     
     if (!file) {
-      setError('Por favor selecciona un archivo de transcript');
+      setError('Please select a transcript file');
       return;
     }
     
@@ -90,7 +90,7 @@ const TranscriptUpload = () => {
       const { transcript, qa_pairs } = response.data;
       
       if (!qa_pairs || qa_pairs.length === 0) {
-        throw new Error('No se pudieron extraer preguntas y respuestas del transcript');
+        throw new Error('Unable to extract questions and answers from the transcript');
       }
       
       setTranscript(transcript);
@@ -98,7 +98,7 @@ const TranscriptUpload = () => {
       nextStep();
       navigate('/case-selection');
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error al procesar el transcript');
+      setError(err.response?.data?.error || err.message || 'Error processing the transcript');
     } finally {
       setLoading(false);
     }

@@ -17,7 +17,7 @@ const steps = [
   'View Results'
 ];
 
-// Conector personalizado con estilo minimalista
+// Custom connector with minimalist style
 const MinimalConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 10,
@@ -41,7 +41,7 @@ const MinimalConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
-// Icono personalizado para los pasos del stepper
+// Custom icon for stepper steps
 const StepIconRoot = styled('div')(({ theme, ownerState }) => ({
   display: 'flex',
   height: 22,

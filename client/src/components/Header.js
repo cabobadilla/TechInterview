@@ -10,7 +10,7 @@ const Header = () => {
   const { resetAll } = useAnalyzer();
 
   const handleReset = () => {
-    if (window.confirm('¿Estás seguro de que quieres reiniciar todo el proceso?')) {
+    if (window.confirm('Are you sure you want to restart the entire process?')) {
       resetAll();
       navigate('/upload');
     }

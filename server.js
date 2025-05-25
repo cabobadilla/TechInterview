@@ -102,7 +102,7 @@ async function extractQAPairs(transcript) {
     
     const prompt = `From the transcript below, extract a list of questions asked by the interviewer (marked with A:) and the candidate's corresponding answers (marked with C:).
     Format the response as a JSON array of objects with 'question' and 'answer' fields.
-    The transcript is in Spanish, please maintain the original language in the output.
+    The transcript might be in Spanish or English, please maintain the original language in the output.
     
     Transcript:
     ${processedTranscript}
@@ -110,8 +110,8 @@ async function extractQAPairs(transcript) {
     Example format:
     [
         {
-            "question": "¿Podrías describir una estrategia de migración a cloud?",
-            "answer": "Claro. Para desarrollar una estrategia de migración efectiva..."
+            "question": "Could you describe a cloud migration strategy?",
+            "answer": "Of course. To develop an effective migration strategy..."
         }
     ]`;
     
@@ -187,7 +187,7 @@ async function evaluateAnswers(qa_pairs, expert_solution, level) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a senior tech architect evaluating interview responses. The responses are in Spanish, but provide your evaluation in English. Output ONLY valid JSON as a list of objects without any markdown formatting or explanation." },
+        { role: "system", content: "You are a senior tech architect evaluating interview responses. Provide your evaluation in English. Output ONLY valid JSON as a list of objects without any markdown formatting or explanation." },
         { role: "user", content: prompt }
       ],
       temperature: 0.3,
@@ -195,18 +195,18 @@ async function evaluateAnswers(qa_pairs, expert_solution, level) {
     
     let content = response.data.choices[0].message.content.trim();
     
-    // Limpiar el formato markdown si existe
+    // Clean up markdown format if it exists
     if (content.startsWith('```')) {
-      // Eliminar bloques de código markdown
+      // Remove markdown code blocks
       content = content.replace(/```(?:json)?\n([\s\S]*?)```/g, '$1').trim();
     }
     
-    console.log("OpenAI response:", content.substring(0, 100) + "..."); // Log para debug
+    console.log("OpenAI response:", content.substring(0, 100) + "..."); // Debug log
     
     try {
       const results = JSON.parse(content);
       
-      // Verificar que el resultado es un array
+      // Verify the result is an array
       if (!Array.isArray(results)) {
         console.error("Parsed result is not an array:", results);
         throw new Error("Expected array result from OpenAI");
@@ -257,14 +257,14 @@ function mapKeyConsiderationToPercentage(value) {
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
-  // Asegurarse que la ruta al directorio build es correcta
+  // Make sure the path to the build directory is correct
   const buildPath = path.join(__dirname, 'client', 'build');
   console.log('Serving static files from:', buildPath);
   
-  // Verificar si el directorio existe
+  // Check if the directory exists
   if (fs.existsSync(buildPath)) {
     console.log('Build directory exists');
-    // Listar archivos en el directorio build para debugging
+    // List files in build directory for debugging
     const files = fs.readdirSync(buildPath);
     console.log('Files in build directory:', files);
   } else {

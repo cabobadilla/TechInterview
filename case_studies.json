@@ -1,169 +1,169 @@
 {
-    "migración_cloud_1": {
-        "type": "Migración Cloud",
-        "name": "Estrategia de Migración a la Nube",
-        "objective": "Definir una estrategia principal para migrar cargas de trabajo a la nube desde aplicaciones on-premise, enfocándose en la modernización de aplicaciones, evitando la obsolescencia y reduciendo el costo de los servicios de TI.",
+    "cloud_migration_1": {
+        "type": "Cloud Migration",
+        "name": "Cloud Migration Strategy",
+        "objective": "Define a main strategy to migrate workloads to the cloud from on-premise applications, focusing on application modernization, avoiding obsolescence, and reducing IT service costs.",
         "process_answer": [
-            "Evaluar las aplicaciones y cargas de trabajo actuales",
-            "Evaluar proveedores y opciones de servicios en la nube",
-            "Desarrollar una hoja de ruta y cronograma de migración",
-            "Implementar la migración en fases"
+            "Evaluate current applications and workloads",
+            "Assess cloud providers and service options",
+            "Develop a migration roadmap and timeline",
+            "Implement migration in phases"
         ],
         "key_considerations_answer": [
-            "Identificar funciones críticas del negocio",
-            "Considerar requisitos de seguridad, cumplimiento y escalabilidad",
-            "Priorizar aplicaciones según complejidad e impacto",
-            "Realizar pruebas exhaustivas y tener planes de reversión"
+            "Identify critical business functions",
+            "Consider security, compliance, and scalability requirements",
+            "Prioritize applications based on complexity and impact",
+            "Conduct thorough testing and have rollback plans"
         ]
     },
-    "optimización_ti_2": {
-        "type": "Optimización TI",
-        "name": "Mejorar la eficiencia de TI en una empresa bancaria",
-        "objective": "Definir una estrategia para lograr eficiencias y reducir costos en los servicios de TI sin comprometer la calidad de los servicios.",
+    "it_optimization_2": {
+        "type": "IT Optimization",
+        "name": "Improving IT Efficiency in a Banking Company",
+        "objective": "Define a strategy to achieve efficiencies and reduce costs in IT services without compromising service quality.",
         "process_answer": [
-            "Analizar el gasto actual de TI y la asignación de recursos",
-            "Identificar áreas para automatización y mejora de procesos",
-            "Implementar iniciativas de optimización de costos",
-            "Monitorear y revisar las ganancias de eficiencia"
+            "Analyze current IT spending and resource allocation",
+            "Identify areas for automation and process improvement",
+            "Implement cost optimization initiatives",
+            "Monitor and review efficiency gains"
         ],
         "key_considerations_answer": [
-            "Mantener la calidad del servicio",
-            "Asegurar el cumplimiento de regulaciones",
-            "Involucrar a las partes interesadas en la gestión del cambio",
-            "Rastrear y reportar los ahorros de costos"
+            "Maintain service quality",
+            "Ensure regulatory compliance",
+            "Involve stakeholders in change management",
+            "Track and report cost savings"
         ]
     },
-    "gobernanza_de_datos_3": {
-        "type": "Gobernanza de Datos",
-        "name": "Gobernanza de Datos en una Empresa Multinacional #1",
-        "objective": "Definir un marco de gobernanza de datos que garantice la calidad, seguridad y cumplimiento normativo en todas las regiones donde opera la empresa.",
+    "data_governance_3": {
+        "type": "Data Governance",
+        "name": "Data Governance in a Multinational Company #1",
+        "objective": "Define a data governance framework that ensures quality, security, and regulatory compliance in all regions where the company operates.",
         "process_answer": [
-            "Evaluar el estado actual de la gestión de datos",
-            "Definir políticas de gobierno de datos claras",
-            "Establecer roles y responsabilidades de datos",
-            "Implementar herramientas de calidad y catalogación de datos"
+            "Assess the current state of data management",
+            "Define clear data governance policies",
+            "Establish data roles and responsibilities",
+            "Implement data quality and cataloging tools"
         ],
         "key_considerations_answer": [
-            "Asegurar cumplimiento con GDPR, CCPA y otras normativas locales",
-            "Fomentar la cultura de datos en toda la organización",
-            "Automatizar controles de calidad y auditoría",
-            "Alinear gobernanza con objetivos de negocio"
+            "Ensure compliance with GDPR, CCPA and other local regulations",
+            "Promote data culture throughout the organization",
+            "Automate quality controls and auditing",
+            "Align governance with business objectives"
         ]
     },
-    "arquitectura_empresarial_4": {
-        "type": "Arquitectura Empresarial",
-        "name": "Transformación Digital de Procesos Empresariales #2",
-        "objective": "Modernizar procesos clave de negocio mediante tecnologías digitales, buscando eficiencia operativa y mejor experiencia del cliente.",
+    "enterprise_architecture_4": {
+        "type": "Enterprise Architecture",
+        "name": "Digital Transformation of Business Processes #2",
+        "objective": "Modernize key business processes through digital technologies, seeking operational efficiency and improved customer experience.",
         "process_answer": [
-            "Mapear procesos actuales y puntos de dolor",
-            "Identificar oportunidades de automatización y digitalización",
-            "Seleccionar tecnologías alineadas con la estrategia",
-            "Ejecutar pilotos y escalar soluciones efectivas"
+            "Map current processes and pain points",
+            "Identify automation and digitization opportunities",
+            "Select technologies aligned with strategy",
+            "Execute pilots and scale effective solutions"
         ],
         "key_considerations_answer": [
-            "Gestión del cambio organizacional",
-            "Alineación con objetivos estratégicos",
-            "Medición de KPIs de impacto",
-            "Interoperabilidad entre sistemas"
+            "Organizational change management",
+            "Alignment with strategic objectives",
+            "Measurement of impact KPIs",
+            "Interoperability between systems"
         ]
     },
-    "arquitectura_de_datos_5": {
-        "type": "Arquitectura de Datos",
-        "name": "Arquitectura de Plataforma de Datos en Tiempo Real #3",
-        "objective": "Diseñar una arquitectura que permita el procesamiento y análisis de datos en tiempo real para soportar decisiones operativas inmediatas.",
+    "data_architecture_5": {
+        "type": "Data Architecture",
+        "name": "Real-Time Data Platform Architecture #3",
+        "objective": "Design an architecture that enables real-time data processing and analysis to support immediate operational decisions.",
         "process_answer": [
-            "Identificar fuentes de datos en tiempo real",
-            "Seleccionar tecnologías de streaming y almacenamiento adecuado",
-            "Diseñar pipelines resilientes y escalables",
-            "Implementar dashboards e interfaces para consumo"
+            "Identify real-time data sources",
+            "Select appropriate streaming and storage technologies",
+            "Design resilient and scalable pipelines",
+            "Implement dashboards and interfaces for consumption"
         ],
         "key_considerations_answer": [
-            "Baja latencia y alta disponibilidad",
-            "Gestión eficiente de eventos y flujos de datos",
-            "Seguridad en tránsito y en reposo",
-            "Costos de procesamiento y almacenamiento"
+            "Low latency and high availability",
+            "Efficient management of events and data flows",
+            "Security in transit and at rest",
+            "Processing and storage costs"
         ]
     },
-    "devops_/_iac_6": {
+    "devops_iac_6": {
         "type": "DevOps / IaC",
-        "name": "Implementación de Infraestructura como Código (IaC) #4",
-        "objective": "Implementar una solución de IaC para mejorar la consistencia, repetibilidad y escalabilidad de entornos cloud en múltiples regiones.",
+        "name": "Implementation of Infrastructure as Code (IaC) #4",
+        "objective": "Implement an IaC solution to improve consistency, repeatability, and scalability of cloud environments across multiple regions.",
         "process_answer": [
-            "Seleccionar herramientas adecuadas de IaC (Terraform, Pulumi, etc.)",
-            "Diseñar plantillas reutilizables y modulares",
-            "Integrar IaC con CI/CD",
-            "Probar y versionar los cambios en infraestructuras"
+            "Select appropriate IaC tools (Terraform, Pulumi, etc.)",
+            "Design reusable and modular templates",
+            "Integrate IaC with CI/CD",
+            "Test and version infrastructure changes"
         ],
         "key_considerations_answer": [
-            "Manejo de secretos y configuración segura",
-            "Control de cambios y auditoría",
-            "Formación del equipo en buenas prácticas de IaC",
-            "Evitar la deriva de configuración"
+            "Secret management and secure configuration",
+            "Change control and auditing",
+            "Team training in IaC best practices",
+            "Avoiding configuration drift"
         ]
     },
-    "arquitectura_empresarial_8": {
-        "type": "Arquitectura Empresarial",
-        "name": "Transformación Digital de Procesos Empresariales #6",
-        "objective": "Modernizar procesos clave de negocio mediante tecnologías digitales, buscando eficiencia operativa y mejor experiencia del cliente.",
+    "enterprise_architecture_8": {
+        "type": "Enterprise Architecture",
+        "name": "Digital Transformation of Business Processes #6",
+        "objective": "Modernize key business processes through digital technologies, seeking operational efficiency and improved customer experience.",
         "process_answer": [
-            "Mapear procesos actuales y puntos de dolor",
-            "Identificar oportunidades de automatización y digitalización",
-            "Seleccionar tecnologías alineadas con la estrategia",
-            "Ejecutar pilotos y escalar soluciones efectivas"
+            "Map current processes and pain points",
+            "Identify automation and digitization opportunities",
+            "Select technologies aligned with strategy",
+            "Execute pilots and scale effective solutions"
         ],
         "key_considerations_answer": [
-            "Gestión del cambio organizacional",
-            "Alineación con objetivos estratégicos",
-            "Medición de KPIs de impacto",
-            "Interoperabilidad entre sistemas"
+            "Organizational change management",
+            "Alignment with strategic objectives",
+            "Measurement of impact KPIs",
+            "Interoperability between systems"
         ]
     },
     "cloud_migration": {
-        "name": "Migración a Cloud",
-        "objective": "Desarrollar una estrategia de migración de aplicaciones on-premise a la nube",
+        "name": "Cloud Migration",
+        "objective": "Develop a strategy for migrating on-premise applications to the cloud",
         "process_answer": [
-            "Evaluar la infraestructura y aplicaciones existentes",
-            "Priorizar aplicaciones para migración",
-            "Seleccionar el modelo de implementación en la nube (IaaS, PaaS, SaaS)",
-            "Desarrollar un plan de migración por fases"
+            "Evaluate existing infrastructure and applications",
+            "Prioritize applications for migration",
+            "Select cloud deployment model (IaaS, PaaS, SaaS)",
+            "Develop a phased migration plan"
         ],
         "key_considerations_answer": [
-            "Dependencias de aplicaciones",
-            "Requisitos de seguridad y conformidad",
-            "Estrategia de respaldo y recuperación",
-            "Optimización de costos"
+            "Application dependencies",
+            "Security and compliance requirements",
+            "Backup and recovery strategy",
+            "Cost optimization"
         ]
     },
     "microservices_transformation": {
-        "name": "Transformación a Microservicios",
-        "objective": "Diseñar una estrategia para transformar una aplicación monolítica en microservicios",
+        "name": "Microservices Transformation",
+        "objective": "Design a strategy to transform a monolithic application into microservices",
         "process_answer": [
-            "Analizar la aplicación monolítica existente",
-            "Identificar límites de contexto y servicios potenciales",
-            "Definir la estrategia de descomposición",
-            "Establecer patrones de comunicación entre servicios"
+            "Analyze the existing monolithic application",
+            "Identify context boundaries and potential services",
+            "Define decomposition strategy",
+            "Establish communication patterns between services"
         ],
         "key_considerations_answer": [
-            "Gestión de datos y consistencia",
-            "Patrones de comunicación (síncrono vs. asíncrono)",
-            "Observabilidad y monitoreo",
-            "Estrategia de CI/CD"
+            "Data management and consistency",
+            "Communication patterns (synchronous vs. asynchronous)",
+            "Observability and monitoring",
+            "CI/CD strategy"
         ]
     },
     "data_architecture": {
-        "name": "Arquitectura de Datos",
-        "objective": "Diseñar una arquitectura de datos para análisis en tiempo real y procesamiento por lotes",
+        "name": "Data Architecture",
+        "objective": "Design a data architecture for real-time analytics and batch processing",
         "process_answer": [
-            "Identificar fuentes de datos y requisitos de procesamiento",
-            "Diseñar la capa de ingestión de datos",
-            "Definir arquitectura de procesamiento (streaming y batch)",
-            "Establecer estrategia de almacenamiento de datos"
+            "Identify data sources and processing requirements",
+            "Design the data ingestion layer",
+            "Define processing architecture (streaming and batch)",
+            "Establish data storage strategy"
         ],
         "key_considerations_answer": [
-            "Volumen, velocidad y variedad de datos",
-            "Requisitos de latencia para análisis en tiempo real",
-            "Escalabilidad y rendimiento",
-            "Gobernanza y calidad de datos"
+            "Data volume, velocity, and variety",
+            "Latency requirements for real-time analytics",
+            "Scalability and performance",
+            "Data governance and quality"
         ]
     }
 }

@@ -5,49 +5,43 @@ import {
   CircularProgress, Grid, Card, CardContent, 
   Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow,
-  LinearProgress, Chip, Divider
+  LinearProgress, Chip, Divider, useTheme
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import axios from 'axios';
 
 // Componente para mostrar puntuación con barra de progreso
-const ScoreDisplay = ({ label, value }) => (
-  <Box sx={{ mb: 3 }}>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'center' }}>
-      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 400 }}>
-        {label}
-      </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 400 }}>
-        {value}%
-      </Typography>
+const ScoreDisplay = ({ label, value }) => {
+  const theme = useTheme();
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'center' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 400 }}>
+          {label}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 400 }}>
+          {value}%
+        </Typography>
+      </Box>
+      <LinearProgress 
+        variant="determinate" 
+        value={value} 
+        color="primary"
+      />
     </Box>
-    <LinearProgress 
-      variant="determinate" 
-      value={value} 
-      sx={{ 
-        height: 4, 
-        borderRadius: 0,
-        backgroundColor: '#F2F2F2',
-        '& .MuiLinearProgress-bar': {
-          backgroundColor: '#000000',
-        }
-      }}
-    />
-  </Box>
-);
+  );
+};
 
 // Componente para mostrar etiquetas de estado
 const StatusChip = ({ label }) => {
   return (
     <Chip 
       label={label} 
-      variant="outlined"
+      color="primary"
       size="small"
       sx={{ 
-        fontWeight: 400, 
-        borderColor: '#E0E0E0',
+        fontWeight: 400,
         borderRadius: 1,
-        color: '#000000',
         fontSize: '0.75rem'
       }}
     />
@@ -56,6 +50,8 @@ const StatusChip = ({ label }) => {
 
 const Results = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  
   const { 
     qaPairs, 
     selectedCase, 
@@ -181,8 +177,8 @@ const Results = () => {
     <>
       {loading ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', my: 12 }}>
-          <CircularProgress size={40} thickness={2} sx={{ mb: 3, color: '#000000' }} />
-          <Typography variant="body1" sx={{ color: '#4F4F4F' }}>
+          <CircularProgress size={40} thickness={2} sx={{ mb: 3, color: '#7DE1C3' }} />
+          <Typography variant="body1" color="text.secondary">
             Evaluating responses...
           </Typography>
         </Box>
@@ -191,7 +187,7 @@ const Results = () => {
           <Paper elevation={0} sx={{ 
             p: { xs: 3, sm: 4 }, 
             borderRadius: 0, 
-            border: '1px solid #E0E0E0',
+            border: '1px solid #1E3A54',
             mb: 5
           }}>
             <Box sx={{ maxWidth: 800, mx: 'auto' }}>
@@ -200,8 +196,7 @@ const Results = () => {
                 gutterBottom 
                 sx={{ 
                   fontWeight: 400, 
-                  mb: 3, 
-                  color: '#000000',
+                  mb: 3,
                   letterSpacing: '-0.02em'
                 }}
               >
@@ -220,14 +215,7 @@ const Results = () => {
               {error && (
                 <Alert 
                   severity="error" 
-                  sx={{ 
-                    mb: 4, 
-                    borderRadius: 0,
-                    border: '1px solid #EB5757',
-                    backgroundColor: 'transparent',
-                    color: '#EB5757',
-                    '& .MuiAlert-icon': { color: '#EB5757' }
-                  }}
+                  sx={{ mb: 4 }}
                 >
                   {error}
                 </Alert>
@@ -237,7 +225,7 @@ const Results = () => {
                 <>
                   <Grid container spacing={4} sx={{ mb: 5 }}>
                     <Grid item xs={12} md={6}>
-                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 0, border: '1px solid #E0E0E0' }}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 0 }}>
                         <CardContent sx={{ p: 3 }}>
                           <Typography variant="h6" gutterBottom sx={{ fontWeight: 400, mb: 3 }}>
                             Overall Score
@@ -262,7 +250,7 @@ const Results = () => {
                     </Grid>
                     
                     <Grid item xs={12} md={6}>
-                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 0, border: '1px solid #E0E0E0' }}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 0 }}>
                         <CardContent sx={{ p: 3 }}>
                           <Typography variant="h6" gutterBottom sx={{ fontWeight: 400, mb: 3 }}>
                             Evaluation Summary
@@ -288,14 +276,7 @@ const Results = () => {
                             fullWidth
                             sx={{ 
                               mt: 3,
-                              borderColor: '#E0E0E0',
-                              color: '#000000',
-                              borderRadius: 0,
-                              py: 1,
-                              '&:hover': {
-                                borderColor: '#000000',
-                                backgroundColor: 'transparent'
-                              },
+                              py: 1
                             }}
                           >
                             Download Results (CSV)
@@ -313,48 +294,46 @@ const Results = () => {
                     component={Paper} 
                     variant="outlined" 
                     sx={{ 
-                      borderRadius: 0, 
-                      border: '1px solid #E0E0E0',
-                      boxShadow: 'none',
+                      borderRadius: 0,
                       mb: 5
                     }}
                   >
                     <Table>
                       <TableHead>
-                        <TableRow sx={{ backgroundColor: '#FAFAFA' }}>
-                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Question</TableCell>
-                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Answer</TableCell>
-                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Approach</TableCell>
-                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Considerations</TableCell>
-                          <TableCell sx={{ fontWeight: 400, color: '#4F4F4F', borderBottom: '1px solid #E0E0E0' }}>Feedback</TableCell>
+                        <TableRow>
+                          <TableCell>Question</TableCell>
+                          <TableCell>Answer</TableCell>
+                          <TableCell>Approach</TableCell>
+                          <TableCell>Considerations</TableCell>
+                          <TableCell>Feedback</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {evaluationResults.map((result, index) => (
                           <TableRow key={index}>
-                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                            <TableCell sx={{ verticalAlign: 'top' }}>
                               <Typography variant="body2">{result.question}</Typography>
                             </TableCell>
-                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                            <TableCell sx={{ verticalAlign: 'top' }}>
                               <Typography variant="body2">{result.candidate_answer}</Typography>
                             </TableCell>
-                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                            <TableCell sx={{ verticalAlign: 'top' }}>
                               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <StatusChip label={result.approach_evaluation} />
-                                <Typography variant="caption" sx={{ color: '#4F4F4F' }}>
+                                <Typography variant="caption" color="text.secondary">
                                   Score: {result.approach_score}%
                                 </Typography>
                               </Box>
                             </TableCell>
-                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                            <TableCell sx={{ verticalAlign: 'top' }}>
                               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <StatusChip label={result.key_considerations_evaluation} />
-                                <Typography variant="caption" sx={{ color: '#4F4F4F' }}>
+                                <Typography variant="caption" color="text.secondary">
                                   Score: {result.key_considerations_score}%
                                 </Typography>
                               </Box>
                             </TableCell>
-                            <TableCell sx={{ verticalAlign: 'top', borderBottom: '1px solid #E0E0E0' }}>
+                            <TableCell sx={{ verticalAlign: 'top' }}>
                               <Typography variant="body2">{result.feedback}</Typography>
                             </TableCell>
                           </TableRow>
@@ -365,7 +344,7 @@ const Results = () => {
                 </>
               )}
               
-              <Divider sx={{ my: 4, borderColor: '#E0E0E0' }} />
+              <Divider sx={{ my: 4 }} />
               
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Button
@@ -374,30 +353,16 @@ const Results = () => {
                     prevStep();
                     navigate('/case-selection');
                   }}
-                  sx={{
-                    color: '#4F4F4F',
-                    '&:hover': {
-                      color: '#000000',
-                      backgroundColor: 'transparent'
-                    }
-                  }}
                 >
                   Back
                 </Button>
                 
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   onClick={downloadCSV}
                   disabled={!evaluationResults}
                   sx={{ 
                     minWidth: 180,
-                    borderColor: '#E0E0E0',
-                    color: '#000000',
-                    borderRadius: 0,
-                    '&:hover': {
-                      borderColor: '#000000',
-                      backgroundColor: 'transparent'
-                    },
                     py: 1
                   }}
                 >

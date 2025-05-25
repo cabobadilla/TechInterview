@@ -69,7 +69,7 @@ const CaseSelection = () => {
     <Paper elevation={0} sx={{ 
       p: { xs: 3, sm: 4 }, 
       borderRadius: 0, 
-      border: '1px solid #E0E0E0',
+      border: '1px solid #1E3A54',
       mb: 5
     }}>
       <Box sx={{ maxWidth: 720, mx: 'auto' }}>
@@ -78,8 +78,7 @@ const CaseSelection = () => {
           gutterBottom 
           sx={{ 
             fontWeight: 400, 
-            mb: 3, 
-            color: '#000000',
+            mb: 3,
             letterSpacing: '-0.02em'
           }}
         >
@@ -98,14 +97,7 @@ const CaseSelection = () => {
         {error && (
           <Alert 
             severity="error" 
-            sx={{ 
-              mb: 4, 
-              borderRadius: 0,
-              border: '1px solid #EB5757',
-              backgroundColor: 'transparent',
-              color: '#EB5757',
-              '& .MuiAlert-icon': { color: '#EB5757' }
-            }}
+            sx={{ mb: 4 }}
           >
             {error}
           </Alert>
@@ -124,17 +116,7 @@ const CaseSelection = () => {
                   displayEmpty
                   sx={{
                     height: 54,
-                    borderRadius: 0,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#E0E0E0',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000000',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000000',
-                      borderWidth: 1
-                    }
+                    borderRadius: 0
                   }}
                 >
                   <MenuItem value="" disabled>
@@ -160,17 +142,7 @@ const CaseSelection = () => {
                   displayEmpty
                   sx={{
                     height: 54,
-                    borderRadius: 0,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#E0E0E0',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000000',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000000',
-                      borderWidth: 1
-                    }
+                    borderRadius: 0
                   }}
                 >
                   <MenuItem value="" disabled>
@@ -191,9 +163,7 @@ const CaseSelection = () => {
               sx={{ 
                 mt: 5, 
                 mb: 4, 
-                borderRadius: 0,
-                border: '1px solid #E0E0E0',
-                boxShadow: 'none'
+                borderRadius: 0
               }}
             >
               <CardContent sx={{ p: 3 }}>
@@ -205,7 +175,7 @@ const CaseSelection = () => {
                   <strong>Objective:</strong> {cases[selectedCase].objective}
                 </Typography>
                 
-                <Divider sx={{ my: 3, borderColor: '#E0E0E0' }} />
+                <Divider sx={{ my: 3 }} />
                 
                 <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, fontWeight: 400 }}>
                   Expected Process:
@@ -216,13 +186,11 @@ const CaseSelection = () => {
                     <Chip 
                       key={idx}
                       label={process}
-                      variant="outlined"
+                      color="primary"
                       size="small"
                       sx={{ 
-                        fontWeight: 400, 
-                        borderColor: '#E0E0E0',
-                        borderRadius: 1,
-                        color: '#000000'
+                        fontWeight: 400,
+                        borderRadius: 1
                       }}
                     />
                   ))}
@@ -237,13 +205,11 @@ const CaseSelection = () => {
                     <Chip 
                       key={idx}
                       label={consideration}
-                      variant="outlined"
+                      color="primary"
                       size="small"
                       sx={{ 
-                        fontWeight: 400, 
-                        borderColor: '#E0E0E0',
-                        borderRadius: 1,
-                        color: '#000000'
+                        fontWeight: 400,
+                        borderRadius: 1
                       }}
                     />
                   ))}
@@ -252,7 +218,7 @@ const CaseSelection = () => {
             </Card>
           )}
           
-          <Divider sx={{ my: 4, borderColor: '#E0E0E0' }} />
+          <Divider sx={{ my: 4 }} />
           
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button
@@ -261,29 +227,16 @@ const CaseSelection = () => {
                 prevStep();
                 navigate('/upload');
               }}
-              sx={{
-                color: '#4F4F4F',
-                '&:hover': {
-                  color: '#000000',
-                  backgroundColor: 'transparent'
-                }
-              }}
             >
               Back
             </Button>
             
             <Button
               type="submit"
-              variant="outlined"
+              variant="contained"
               disabled={loading || !selectedCase || !selectedLevel}
               sx={{ 
                 minWidth: 120,
-                borderColor: '#E0E0E0',
-                color: '#000000',
-                '&:hover': {
-                  borderColor: '#000000',
-                  backgroundColor: 'transparent'
-                },
                 py: 1
               }}
             >

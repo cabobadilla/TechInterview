@@ -108,7 +108,7 @@ const TranscriptUpload = () => {
     <Paper elevation={0} sx={{ 
       p: { xs: 3, sm: 4 }, 
       borderRadius: 0, 
-      border: '1px solid #E0E0E0',
+      border: '1px solid #1E3A54',
       mb: 5
     }}>
       <Box sx={{ maxWidth: 720, mx: 'auto' }}>
@@ -117,8 +117,7 @@ const TranscriptUpload = () => {
           gutterBottom 
           sx={{ 
             fontWeight: 400, 
-            mb: 3, 
-            color: '#000000',
+            mb: 3,
             letterSpacing: '-0.02em' 
           }}
         >
@@ -137,14 +136,7 @@ const TranscriptUpload = () => {
         {error && (
           <Alert 
             severity="error" 
-            sx={{ 
-              mb: 4, 
-              borderRadius: 0,
-              border: '1px solid #EB5757',
-              backgroundColor: 'transparent',
-              color: '#EB5757',
-              '& .MuiAlert-icon': { color: '#EB5757' }
-            }}
+            sx={{ mb: 4 }}
           >
             {error}
           </Alert>
@@ -157,11 +149,11 @@ const TranscriptUpload = () => {
         >
           <Box
             sx={{
-              border: `1px solid ${isDragOver ? '#000000' : '#E0E0E0'}`,
+              border: `1px solid ${isDragOver ? '#7DE1C3' : '#1E3A54'}`,
               borderRadius: 0,
               p: 4,
               textAlign: 'center',
-              backgroundColor: '#FFFFFF',
+              backgroundColor: 'rgba(125, 225, 195, 0.05)',
               transition: 'all 0.2s ease',
               mb: 4,
               cursor: 'pointer'
@@ -182,7 +174,7 @@ const TranscriptUpload = () => {
             <FileUploadIcon 
               sx={{ 
                 fontSize: 36, 
-                color: isDragOver ? '#000000' : '#4F4F4F',
+                color: isDragOver ? '#7DE1C3' : theme.palette.text.secondary,
                 mb: 2
               }} 
             />
@@ -204,7 +196,7 @@ const TranscriptUpload = () => {
                 gap: 1.5,
                 mb: 2
               }}>
-                <DescriptionIcon sx={{ color: '#000000' }} />
+                <DescriptionIcon sx={{ color: '#7DE1C3' }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 400 }}>
                   {file.name}
                 </Typography>
@@ -217,10 +209,9 @@ const TranscriptUpload = () => {
                 variant="outlined" 
                 sx={{ 
                   p: 3, 
-                  bgcolor: '#FFFFFF', 
                   maxHeight: 200, 
                   overflow: 'auto',
-                  borderColor: '#E0E0E0',
+                  borderColor: '#1E3A54',
                   borderRadius: 0,
                 }}
               >
@@ -231,21 +222,15 @@ const TranscriptUpload = () => {
             </Box>
           )}
           
-          <Divider sx={{ my: 4, borderColor: '#E0E0E0' }} />
+          <Divider sx={{ my: 4, borderColor: '#1E3A54' }} />
           
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button
               type="submit"
-              variant="outlined"
+              variant="contained"
               disabled={loading || !file}
               sx={{ 
                 minWidth: 180,
-                borderColor: '#E0E0E0',
-                color: '#000000',
-                '&:hover': {
-                  borderColor: '#000000',
-                  backgroundColor: 'transparent'
-                },
                 py: 1
               }}
             >

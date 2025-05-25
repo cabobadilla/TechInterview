@@ -23,8 +23,8 @@ const Header = () => {
       elevation={0}
       sx={{ 
         boxShadow: 'none', 
-        borderBottom: '1px solid #E0E0E0',
-        backgroundColor: '#FFFFFF'
+        borderBottom: '1px solid #1E3A54',
+        backgroundColor: theme.palette.background.default
       }}
     >
       <Container maxWidth="lg">
@@ -35,7 +35,7 @@ const Header = () => {
             component="div" 
             sx={{ 
               fontWeight: 600,
-              color: '#000000',
+              color: '#7DE1C3',
               letterSpacing: '-0.02em',
               fontFamily: '"Inter", sans-serif'
             }}
@@ -48,10 +48,10 @@ const Header = () => {
             variant="text"
             onClick={handleReset}
             sx={{ 
-              color: '#4F4F4F',
+              color: theme.palette.text.secondary,
               '&:hover': {
-                color: '#000000',
-                backgroundColor: 'transparent'
+                color: '#7DE1C3',
+                backgroundColor: 'rgba(125, 225, 195, 0.08)'
               }
             }}
           >

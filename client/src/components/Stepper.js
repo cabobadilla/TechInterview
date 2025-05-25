@@ -7,7 +7,8 @@ import {
   styled,
   StepConnector,
   stepConnectorClasses,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 
 const steps = [
@@ -25,16 +26,16 @@ const MinimalConnector = styled(StepConnector)(({ theme }) => ({
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: '#000000',
+      borderColor: '#7DE1C3',
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: '#000000',
+      borderColor: '#7DE1C3',
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    borderColor: '#E0E0E0',
+    borderColor: '#1E3A54',
     borderTopWidth: 1,
     borderRadius: 0,
   },
@@ -45,13 +46,13 @@ const StepIconRoot = styled('div')(({ theme, ownerState }) => ({
   display: 'flex',
   height: 22,
   alignItems: 'center',
-  color: '#E0E0E0',
+  color: '#1E3A54',
   zIndex: 1,
   ...(ownerState.active && {
-    color: '#000000',
+    color: '#7DE1C3',
   }),
   ...(ownerState.completed && {
-    color: '#000000',
+    color: '#7DE1C3',
   }),
   '& .StepIcon-circle': {
     width: 8,
@@ -76,20 +77,22 @@ const StepLabelStyled = styled(StepLabel)(({ theme }) => ({
     marginTop: '8px',
     fontSize: '0.875rem',
     fontWeight: 400,
-    color: '#4F4F4F',
+    color: theme.palette.text.secondary,
     letterSpacing: '-0.01em',
     textTransform: 'none',
     
     '&.Mui-active': {
-      color: '#000000',
+      color: '#7DE1C3',
     },
     '&.Mui-completed': {
-      color: '#000000',
+      color: '#7DE1C3',
     },
   },
 }));
 
 const Stepper = ({ activeStep }) => {
+  const theme = useTheme();
+  
   return (
     <Paper 
       elevation={0} 
@@ -97,8 +100,7 @@ const Stepper = ({ activeStep }) => {
         p: { xs: 3, sm: 4 }, 
         borderRadius: 0, 
         mb: 5,
-        background: 'white',
-        border: '1px solid #E0E0E0',
+        border: '1px solid #1E3A54',
       }}
     >
       <Typography 
@@ -108,7 +110,7 @@ const Stepper = ({ activeStep }) => {
           fontWeight: 400, 
           letterSpacing: '-0.02em', 
           mb: 4,
-          color: '#000000'
+          color: '#7DE1C3'
         }}
       >
         Tech Interview Analyzer

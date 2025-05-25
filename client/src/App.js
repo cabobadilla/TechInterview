@@ -12,87 +12,94 @@ import TranscriptUpload from './pages/TranscriptUpload';
 import CaseSelection from './pages/CaseSelection';
 import Results from './pages/Results';
 
-// Creamos un tema personalizado inspirado en diseño minimalista de UGMONK
+// Creamos un tema personalizado inspirado en el diseño minimalista con acentos verde agua
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#000000',
-      light: '#333333',
-      dark: '#000000',
-      contrastText: '#FFFFFF',
+      main: '#7DE1C3', // Mint/teal green
+      light: '#A3F0D8',
+      dark: '#55C4A5',
+      contrastText: '#0A1929',
     },
     secondary: {
-      main: '#5C5C5C',
-      light: '#7F7F7F',
-      dark: '#3A3A3A',
-      contrastText: '#FFFFFF',
+      main: '#7DE1C3', // Same teal for secondary
+      light: '#A3F0D8',
+      dark: '#55C4A5',
+      contrastText: '#0A1929',
     },
     error: {
-      main: '#EB5757',
-      light: '#FF8A8A',
-      dark: '#C53030',
+      main: '#FF6B6B',
+      light: '#FF9F9F',
+      dark: '#D14343',
     },
     warning: {
-      main: '#F2994A',
-      light: '#F2C94C',
-      dark: '#E67E22',
+      main: '#FFD166',
+      light: '#FFDF94',
+      dark: '#DBA832',
     },
     info: {
-      main: '#56CCF2',
-      light: '#2D9CDB',
-      dark: '#2B6CB0',
+      main: '#73C8F0',
+      light: '#A3E0FF',
+      dark: '#4D99BF',
     },
     success: {
-      main: '#6FCF97',
-      light: '#27AE60',
-      dark: '#219653',
+      main: '#7DE1C3',
+      light: '#A3F0D8',
+      dark: '#55C4A5',
     },
     background: {
-      default: '#FFFFFF',
-      paper: '#FFFFFF',
+      default: '#0A1929', // Dark navy/black background
+      paper: '#122C44', // Slightly lighter navy for cards
     },
     text: {
-      primary: '#000000',
-      secondary: '#4F4F4F',
+      primary: '#FFFFFF',
+      secondary: '#B8C4CF',
     },
   },
   typography: {
-    fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
     h1: {
       fontWeight: 400,
       fontSize: '3rem',
       lineHeight: 1.2,
       letterSpacing: '-0.01em',
+      color: '#7DE1C3',
     },
     h2: {
       fontWeight: 400,
       fontSize: '2.5rem',
       lineHeight: 1.3,
       letterSpacing: '-0.01em',
+      color: '#7DE1C3',
     },
     h3: {
       fontWeight: 400,
       fontSize: '2rem',
       lineHeight: 1.3,
       letterSpacing: '-0.01em',
+      color: '#7DE1C3',
     },
     h4: {
       fontWeight: 400,
       fontSize: '1.5rem',
       lineHeight: 1.4,
       letterSpacing: '-0.01em',
+      color: '#7DE1C3',
     },
     h5: {
       fontWeight: 400,
       fontSize: '1.25rem',
       lineHeight: 1.4,
       letterSpacing: '-0.01em',
+      color: '#7DE1C3',
     },
     h6: {
       fontWeight: 400,
       fontSize: '1rem',
       lineHeight: 1.5,
       letterSpacing: '-0.01em',
+      color: '#7DE1C3',
     },
     subtitle1: {
       fontSize: '1rem',
@@ -125,29 +132,29 @@ const theme = createTheme({
   },
   shadows: [
     'none',
-    '0px 1px 2px rgba(0, 0, 0, 0.05)',
-    '0px 1px 3px rgba(0, 0, 0, 0.1)',
-    '0px 1px 4px rgba(0, 0, 0, 0.12)',
-    '0px 1px 5px rgba(0, 0, 0, 0.14)',
-    '0px 1px 6px rgba(0, 0, 0, 0.16)',
-    '0px 1px 7px rgba(0, 0, 0, 0.18)',
-    '0px 1px 8px rgba(0, 0, 0, 0.2)',
-    '0px 1px 9px rgba(0, 0, 0, 0.22)',
-    '0px 1px 10px rgba(0, 0, 0, 0.24)',
-    '0px 1px 11px rgba(0, 0, 0, 0.26)',
-    '0px 1px 12px rgba(0, 0, 0, 0.28)',
-    '0px 1px 13px rgba(0, 0, 0, 0.3)',
-    '0px 1px 14px rgba(0, 0, 0, 0.32)',
-    '0px 1px 15px rgba(0, 0, 0, 0.34)',
-    '0px 1px 16px rgba(0, 0, 0, 0.36)',
-    '0px 1px 17px rgba(0, 0, 0, 0.38)',
-    '0px 1px 18px rgba(0, 0, 0, 0.4)',
-    '0px 1px 19px rgba(0, 0, 0, 0.42)',
-    '0px 1px 20px rgba(0, 0, 0, 0.44)',
-    '0px 1px 21px rgba(0, 0, 0, 0.46)',
-    '0px 1px 22px rgba(0, 0, 0, 0.48)',
-    '0px 1px 23px rgba(0, 0, 0, 0.5)',
-    '0px 1px 24px rgba(0, 0, 0, 0.52)',
+    '0px 1px 2px rgba(0, 0, 0, 0.25)',
+    '0px 1px 3px rgba(0, 0, 0, 0.3)',
+    '0px 1px 4px rgba(0, 0, 0, 0.35)',
+    '0px 1px 5px rgba(0, 0, 0, 0.4)',
+    '0px 1px 6px rgba(0, 0, 0, 0.45)',
+    '0px 1px 7px rgba(0, 0, 0, 0.5)',
+    '0px 1px 8px rgba(0, 0, 0, 0.55)',
+    '0px 1px 9px rgba(0, 0, 0, 0.6)',
+    '0px 1px 10px rgba(0, 0, 0, 0.65)',
+    '0px 1px 11px rgba(0, 0, 0, 0.7)',
+    '0px 1px 12px rgba(0, 0, 0, 0.75)',
+    '0px 1px 13px rgba(0, 0, 0, 0.8)',
+    '0px 1px 14px rgba(0, 0, 0, 0.85)',
+    '0px 1px 15px rgba(0, 0, 0, 0.9)',
+    '0px 1px 16px rgba(0, 0, 0, 0.95)',
+    '0px 1px 17px rgba(0, 0, 0, 1)',
+    '0px 1px 18px rgba(0, 0, 0, 1)',
+    '0px 1px 19px rgba(0, 0, 0, 1)',
+    '0px 1px 20px rgba(0, 0, 0, 1)',
+    '0px 1px 21px rgba(0, 0, 0, 1)',
+    '0px 1px 22px rgba(0, 0, 0, 1)',
+    '0px 1px 23px rgba(0, 0, 0, 1)',
+    '0px 1px 24px rgba(0, 0, 0, 1)',
   ],
   components: {
     MuiButton: {
@@ -163,17 +170,24 @@ const theme = createTheme({
           },
         },
         containedPrimary: {
-          backgroundColor: '#000000',
+          backgroundColor: '#7DE1C3',
+          color: '#0A1929',
           '&:hover': {
-            backgroundColor: '#333333',
+            backgroundColor: '#55C4A5',
           },
         },
         outlinedPrimary: {
-          borderColor: '#E0E0E0',
-          color: '#000000',
+          borderColor: '#7DE1C3',
+          color: '#7DE1C3',
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-            borderColor: '#000000',
+            backgroundColor: 'rgba(125, 225, 195, 0.08)',
+            borderColor: '#A3F0D8',
+          },
+        },
+        text: {
+          color: '#7DE1C3',
+          '&:hover': {
+            backgroundColor: 'rgba(125, 225, 195, 0.08)',
           },
         },
       },
@@ -183,9 +197,10 @@ const theme = createTheme({
         root: {
           borderRadius: 0,
           boxShadow: 'none',
+          backgroundColor: '#122C44',
         },
         outlined: {
-          borderColor: '#E0E0E0',
+          borderColor: '#1E3A54',
         },
       },
     },
@@ -195,7 +210,8 @@ const theme = createTheme({
           overflow: 'hidden',
           borderRadius: 0,
           boxShadow: 'none',
-          border: '1px solid #E0E0E0',
+          border: '1px solid #1E3A54',
+          backgroundColor: '#122C44',
         },
       },
     },
@@ -214,14 +230,14 @@ const theme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: '#E0E0E0',
+              borderColor: '#1E3A54',
               borderRadius: 0,
             },
             '&:hover fieldset': {
-              borderColor: '#000000',
+              borderColor: '#7DE1C3',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#000000',
+              borderColor: '#7DE1C3',
               borderWidth: 1,
             },
           },
@@ -232,25 +248,26 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           padding: '16px 24px',
-          borderBottom: '1px solid #E0E0E0',
+          borderBottom: '1px solid #1E3A54',
         },
         head: {
-          backgroundColor: '#F9F9F9',
-          color: '#4F4F4F',
+          backgroundColor: '#0E2337',
+          color: '#B8C4CF',
           fontWeight: 400,
-          borderBottom: '1px solid #E0E0E0',
+          borderBottom: '1px solid #1E3A54',
         },
       },
     },
     MuiLinearProgress: {
       styleOverrides: {
         root: {
-          height: 8,
+          height: 4,
           borderRadius: 0,
-          backgroundColor: '#F2F2F2',
+          backgroundColor: '#1E3A54',
         },
         bar: {
           borderRadius: 0,
+          backgroundColor: '#7DE1C3',
         },
       },
     },
@@ -263,28 +280,70 @@ const theme = createTheme({
           borderRadius: 2,
         },
         filled: {
-          backgroundColor: '#F2F2F2',
-          color: '#4F4F4F',
+          backgroundColor: '#1E3A54',
+          color: '#B8C4CF',
           '&.MuiChip-colorPrimary': {
-            backgroundColor: '#F2F2F2',
-            color: '#000000',
+            backgroundColor: 'rgba(125, 225, 195, 0.15)',
+            color: '#7DE1C3',
           },
           '&.MuiChip-colorSecondary': {
-            backgroundColor: '#F2F2F2',
-            color: '#4F4F4F',
+            backgroundColor: 'rgba(125, 225, 195, 0.15)',
+            color: '#7DE1C3',
           },
           '&.MuiChip-colorSuccess': {
-            backgroundColor: '#F2F9F5',
-            color: '#219653',
+            backgroundColor: 'rgba(125, 225, 195, 0.15)',
+            color: '#7DE1C3',
           },
           '&.MuiChip-colorError': {
-            backgroundColor: '#FDEEEE',
-            color: '#EB5757',
+            backgroundColor: 'rgba(255, 107, 107, 0.15)',
+            color: '#FF6B6B',
           },
           '&.MuiChip-colorWarning': {
-            backgroundColor: '#FEF6EC',
-            color: '#F2994A',
+            backgroundColor: 'rgba(255, 209, 102, 0.15)',
+            color: '#FFD166',
           },
+        },
+        outlined: {
+          borderColor: '#1E3A54',
+          color: '#B8C4CF',
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+        },
+        standardError: {
+          backgroundColor: 'transparent',
+          color: '#FF6B6B',
+          border: '1px solid #FF6B6B',
+          '& .MuiAlert-icon': { color: '#FF6B6B' },
+        },
+        standardWarning: {
+          backgroundColor: 'transparent',
+          color: '#FFD166',
+          border: '1px solid #FFD166',
+          '& .MuiAlert-icon': { color: '#FFD166' },
+        },
+        standardInfo: {
+          backgroundColor: 'transparent',
+          color: '#73C8F0',
+          border: '1px solid #73C8F0',
+          '& .MuiAlert-icon': { color: '#73C8F0' },
+        },
+        standardSuccess: {
+          backgroundColor: 'transparent',
+          color: '#7DE1C3',
+          border: '1px solid #7DE1C3',
+          '& .MuiAlert-icon': { color: '#7DE1C3' },
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: '#1E3A54',
         },
       },
     },

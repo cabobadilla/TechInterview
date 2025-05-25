@@ -7,7 +7,7 @@ import {
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { useAnalyzer } from '../context/AnalyzerContext';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const TranscriptUpload = () => {
   const navigate = useNavigate();
@@ -23,6 +23,8 @@ const TranscriptUpload = () => {
     error, 
     setError 
   } = useAnalyzer();
+  
+  const { api } = useAuth();
   
   const [file, setFile] = useState(null);
   const [previewText, setPreviewText] = useState('');
@@ -81,7 +83,7 @@ const TranscriptUpload = () => {
     formData.append('transcript', file);
     
     try {
-      const response = await axios.post('/api/transcript', formData, {
+      const response = await api.post('/transcript', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -97,8 +99,13 @@ const TranscriptUpload = () => {
       setQaPairs(qa_pairs);
       nextStep();
       navigate('/case-selection');
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error processing the transcript');
+    } catch (error) {
+      console.error('Error uploading transcript:', error);
+      if (error.response?.status === 401) {
+        setError('Authentication required. Please login again.');
+      } else {
+        setError(error.response?.data?.error || 'Failed to upload transcript');
+      }
     } finally {
       setLoading(false);
     }

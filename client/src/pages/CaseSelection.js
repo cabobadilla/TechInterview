@@ -7,7 +7,7 @@ import {
   useTheme, useMediaQuery
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const CaseSelection = () => {
   const navigate = useNavigate();
@@ -24,10 +24,15 @@ const CaseSelection = () => {
     prevStep,
     loading, 
     error, 
-    setError 
+    setError,
+    setEvaluationResults
   } = useAnalyzer();
   
+  const { api } = useAuth();
+  
   const [cases, setCases] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEvaluating, setIsEvaluating] = useState(false);
   
   // Redireccionar si no hay QA pairs
   useEffect(() => {
@@ -38,15 +43,23 @@ const CaseSelection = () => {
     // Cargar casos de estudio
     const fetchCases = async () => {
       try {
-        const response = await axios.get('/api/cases');
+        setIsLoading(true);
+        const response = await api.get('/cases');
         setCases(response.data);
-      } catch (err) {
-        setError('Error loading case studies');
+      } catch (error) {
+        console.error('Error fetching cases:', error);
+        if (error.response?.status === 401) {
+          setError('Authentication required. Please login again.');
+        } else {
+          setError(error.response?.data?.error || 'Failed to fetch case studies');
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchCases();
-  }, [qaPairs, navigate, setError]);
+  }, [qaPairs, navigate, api]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,8 +74,29 @@ const CaseSelection = () => {
       return;
     }
     
-    nextStep();
-    navigate('/results');
+    try {
+      setIsEvaluating(true);
+      setError('');
+      
+      const response = await api.post('/evaluate', {
+        qa_pairs: qaPairs,
+        case_study_key: selectedCase,
+        level: level
+      });
+      
+      setEvaluationResults(response.data.evaluation_results);
+      nextStep();
+      navigate('/results');
+    } catch (error) {
+      console.error('Error evaluating answers:', error);
+      if (error.response?.status === 401) {
+        setError('Authentication required. Please login again.');
+      } else {
+        setError(error.response?.data?.error || 'Failed to evaluate answers');
+      }
+    } finally {
+      setIsEvaluating(false);
+    }
   };
   
   return (

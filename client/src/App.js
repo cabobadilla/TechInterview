@@ -6,11 +6,13 @@ import { useAnalyzer } from './context/AnalyzerContext';
 // Componentes
 import Header from './components/Header';
 import Stepper from './components/Stepper';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Páginas
 import TranscriptUpload from './pages/TranscriptUpload';
 import CaseSelection from './pages/CaseSelection';
 import Results from './pages/Results';
+import Login from './pages/Login';
 
 // Creamos un tema personalizado inspirado en el diseño minimalista con acentos verde agua
 const theme = createTheme({
@@ -402,25 +404,43 @@ const theme = createTheme({
 });
 
 function App() {
-  const { currentStep } = useAnalyzer();
+  const { step, qa_pairs, evaluationResults, transcript, selectedCase, setSelectedCase } = useAnalyzer();
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Header />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 8, px: { xs: 2, md: 3 } }}>
-        <Box sx={{ mb: 4 }}>
-          <Stepper activeStep={currentStep} />
-        </Box>
-        
-        <Routes>
-          <Route path="/" element={<Navigate to="/upload" />} />
-          <Route path="/upload" element={<TranscriptUpload />} />
-          <Route path="/case-selection" element={<CaseSelection />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Container>
+      <Box sx={{ minHeight: '100vh', backgroundColor: theme.palette.background.default }}>
+        <Header />
+        <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+          <Routes>
+            {/* Ruta pública para login */}
+            <Route path="/login" element={<Login />} />
+
+            {/* Rutas protegidas */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Navigate to="/upload" replace />} />
+              <Route path="/upload" element={
+                <>
+                  <Stepper activeStep={step} />
+                  <TranscriptUpload />
+                </>
+              } />
+              <Route path="/select-case" element={
+                <>
+                  <Stepper activeStep={step} />
+                  <CaseSelection selectedCase={selectedCase} setSelectedCase={setSelectedCase} />
+                </>
+              } />
+              <Route path="/results" element={
+                <>
+                  <Stepper activeStep={step} />
+                  <Results qa_pairs={qa_pairs} evaluationResults={evaluationResults} transcript={transcript} />
+                </>
+              } />
+            </Route>
+          </Routes>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 }

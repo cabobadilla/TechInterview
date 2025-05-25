@@ -4,13 +4,21 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const { Configuration, OpenAIApi } = require('openai');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // Initialize Express app
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://techanalyzer.onrender.com', /\.render\.com$/] 
+    : 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Configure multer for file uploads
@@ -34,9 +42,75 @@ const openai = new OpenAIApi(configuration);
 // Load case studies from JSON file
 const caseStudies = require('./case_studies.json');
 
-// API Routes
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+  // For preflight OPTIONS requests, just return OK
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // Get token from Authorization header
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  
+  try {
+    // Verify token with secret
+    const user = jwt.verify(token, process.env.JWT_SECRET || 'your-default-secret-key');
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid or expired token' });
+  }
+};
+
+// AUTH ROUTES
+// Google OAuth login
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    // In a real implementation, we would verify the Google token
+    // For this example, we'll mock the verification
+    
+    // Mock user data (in real implementation, this would come from Google)
+    const userData = {
+      id: '12345',
+      email: 'user@example.com',
+      name: 'Test User',
+      picture: 'https://example.com/profile.jpg'
+    };
+    
+    // Create JWT token
+    const jwtToken = jwt.sign(
+      userData,
+      process.env.JWT_SECRET || 'your-default-secret-key',
+      { expiresIn: '24h' }
+    );
+    
+    return res.json({
+      token: jwtToken,
+      user: userData
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    return res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Verify token
+app.get('/api/auth/verify', authenticateToken, (req, res) => {
+  // The authenticateToken middleware already verified the token
+  // and added the user data to req.user
+  return res.json({ user: req.user });
+});
+
+// PROTECTED API ROUTES
 // 1. Upload and process transcript
-app.post('/api/transcript', upload.single('transcript'), async (req, res) => {
+app.post('/api/transcript', authenticateToken, upload.single('transcript'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -60,12 +134,12 @@ app.post('/api/transcript', upload.single('transcript'), async (req, res) => {
 });
 
 // 2. Get all case studies
-app.get('/api/cases', (req, res) => {
+app.get('/api/cases', authenticateToken, (req, res) => {
   return res.json(caseStudies);
 });
 
 // 3. Evaluate answers
-app.post('/api/evaluate', async (req, res) => {
+app.post('/api/evaluate', authenticateToken, async (req, res) => {
   try {
     const { qa_pairs, case_study_key, level } = req.body;
     
@@ -257,23 +331,25 @@ function mapKeyConsiderationToPercentage(value) {
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
+  // Make sure uploads directory exists
+  if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+  }
+  
   // Make sure the path to the build directory is correct
   const buildPath = path.join(__dirname, 'client', 'build');
   console.log('Serving static files from:', buildPath);
   
-  // Check if the directory exists
-  if (fs.existsSync(buildPath)) {
-    console.log('Build directory exists');
-    // List files in build directory for debugging
-    const files = fs.readdirSync(buildPath);
-    console.log('Files in build directory:', files);
-  } else {
-    console.log('Build directory does not exist');
-  }
-  
+  // Static files
   app.use(express.static(buildPath));
   
+  // Handle all other routes by serving index.html
   app.get('*', (req, res) => {
+    if (req.url.startsWith('/api')) {
+      // If it's an API request but wasn't caught by previous routes, it's a 404
+      return res.status(404).json({ error: 'API endpoint not found' });
+    }
+    
     const indexPath = path.join(buildPath, 'index.html');
     if (fs.existsSync(indexPath)) {
       res.sendFile(indexPath);
@@ -281,11 +357,6 @@ if (process.env.NODE_ENV === 'production') {
       res.status(404).send('index.html not found. Build may not be complete.');
     }
   });
-}
-
-// Create uploads directory if it doesn't exist
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
 }
 
 // Start server

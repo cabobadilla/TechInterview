@@ -54,7 +54,7 @@ const theme = createTheme({
     },
     text: {
       primary: '#FFFFFF',
-      secondary: '#B8C4CF',
+      secondary: '#E0E7EF',
     },
   },
   typography: {
@@ -105,26 +105,37 @@ const theme = createTheme({
       fontSize: '1rem',
       fontWeight: 400,
       letterSpacing: '-0.01em',
+      color: '#FFFFFF',
     },
     subtitle2: {
       fontSize: '0.875rem',
       fontWeight: 400,
       letterSpacing: '-0.01em',
+      color: '#FFFFFF',
     },
     body1: {
       fontSize: '1rem',
       lineHeight: 1.5,
       letterSpacing: '-0.01em',
+      color: '#FFFFFF',
     },
     body2: {
       fontSize: '0.875rem',
       lineHeight: 1.5,
       letterSpacing: '-0.01em',
+      color: '#FFFFFF',
     },
     button: {
       textTransform: 'none',
       fontWeight: 400,
       letterSpacing: '-0.01em',
+    },
+    caption: {
+      color: '#E0E7EF',
+      fontSize: '0.75rem',
+    },
+    overline: {
+      color: '#E0E7EF',
     },
   },
   shape: {
@@ -252,7 +263,7 @@ const theme = createTheme({
         },
         head: {
           backgroundColor: '#0E2337',
-          color: '#B8C4CF',
+          color: '#FFFFFF',
           fontWeight: 400,
           borderBottom: '1px solid #1E3A54',
         },
@@ -281,7 +292,7 @@ const theme = createTheme({
         },
         filled: {
           backgroundColor: '#1E3A54',
-          color: '#B8C4CF',
+          color: '#FFFFFF',
           '&.MuiChip-colorPrimary': {
             backgroundColor: 'rgba(125, 225, 195, 0.15)',
             color: '#7DE1C3',
@@ -305,7 +316,7 @@ const theme = createTheme({
         },
         outlined: {
           borderColor: '#1E3A54',
-          color: '#B8C4CF',
+          color: '#FFFFFF',
         },
       },
     },
@@ -344,6 +355,46 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderColor: '#1E3A54',
+        },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        secondary: {
+          color: '#E0E7EF',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(125, 225, 195, 0.15)',
+          },
+          '&.Mui-selected:hover': {
+            backgroundColor: 'rgba(125, 225, 195, 0.25)',
+          },
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        input: {
+          color: '#FFFFFF',
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        icon: {
+          color: '#7DE1C3',
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          color: '#E0E7EF',
         },
       },
     },

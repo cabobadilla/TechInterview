@@ -118,13 +118,31 @@ async function extractQAPairs(transcript) {
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant that extracts Q&A pairs from interview transcripts. Maintain the original language of the transcript and preserve the exact wording." },
+        { role: "system", content: "You are a helpful assistant that extracts Q&A pairs from interview transcripts. Maintain the original language of the transcript and preserve the exact wording. Return ONLY valid JSON without markdown formatting." },
         { role: "user", content: prompt }
       ],
       temperature: 0.3,
     });
     
-    return JSON.parse(response.data.choices[0].message.content);
+    // Get the content from OpenAI response
+    let content = response.data.choices[0].message.content.trim();
+    
+    // Check if the response is wrapped in markdown code blocks
+    if (content.startsWith('```')) {
+      // Extract content between markdown code blocks
+      const matches = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (matches && matches[1]) {
+        content = matches[1].trim();
+      } else {
+        // If no matches found but starts with ```, remove all markdown syntax
+        content = content.replace(/```json|```/g, '').trim();
+      }
+    }
+    
+    console.log("Processed content for parsing:", content.substring(0, 100) + "...");
+    
+    // Parse the cleaned JSON
+    return JSON.parse(content);
   } catch (error) {
     console.error('Error extracting Q&A pairs:', error);
     throw error;

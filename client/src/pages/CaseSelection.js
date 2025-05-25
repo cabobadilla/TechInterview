@@ -81,7 +81,7 @@ const CaseSelection = () => {
       const response = await api.post('/evaluate', {
         qa_pairs: qaPairs,
         case_study_key: selectedCase,
-        level: level
+        level: selectedLevel
       });
       
       setEvaluationResults(response.data.evaluation_results);

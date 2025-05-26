@@ -35,6 +35,7 @@ import {
   Cloud
 } from '@mui/icons-material';
 import axios from 'axios';
+import { buildApiUrl } from '../config/api';
 
 const ServerDiagnostic = () => {
   const [serverInfo, setServerInfo] = useState(null);
@@ -54,8 +55,8 @@ const ServerDiagnostic = () => {
     try {
       // Fetch server info and debug status
       const [serverResponse, debugResponse] = await Promise.all([
-        axios.get('/api/server-info').catch(err => ({ data: { error: err.message } })),
-        axios.get('/api/debug/status').catch(err => ({ data: { error: err.message } }))
+        axios.get(buildApiUrl('/api/server-info')).catch(err => ({ data: { error: err.message } })),
+        axios.get(buildApiUrl('/api/debug/status')).catch(err => ({ data: { error: err.message } }))
       ]);
       
       setServerInfo(serverResponse.data);

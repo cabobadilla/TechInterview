@@ -14,7 +14,7 @@ async function migrateData() {
     console.log('✅ Database connected');
     
     // Read existing case studies JSON
-    const caseStudiesPath = path.join(__dirname, '..', 'case_studies.json');
+    const caseStudiesPath = path.join(__dirname, '..', '..', 'shared', 'case_studies.json');
     
     if (!fs.existsSync(caseStudiesPath)) {
       console.log('⚠️  case_studies.json not found, creating default case studies...');

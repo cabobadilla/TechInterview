@@ -1,0 +1,54 @@
+# Configuración de Render para Frontend
+# Usar en Render Dashboard como blueprint o referencia
+
+services:
+  - type: web
+    name: tech-interview-frontend
+    env: static
+    plan: free  # Static sites son siempre gratuitos
+    region: oregon  # Cambiar según tu ubicación
+    rootDir: frontend
+    
+    # Comandos de build
+    buildCommand: |
+      npm install
+      npm run build
+    staticPublishPath: build
+    
+    # Configuración de headers para SPA
+    headers:
+      - source: "/*"
+        headers:
+          - key: "X-Frame-Options"
+            value: "DENY"
+          - key: "X-Content-Type-Options"
+            value: "nosniff"
+    
+    # Redirects para React Router
+    redirects:
+      - source: "/*"
+        destination: "/index.html"
+        type: rewrite
+    
+    # Variables de entorno
+    envVars:
+      # URL del backend (actualizar con tu dominio real)
+      - key: REACT_APP_API_URL
+        value: https://tech-interview-backend.onrender.com
+        
+      # Optimizaciones de build
+      - key: GENERATE_SOURCEMAP
+        value: false
+      - key: NODE_ENV
+        value: production
+        
+      # Google OAuth (debe coincidir con backend)
+      - key: REACT_APP_GOOGLE_CLIENT_ID
+        sync: false  # Configurar manualmente
+
+# Notas para configuración:
+# 1. Actualizar REACT_APP_API_URL con tu dominio de backend real
+# 2. Configurar REACT_APP_GOOGLE_CLIENT_ID (mismo que en backend)
+# 3. El frontend se despliega automáticamente en CDN global
+# 4. HTTPS y certificados SSL son automáticos
+# 5. No requiere configuración de base de datos 

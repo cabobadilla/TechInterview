@@ -1,0 +1,58 @@
+# Configuración de Render para Backend
+# Usar en Render Dashboard como blueprint o referencia
+
+services:
+  - type: web
+    name: tech-interview-backend
+    env: node
+    plan: free  # Cambiar a 'starter' para evitar sleep
+    region: oregon  # Cambiar según tu ubicación
+    rootDir: backend
+    
+    # Comandos de build y start
+    buildCommand: |
+      npm install
+      mkdir -p uploads
+      npm run migrate || echo "Migration skipped"
+    startCommand: npm start
+    
+    # Configuración del servicio
+    healthCheckPath: /api/server-info
+    
+    # Variables de entorno requeridas
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      
+      # Base de datos (configurar en Render Dashboard)
+      - key: DATABASE_URL
+        sync: false  # Configurar manualmente
+        
+      # Google OAuth (configurar en Render Dashboard)
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+        
+      # Seguridad (configurar en Render Dashboard)
+      - key: JWT_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+        
+      # OpenAI (opcional, configurar en Render Dashboard)
+      - key: OPENAI_API_KEY
+        sync: false
+        
+      # URL del frontend (actualizar con tu dominio)
+      - key: FRONTEND_URL
+        value: https://tech-interview-frontend.onrender.com
+
+# Notas para configuración:
+# 1. Crear PostgreSQL Database en Render primero
+# 2. Copiar DATABASE_URL a las variables de entorno
+# 3. Configurar Google OAuth en Google Cloud Console
+# 4. Generar JWT_SECRET y ENCRYPTION_KEY seguros
+# 5. Actualizar FRONTEND_URL con tu dominio real 

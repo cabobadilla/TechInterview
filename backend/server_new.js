@@ -30,7 +30,11 @@ app.use((req, res, next) => {
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://techanalyzer.onrender.com', /\.render\.com$/] 
+    ? [
+        process.env.FRONTEND_URL || 'https://tech-interview-analyzer-frontend.onrender.com',
+        'https://techanalyzer.onrender.com', 
+        /\.render\.com$/
+      ] 
     : 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -624,27 +628,9 @@ app.get('/api/server-info', (req, res) => {
   });
 });
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads');
-  }
-  
-  const buildPath = path.join(__dirname, 'client', 'build');
-  app.use(express.static(buildPath));
-  
-  app.get('*', (req, res) => {
-    if (req.url.startsWith('/api')) {
-      return res.status(404).json({ error: 'API endpoint not found' });
-    }
-    
-    const indexPath = path.join(buildPath, 'index.html');
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(404).send('index.html not found. Build may not be complete.');
-    }
-  });
+// Ensure uploads directory exists
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
 }
 
 // Start server

@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_CONFIG } from '../config/api';
 
 const AuthContext = createContext();
 
 // Configure axios baseURL based on environment
 const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' 
-    ? '/api' 
-    : 'http://localhost:5000/api',
+  baseURL: `${API_CONFIG.BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json'
   }

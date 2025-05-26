@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import axios from 'axios';
+import { buildApiUrl } from '../config/api';
 
 // Componente para mostrar puntuación con barra de progreso
 const ScoreDisplay = ({ label, value }) => {
@@ -80,7 +81,7 @@ const Results = () => {
     // Cargar casos de estudio
     const fetchCases = async () => {
       try {
-        const response = await axios.get('/api/cases');
+        const response = await axios.get(buildApiUrl('/api/cases'));
         setCases(response.data);
       } catch (err) {
         setError('Error loading case studies');
@@ -99,7 +100,7 @@ const Results = () => {
       setError(null);
       
       try {
-        const response = await axios.post('/api/evaluate', {
+        const response = await axios.post(buildApiUrl('/api/evaluate'), {
           qa_pairs: qaPairs,
           case_study_key: selectedCase,
           level: selectedLevel

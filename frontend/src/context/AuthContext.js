@@ -129,6 +129,7 @@ export const AuthProvider = ({ children }) => {
     try {
       addGlobalLog('🚀 Starting login process...', 'info');
       addGlobalLog(`🎫 Google token received: ${googleToken ? 'Present' : 'Missing'}`, 'info');
+      addGlobalLog(`🔧 Full API URL will be: ${API_CONFIG.BASE_URL}/api/auth/google`, 'info');
       
       setLoading(true);
       setError(null);
@@ -136,7 +137,7 @@ export const AuthProvider = ({ children }) => {
       // Test connectivity first
       addGlobalLog('🔗 Testing backend connectivity...', 'info');
       
-      const response = await api.post('/auth/google', { token: googleToken });
+      const response = await api.post('/api/auth/google', { token: googleToken });
       
       addGlobalLog(`✅ Login successful: ${response.data.user?.email || 'User'}`, 'success');
       

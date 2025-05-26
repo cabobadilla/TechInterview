@@ -24,6 +24,7 @@ const Login = () => {
   const [loginError, setLoginError] = useState(null);
   const [debugInfo, setDebugInfo] = useState('');
   const [logs, setLogs] = useState([]);
+  const [showGoogleButton, setShowGoogleButton] = useState(false);
 
   const addLog = (message, type = 'info') => {
     const timestamp = new Date().toLocaleTimeString();
@@ -124,13 +125,18 @@ const Login = () => {
         }
       });
 
-      addLog('🎯 Prompting for Google login...', 'info');
-      // Prompt for login
+      // Try popup first, then fallback to button
+      addLog('🎯 Attempting popup login...', 'info');
       window.google.accounts.id.prompt((notification) => {
         addLog(`📋 Google prompt notification: ${JSON.stringify(notification)}`, 'info');
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          addLog('⚠️ Google prompt was not displayed or skipped', 'warning');
-          setLoginError('Google login prompt was not displayed. Please try clicking the button again.');
+          addLog('⚠️ Popup blocked or skipped, rendering alternative button...', 'warning');
+          
+          // Automatically render the Google button as fallback
+          setTimeout(() => {
+            renderGoogleButton();
+            setLoginError('Popup was blocked. Please use the Google Sign-In button below.');
+          }, 500);
         }
       });
     } catch (err) {
@@ -160,6 +166,54 @@ const Login = () => {
   const clearLogs = () => {
     setLogs([]);
     addLog('🧹 Logs cleared', 'info');
+  };
+
+  const renderGoogleButton = () => {
+    addLog('🔘 Rendering Google Sign-In button...', 'info');
+    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    
+    if (!googleClientId || !window.google) {
+      addLog('❌ Cannot render Google button: missing configuration', 'error');
+      return;
+    }
+
+    try {
+      // Initialize Google OAuth if not already done
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async (response) => {
+          addLog('📞 Google button callback received', 'info');
+          try {
+            addLog('🔐 Sending credential to backend...', 'info');
+            await login(response.credential);
+            addLog('✅ Backend authentication successful', 'success');
+            navigate('/upload');
+          } catch (err) {
+            addLog(`❌ Backend authentication failed: ${err.message}`, 'error');
+            const errorMsg = err.response?.data?.error || err.message || 'Unknown error';
+            setLoginError(`Authentication failed: ${errorMsg}`);
+          }
+        }
+      });
+
+      // Render the button
+      const buttonContainer = document.getElementById('google-signin-button');
+      if (buttonContainer) {
+        buttonContainer.innerHTML = ''; // Clear any existing content
+        window.google.accounts.id.renderButton(buttonContainer, {
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'rectangular',
+          logo_alignment: 'left',
+          width: 280
+        });
+        addLog('✅ Google button rendered successfully', 'success');
+        setShowGoogleButton(true);
+      }
+    } catch (err) {
+      addLog(`❌ Failed to render Google button: ${err.message}`, 'error');
+    }
   };
 
   if (loading) {
@@ -217,7 +271,7 @@ const Login = () => {
             </Alert>
           )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, gap: 2 }}>
             <Button
               variant="contained"
               color="primary"
@@ -233,6 +287,40 @@ const Login = () => {
             >
               Sign in with Google
             </Button>
+            
+            {/* Alternative Google Button */}
+            {showGoogleButton && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Or use the official Google Sign-In button:
+                </Typography>
+                <Box 
+                  id="google-signin-button" 
+                  sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    minHeight: '40px',
+                    alignItems: 'center'
+                  }}
+                />
+              </Box>
+            )}
+            
+            {/* Manual Button Render Option */}
+            {!showGoogleButton && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={renderGoogleButton}
+                sx={{
+                  color: '#7DE1C3',
+                  borderColor: '#7DE1C3',
+                  '&:hover': { borderColor: '#55C4A5', backgroundColor: 'rgba(125, 225, 195, 0.1)' },
+                }}
+              >
+                Show Google Sign-In Button
+              </Button>
+            )}
           </Box>
           
           <Divider sx={{ my: 4, borderColor: '#1E3A54' }} />

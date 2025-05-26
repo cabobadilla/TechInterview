@@ -77,5 +77,36 @@ PORT=10000
 - **Redeploy**: 3-5 minutos
 - **Total**: ~7 minutos
 
+## 🚨 PROBLEMA ADICIONAL DETECTADO
+
+### Google OAuth Callback Incorrecto
+Tienes configurado en Google Cloud Console:
+```
+❌ https://techinterview.onrender.com/api/auth/google/callback
+```
+
+**ESTO ES INCORRECTO** para tu implementación actual.
+
+### ✅ Configuración Correcta en Google Cloud Console
+
+1. **Ir a [Google Cloud Console](https://console.cloud.google.com)**
+2. **APIs & Services → Credentials → Tu OAuth 2.0 Client ID**
+3. **Authorized JavaScript origins:**
+   ```
+   https://tech-interview-frontend.onrender.com
+   https://techinterview.onrender.com
+   http://localhost:3000
+   ```
+4. **Authorized redirect URIs:**
+   ```
+   https://tech-interview-frontend.onrender.com
+   https://techinterview.onrender.com
+   http://localhost:3000
+   ```
+5. **ELIMINAR** el callback `/api/auth/google/callback`
+
+### ⏱️ Tiempo de Propagación
+Los cambios en Google tardan **5-10 minutos** en propagarse.
+
 ## 🎯 Resultado Esperado
-Después de esta configuración, el login debería funcionar correctamente con Google OAuth real en lugar del modo fallback. 
+Después de ambas configuraciones (variable de entorno + Google OAuth), el login funcionará correctamente. 

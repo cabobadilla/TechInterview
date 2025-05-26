@@ -29,13 +29,36 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [
-        process.env.FRONTEND_URL || 'https://tech-interview-analyzer-frontend.onrender.com',
-        'https://techanalyzer.onrender.com', 
-        /\.render\.com$/
-      ] 
-    : 'http://localhost:3000',
+  origin: function (origin, callback) {
+    console.log('🌐 CORS Origin check:', origin);
+    
+    const allowedOrigins = process.env.NODE_ENV === 'production' 
+      ? [
+          process.env.FRONTEND_URL || 'https://tech-interview-analyzer-frontend.onrender.com',
+          'https://techanalyzer.onrender.com',
+          'https://tech-interview-frontend.onrender.com',
+          'https://tech-interview-analyzer.onrender.com'
+        ] 
+      : ['http://localhost:3000', 'http://localhost:3001'];
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      console.log('✅ CORS: No origin header, allowing request');
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list or matches render.com pattern
+    const isAllowed = allowedOrigins.includes(origin) || /\.render\.com$/.test(origin);
+    
+    if (isAllowed) {
+      console.log('✅ CORS: Origin allowed:', origin);
+      callback(null, true);
+    } else {
+      console.log('❌ CORS: Origin blocked:', origin);
+      console.log('📋 Allowed origins:', allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

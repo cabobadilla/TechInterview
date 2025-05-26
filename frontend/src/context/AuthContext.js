@@ -24,10 +24,13 @@ const api = axios.create({
   baseURL: `${API_CONFIG.BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  timeout: 30000, // 30 seconds timeout
+  withCredentials: true
 });
 
 addGlobalLog(`🔧 API configured with base URL: ${API_CONFIG.BASE_URL}/api`, 'info');
+addGlobalLog(`⏱️ Request timeout set to 30 seconds`, 'info');
 
 // Add interceptor to add auth token to requests
 api.interceptors.request.use(
@@ -62,12 +65,17 @@ api.interceptors.response.use(
     // Add more detailed error information
     if (error.code === 'ERR_NETWORK') {
       addGlobalLog(`🌐 Network Error: Cannot connect to backend at ${API_CONFIG.BASE_URL}`, 'error');
+      addGlobalLog(`🔍 Possible causes: Backend down, CORS issue, or network connectivity`, 'warning');
     } else if (error.code === 'ECONNREFUSED') {
       addGlobalLog(`🔌 Connection Refused: Backend server is not responding`, 'error');
+    } else if (error.code === 'ECONNABORTED') {
+      addGlobalLog(`⏰ Request Timeout: Request took longer than 30 seconds`, 'error');
     } else if (status === 404) {
       addGlobalLog(`🔍 Not Found: Endpoint ${url} does not exist`, 'error');
     } else if (status === 500) {
       addGlobalLog(`💥 Server Error: Backend internal error`, 'error');
+    } else if (status === 0) {
+      addGlobalLog(`🚫 CORS Error: Cross-origin request blocked`, 'error');
     }
     
     return Promise.reject(error);
@@ -125,6 +133,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
+      // Test connectivity first
+      addGlobalLog('🔗 Testing backend connectivity...', 'info');
+      
       const response = await api.post('/auth/google', { token: googleToken });
       
       addGlobalLog(`✅ Login successful: ${response.data.user?.email || 'User'}`, 'success');
@@ -143,11 +154,20 @@ export const AuthProvider = ({ children }) => {
         addGlobalLog(`📊 Error details: Status ${err.response.status}, Data: ${JSON.stringify(err.response.data)}`, 'error');
       } else if (err.request) {
         addGlobalLog(`📡 Request error: No response received from server`, 'error');
+        addGlobalLog(`🔧 Request details: ${err.request.responseURL || 'No URL'}`, 'error');
       } else {
         addGlobalLog(`⚙️ Setup error: ${err.message}`, 'error');
       }
       
-      setError(errorMessage);
+      // Provide user-friendly error message
+      let userFriendlyError = errorMessage;
+      if (err.code === 'ERR_NETWORK') {
+        userFriendlyError = 'Cannot connect to server. Please check your internet connection and try again.';
+      } else if (err.code === 'ECONNABORTED') {
+        userFriendlyError = 'Request timeout. The server is taking too long to respond.';
+      }
+      
+      setError(userFriendlyError);
       throw err;
     } finally {
       setLoading(false);

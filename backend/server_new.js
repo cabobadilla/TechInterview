@@ -108,31 +108,56 @@ if (!USE_FALLBACK_MODE) {
   }
 }
 
-// Initialize database
-(async () => {
-  try {
-    const dbInitialized = await initializeDatabase();
-    if (dbInitialized) {
-      console.log('✅ Database initialized successfully');
-      
-      // Schedule session cleanup every hour
-      setInterval(async () => {
-        try {
-          await AuthService.cleanupExpiredSessions();
-        } catch (error) {
-          console.error('Session cleanup error:', error);
-        }
-      }, 60 * 60 * 1000); // 1 hour
-      
-    } else {
-      console.error('❌ Database initialization failed');
+// Initialize database with retry logic
+async function initializeDatabaseWithRetry(maxRetries = 5, delay = 10000) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      console.log(`🔄 Database initialization attempt ${i + 1}/${maxRetries}`);
+      const dbInitialized = await initializeDatabase();
+      if (dbInitialized) {
+        console.log('✅ Database initialized successfully');
+        
+        // Schedule session cleanup every hour
+        setInterval(async () => {
+          try {
+            await AuthService.cleanupExpiredSessions();
+          } catch (error) {
+            console.error('Session cleanup error:', error);
+          }
+        }, 60 * 60 * 1000); // 1 hour
+        
+        return true;
+      }
+    } catch (error) {
+      console.error(`❌ Database initialization attempt ${i + 1} failed:`, error.message);
+      if (i < maxRetries - 1) {
+        console.log(`⏳ Waiting ${delay/1000} seconds before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
-  } catch (error) {
-    console.error('❌ Database initialization error:', error);
   }
-})();
+  console.error('❌ Database initialization failed after all attempts');
+  return false;
+}
+
+// Initialize database
+initializeDatabaseWithRetry().catch(error => {
+  console.error('❌ Critical database initialization error:', error);
+  // Don't exit the process, let the server start anyway for debugging
+});
 
 console.log('==========================================');
+
+// Basic root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Tech Interview Analyzer Backend API',
+    server: 'STATEFUL_SERVER_NEW',
+    version: '2.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // AUTH ROUTES
 // Google OAuth login
@@ -618,27 +643,81 @@ function mapKeyConsiderationToPercentage(value) {
   return mapping[value] || 0;
 }
 
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    let dbStatus = 'unknown';
+    try {
+      const { query } = require('./database/config');
+      await query('SELECT NOW()');
+      dbStatus = 'connected';
+    } catch (error) {
+      dbStatus = 'disconnected';
+    }
+    
+    const health = {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: dbStatus,
+      memory: process.memoryUsage(),
+      environment: process.env.NODE_ENV || 'development'
+    };
+    
+    res.status(200).json(health);
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
 // Debug endpoint
-app.get('/api/debug/status', (req, res) => {
-  const status = {
-    server_type: 'STATEFUL_SERVER_NEW',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    database_connected: true, // Will be set by database initialization
-    fallback_mode: USE_FALLBACK_MODE,
-    evaluation_fallback: USE_EVALUATION_FALLBACK,
-    simplified_mode: SIMPLIFIED_MODE,
-    openai_available: !!openai,
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    node_version: process.version,
-    google_oauth_configured: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
-    database_url_configured: !!process.env.DATABASE_URL,
-    jwt_secret_configured: !!process.env.JWT_SECRET,
-    encryption_key_configured: !!process.env.ENCRYPTION_KEY
-  };
-  
-  res.json(status);
+app.get('/api/debug/status', async (req, res) => {
+  try {
+    // Test database connection
+    let dbStatus = 'unknown';
+    let dbError = null;
+    try {
+      const { query } = require('./database/config');
+      await query('SELECT NOW()');
+      dbStatus = 'connected';
+    } catch (error) {
+      dbStatus = 'disconnected';
+      dbError = error.message;
+    }
+    
+    const status = {
+      server_type: 'STATEFUL_SERVER_NEW',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database_connected: dbStatus === 'connected',
+      database_error: dbError,
+      fallback_mode: USE_FALLBACK_MODE,
+      evaluation_fallback: USE_EVALUATION_FALLBACK,
+      simplified_mode: SIMPLIFIED_MODE,
+      openai_available: !!openai,
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      node_version: process.version,
+      google_oauth_configured: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+      database_url_configured: !!process.env.DATABASE_URL,
+      jwt_secret_configured: !!process.env.JWT_SECRET,
+      encryption_key_configured: !!process.env.ENCRYPTION_KEY,
+      port: process.env.PORT || 5000
+    };
+    
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to get status',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Server identification endpoint
@@ -652,20 +731,59 @@ app.get('/api/server-info', (req, res) => {
 });
 
 // Ensure uploads directory exists
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
+try {
+  if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+    console.log('✅ Created uploads directory');
+  }
+} catch (error) {
+  console.error('⚠️  Could not create uploads directory:', error.message);
 }
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Stateful server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: PostgreSQL`);
-  console.log(`🔐 Authentication: Google OAuth + Sessions`);
-  console.log(`🔒 Encryption: AES-256-GCM`);
-  
-  if (USE_FALLBACK_MODE) {
-    console.log('⚠️  Running in fallback mode (no OpenAI)');
-  }
-}); 
+
+try {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Stateful server running on port ${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🗄️  Database: PostgreSQL`);
+    console.log(`🔐 Authentication: Google OAuth + Sessions`);
+    console.log(`🔒 Encryption: AES-256-GCM`);
+    console.log(`🌐 Server listening on 0.0.0.0:${PORT}`);
+    
+    if (USE_FALLBACK_MODE) {
+      console.log('⚠️  Running in fallback mode (no OpenAI)');
+    }
+    
+    console.log('✅ Server started successfully');
+  });
+
+  server.on('error', (error) => {
+    console.error('❌ Server error:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use`);
+    }
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('🔄 SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    console.log('🔄 SIGINT received, shutting down gracefully');
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  });
+
+} catch (error) {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
+} 

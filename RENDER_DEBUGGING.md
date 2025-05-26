@@ -1,31 +1,43 @@
 # Guía de Debugging para Render
 
-## Problema Identificado
-La aplicación se congela después de cargar el archivo de transcript en el endpoint `/api/transcript`.
+## ⚠️ ACTUALIZACIÓN - Problema Identificado y Solucionado
 
-## Debugging Implementado
+### Problema Principal: Error de Navegación
+La aplicación se congelaba debido a una **inconsistencia en las rutas**:
+- `TranscriptUpload.js` navegaba a `/case-selection`
+- `App.js` tenía la ruta definida como `/select-case`
 
-### 1. Logs del Servidor
-- ✅ Logs detallados en el proceso de carga de archivos
-- ✅ Rastreo paso a paso de la función `extractQAPairs`
-- ✅ Información de timeouts y duración de llamadas OpenAI
-- ✅ Logs de inicialización de OpenAI
+**✅ SOLUCIONADO**: Se corrigieron todas las rutas para usar `/select-case` consistentemente.
 
-### 2. Logs del Cliente  
-- ✅ Panel de debug en tiempo real en la UI
-- ✅ Información de progreso de upload
-- ✅ Timeouts del lado cliente (2 minutos)
-- ✅ Estados de error detallados
+### Nuevas Funcionalidades de Debugging
 
-### 3. Modos de Fallback
-- ✅ Modo fallback sin OpenAI (`USE_FALLBACK=true`)
-- ✅ Modo simplificado (`SIMPLIFIED_MODE=true`)
-- ✅ Timeouts configurables
+#### 1. Modo de Emergencia
+- Botón "Emergency Mode" en la interfaz de upload
+- Bypasa el contexto y navegación para aislar problemas
+- Muestra los datos extraídos sin navegar
 
-## Pasos para Resolver en Render
+#### 2. Debugging Mejorado
+- Timer en tiempo real durante el procesamiento
+- Logs detallados del lado cliente y servidor
+- Información de validación de respuesta
+- Detección de errores de contexto/navegación
 
-### Paso 1: Verificar Variables de Entorno
-En el dashboard de Render, agregar/verificar:
+#### 3. Endpoint de Estado
+- `/api/debug/status` - muestra el estado del servidor
+- Información de memoria, uptime, configuración
+
+## Pasos para Debugging Avanzado
+
+### Paso 1: Verificar la Corrección de Rutas
+Las rutas ahora deben funcionar correctamente. Si aún hay problemas:
+
+1. Activar "Emergency Mode" en la interfaz
+2. Subir el transcript
+3. Si funciona en emergency mode → problema con contexto/navegación
+4. Si no funciona → problema con el servidor/OpenAI
+
+### Paso 2: Verificar Variables de Entorno
+En el dashboard de Render:
 ```
 NODE_ENV=production
 PORT=10000
@@ -33,56 +45,24 @@ OPENAI_API_KEY=tu_api_key_aqui
 JWT_SECRET=tu_jwt_secret
 ```
 
-### Paso 2: Activar Modo Debugging Temporal
-Agregar temporalmente para identificar el problema:
+### Paso 3: Debugging con Modos Especiales
+
+#### Para problemas de OpenAI:
 ```
 USE_FALLBACK=true
 ```
 
-### Paso 3: Verificar Logs
-En los logs de Render buscar:
-- `>>> extractQAPairs START <<<`
-- `Step F: Making OpenAI API call at:`
-- `>>> extractQAPairs ERROR <<<`
-
-### Paso 4: Según los Resultados
-
-#### Si funciona en modo fallback:
-- El problema es con OpenAI API
-- Verificar API key y créditos
-- Remover `USE_FALLBACK=true`
-
-#### Si NO funciona en modo fallback:
-- El problema es antes de la llamada OpenAI
-- Revisar logs de carga de archivos
-- Verificar configuración de multer/uploads
-
-### Paso 5: Opciones de Resolución
-
-#### Opción A: API Key Inválida
-```
-OPENAI_API_KEY=nueva_api_key_valida
-```
-
-#### Opción B: Timeout de Render
+#### Para problemas de timeout:
 ```
 SIMPLIFIED_MODE=true
 ```
 
-#### Opción C: Problema de Memoria
-Revisar el tamaño del archivo transcript y optimizar
+### Paso 4: Verificar Estado del Servidor
+Visitar: `https://tu-app.onrender.com/api/debug/status`
 
-## Logs Esperados
+## Logs Esperados (Actualizados)
 
-### Inicio Exitoso:
-```
-=== OPENAI INITIALIZATION ===
-OpenAI initialized successfully
-Serving static files from: /opt/render/project/src/client/build
-Server running on port 10000
-```
-
-### Upload Exitoso:
+### Upload Exitoso Completo:
 ```
 === TRANSCRIPT PROCESSING START ===
 Step 5: Calling extractQAPairs...
@@ -90,15 +70,51 @@ Step 5: Calling extractQAPairs...
 Step F: Making OpenAI API call at: [timestamp]
 Step G: OpenAI API call completed in [ms] ms
 >>> extractQAPairs SUCCESS <<<
+Step 8: Response object created, sending JSON...
+Step 9: res.json() called
 === TRANSCRIPT PROCESSING SUCCESS ===
+
+[CLIENT]
+Response validation - Response exists: true
+QA pairs validation passed
+Transcript set successfully
+QA pairs set successfully
+Step advanced successfully
+Navigation completed successfully
+=== CLIENT PROCESS COMPLETE ===
 ```
 
-### Error Típico:
+### Error de Navegación (Ahora solucionado):
 ```
->>> extractQAPairs ERROR <<<
-Error type: [tipo de error]
-Error message: [mensaje]
+Context/Navigation error: [error message]
 ```
 
-## Contacto
-Si el problema persiste después de estos pasos, compartir los logs completos del proceso de upload. 
+## Debugging en Render
+
+Si la aplicación se congela después de cargar el transcript:
+
+1. **Verificar logs del servidor** en el dashboard de Render
+2. **Activar modo fallback** temporalmente agregando `USE_FALLBACK=true`
+3. **Verificar la API key de OpenAI** que sea válida y tenga créditos
+4. **Revisar timeouts** - el proceso puede tomar hasta 2 minutos
+5. **Usar Emergency Mode** para aislar problemas de navegación/contexto
+
+### Logs de Debug
+
+La aplicación ahora incluye logs detallados que muestran:
+- Proceso de carga de archivos
+- Llamadas a OpenAI API 
+- Procesamiento de respuestas
+- Información de timeouts
+- Estado del cliente en tiempo real
+- Validación de contexto y navegación
+- Timer en tiempo real
+
+## Estado Actual
+
+**✅ Problema de rutas solucionado**
+**✅ Debugging mejorado implementado**
+**✅ Modo de emergencia disponible**
+**✅ Logs detallados activos**
+
+La aplicación debería funcionar correctamente después de estos cambios. Si persisten problemas, usar el Emergency Mode para aislar la causa. 

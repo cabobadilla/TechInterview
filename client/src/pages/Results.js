@@ -74,7 +74,7 @@ const Results = () => {
   // Redireccionar si faltan datos
   useEffect(() => {
     if (!qaPairs || qaPairs.length === 0 || !selectedCase || !selectedLevel) {
-      navigate('/case-selection');
+      navigate('/select-case');
     }
     
     // Cargar casos de estudio
@@ -351,7 +351,7 @@ const Results = () => {
                   variant="text"
                   onClick={() => {
                     prevStep();
-                    navigate('/case-selection');
+                    navigate('/select-case');
                   }}
                 >
                   Back

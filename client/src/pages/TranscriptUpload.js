@@ -31,6 +31,25 @@ const TranscriptUpload = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [debugInfo, setDebugInfo] = useState([]);
   const [uploadStartTime, setUploadStartTime] = useState(null);
+  const [realTimeTimer, setRealTimeTimer] = useState(0);
+  const [emergencyMode, setEmergencyMode] = useState(false);
+  const [successData, setSuccessData] = useState(null);
+
+  // Real-time timer for debugging
+  React.useEffect(() => {
+    let interval;
+    if (loading && uploadStartTime) {
+      interval = setInterval(() => {
+        setRealTimeTimer(Math.round((Date.now() - uploadStartTime) / 1000));
+      }, 1000);
+    } else {
+      setRealTimeTimer(0);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [loading, uploadStartTime]);
 
   const addDebugInfo = (message) => {
     const timestamp = new Date().toISOString();
@@ -124,20 +143,49 @@ const TranscriptUpload = () => {
       const duration = Date.now() - uploadStartTime;
       addDebugInfo(`API call completed successfully in ${duration}ms`);
       
+      addDebugInfo('Extracting data from response...');
       const { transcript, qa_pairs } = response.data;
       
+      addDebugInfo(`Response validation - Response exists: ${!!response.data}`);
+      addDebugInfo(`Response validation - Transcript exists: ${!!transcript}`);
+      addDebugInfo(`Response validation - QA pairs exists: ${!!qa_pairs}`);
       addDebugInfo(`Response received - Transcript length: ${transcript?.length || 0}, QA pairs: ${qa_pairs?.length || 0}`);
       
       if (!qa_pairs || qa_pairs.length === 0) {
+        addDebugInfo('ERROR: No QA pairs found in response');
         throw new Error('Unable to extract questions and answers from the transcript');
       }
       
-      addDebugInfo('Setting context data and navigating...');
-      setTranscript(transcript);
-      setQaPairs(qa_pairs);
-      nextStep();
-      navigate('/case-selection');
-      addDebugInfo('Navigation completed successfully');
+      addDebugInfo('QA pairs validation passed');
+      addDebugInfo('Setting transcript in context...');
+      
+      // Emergency mode - bypass context and navigation
+      if (emergencyMode) {
+        addDebugInfo('EMERGENCY MODE: Skipping context and navigation');
+        setSuccessData({ transcript, qa_pairs });
+        addDebugInfo('EMERGENCY MODE: Success data set, process complete');
+        return;
+      }
+      
+      // Use try-catch for context operations
+      try {
+        setTranscript(transcript);
+        addDebugInfo('Transcript set successfully');
+        
+        setQaPairs(qa_pairs);
+        addDebugInfo('QA pairs set successfully');
+        
+        addDebugInfo('Advancing to next step...');
+        nextStep();
+        addDebugInfo('Step advanced successfully');
+        
+        addDebugInfo('Navigating to case selection...');
+        navigate('/select-case');
+        addDebugInfo('Navigation completed successfully');
+      } catch (contextError) {
+        addDebugInfo(`Context/Navigation error: ${contextError.message}`);
+        throw contextError;
+      }
     } catch (error) {
       const duration = Date.now() - uploadStartTime;
       addDebugInfo(`ERROR occurred after ${duration}ms`);
@@ -160,9 +208,12 @@ const TranscriptUpload = () => {
         setError(error.response?.data?.error || 'Failed to upload transcript');
       }
     } finally {
+      addDebugInfo('Entering finally block...');
       setLoading(false);
+      addDebugInfo('Loading set to false');
       const totalDuration = Date.now() - uploadStartTime;
       addDebugInfo(`Process completed in ${totalDuration}ms`);
+      addDebugInfo('=== CLIENT PROCESS COMPLETE ===');
     }
   };
 
@@ -338,29 +389,76 @@ const TranscriptUpload = () => {
               
               {loading && uploadStartTime && (
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                  Elapsed time: {Math.round((Date.now() - uploadStartTime) / 1000)}s
+                  Elapsed time: {realTimeTimer}s
                 </Typography>
               )}
             </Paper>
           )}
           
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loading || !file}
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Button
+                onClick={() => setEmergencyMode(!emergencyMode)}
+                variant="outlined"
+                size="small"
+                sx={{ 
+                  color: emergencyMode ? '#ff6b6b' : '#7DE1C3',
+                  borderColor: emergencyMode ? '#ff6b6b' : '#7DE1C3'
+                }}
+              >
+                {emergencyMode ? 'Disable' : 'Enable'} Emergency Mode
+              </Button>
+              
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading || !file}
+                sx={{ 
+                  minWidth: 180,
+                  py: 1
+                }}
+              >
+                {loading ? (
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                ) : (
+                  'Process Transcript'
+                )}
+              </Button>
+            </Box>
+          </Box>
+          
+          {/* Emergency mode success display */}
+          {successData && emergencyMode && (
+            <Paper 
+              variant="outlined" 
               sx={{ 
-                minWidth: 180,
-                py: 1
+                p: 3, 
+                mt: 4,
+                borderColor: '#7DE1C3',
+                borderRadius: 0,
+                backgroundColor: 'rgba(125, 225, 195, 0.1)'
               }}
             >
-              {loading ? (
-                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-              ) : (
-                'Process Transcript'
-              )}
-            </Button>
-          </Box>
+              <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
+                🎉 Success (Emergency Mode)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Transcript processed successfully! Data extracted:
+              </Typography>
+              <Box sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                <Typography>Transcript length: {successData.transcript?.length || 0} characters</Typography>
+                <Typography>Questions extracted: {successData.qa_pairs?.length || 0}</Typography>
+                {successData.qa_pairs?.map((pair, index) => (
+                  <Box key={index} sx={{ mt: 1, p: 1, backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                    <Typography variant="caption" sx={{ color: '#7DE1C3' }}>Q{index + 1}:</Typography>
+                    <Typography variant="caption" component="div">
+                      {pair.question?.substring(0, 100)}...
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          )}
         </Box>
       </Box>
     </Paper>

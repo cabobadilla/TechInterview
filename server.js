@@ -205,8 +205,19 @@ app.post('/api/transcript', authenticateToken, upload.single('transcript'), asyn
     console.log('Step 6: extractQAPairs completed successfully, pairs count:', qa_pairs ? qa_pairs.length : 'null');
     
     console.log('Step 7: Sending response...');
+    console.log('Response data preview:', {
+      transcriptLength: transcript.length,
+      qaPairsCount: qa_pairs.length,
+      firstQuestionPreview: qa_pairs[0]?.question?.substring(0, 50) + '...'
+    });
+    
+    const responseData = { transcript, qa_pairs };
+    console.log('Step 8: Response object created, sending JSON...');
+    
+    const result = res.json(responseData);
+    console.log('Step 9: res.json() called, result:', typeof result);
     console.log('=== TRANSCRIPT PROCESSING SUCCESS ===');
-    return res.json({ transcript, qa_pairs });
+    return result;
   } catch (error) {
     console.error('=== TRANSCRIPT PROCESSING ERROR ===');
     console.error('Error at:', new Date().toISOString());
@@ -499,6 +510,23 @@ function mapKeyConsiderationToPercentage(value) {
   const mapping = { "Correct": 100, "Partially Correct": 66, "Incorrect": 0 };
   return mapping[value] || 0;
 }
+
+// Add debugging endpoint
+app.get('/api/debug/status', (req, res) => {
+  const status = {
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    fallbackMode: USE_FALLBACK_MODE,
+    simplifiedMode: SIMPLIFIED_MODE,
+    openaiAvailable: !!openai,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    nodeVersion: process.version
+  };
+  
+  console.log('DEBUG STATUS REQUEST:', status);
+  res.json(status);
+});
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

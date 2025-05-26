@@ -7,18 +7,35 @@ import {
   Button, 
   CircularProgress,
   Alert,
-  Divider
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Chip
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { setGlobalLogHandler } from '../context/AuthContext';
 
 const Login = () => {
   const { user, loading, error, login } = useAuth();
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState(null);
   const [debugInfo, setDebugInfo] = useState('');
+  const [logs, setLogs] = useState([]);
+
+  const addLog = (message, type = 'info') => {
+    const timestamp = new Date().toLocaleTimeString();
+    const newLog = { timestamp, message, type };
+    setLogs(prev => [...prev, newLog]);
+    console.log(`${timestamp} [${type.toUpperCase()}]`, message);
+  };
 
   useEffect(() => {
+    // Set up global log handler to capture AuthContext logs
+    setGlobalLogHandler(addLog);
+
     // If user is already logged in, redirect to home
     if (user) {
       navigate('/upload');
@@ -37,84 +54,112 @@ const Login = () => {
       timestamp: new Date().toISOString()
     };
     
-    console.log('🔍 Login Debug Info:', debugData);
+    addLog(`🔍 Login Debug Info: ${JSON.stringify(debugData, null, 2)}`, 'info');
     setDebugInfo(JSON.stringify(debugData, null, 2));
+
+    // Cleanup function
+    return () => {
+      setGlobalLogHandler(null);
+    };
   }, [user, navigate]);
 
   const handleGoogleLogin = async () => {
-    console.log('🚀 Starting Google login process...');
+    addLog('🚀 Starting Google login process...', 'info');
     setLoginError(null);
     
     try {
       // Check if we have a real Google Client ID configured
       const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-      console.log('🔑 Google Client ID check:', googleClientId ? 'Present' : 'Missing');
+      addLog(`🔑 Google Client ID check: ${googleClientId ? 'Present' : 'Missing'}`, 'info');
       
       if (!googleClientId || googleClientId.includes('1234567890')) {
         // Fallback mode - use mock authentication for development/testing
-        console.log('⚠️ Using fallback authentication mode');
+        addLog('⚠️ Using fallback authentication mode', 'warning');
         const mockToken = "mock_google_token_" + Date.now();
-        console.log('🎭 Mock token generated:', mockToken);
+        addLog(`🎭 Mock token generated: ${mockToken}`, 'info');
         
         try {
           await login(mockToken);
-          console.log('✅ Mock login successful');
+          addLog('✅ Mock login successful', 'success');
           navigate('/upload');
         } catch (mockErr) {
-          console.error('❌ Mock login failed:', mockErr);
+          addLog(`❌ Mock login failed: ${mockErr.message}`, 'error');
           setLoginError(`Mock login failed: ${mockErr.message}`);
         }
         return;
       }
 
       // Real Google OAuth mode
-      console.log('🌐 Attempting real Google OAuth...');
+      addLog('🌐 Attempting real Google OAuth...', 'info');
       
       if (!window.google) {
-        console.error('❌ Google Identity Services not loaded');
+        addLog('❌ Google Identity Services not loaded', 'error');
         setLoginError('Google Identity Services not loaded. Please refresh the page.');
         return;
       }
 
-      console.log('✅ Google Identity Services loaded');
+      addLog('✅ Google Identity Services loaded', 'success');
 
       // Initialize Google OAuth with real credentials
-      console.log('🔧 Initializing Google OAuth...');
+      addLog('🔧 Initializing Google OAuth...', 'info');
       window.google.accounts.id.initialize({
         client_id: googleClientId,
         callback: async (response) => {
-          console.log('📞 Google OAuth callback received');
+          addLog('📞 Google OAuth callback received', 'info');
           try {
-            console.log('🔐 Sending credential to backend...');
+            addLog('🔐 Sending credential to backend...', 'info');
             // Send the credential to our backend
             await login(response.credential);
-            console.log('✅ Backend authentication successful');
+            addLog('✅ Backend authentication successful', 'success');
             navigate('/upload');
           } catch (err) {
-            console.error('❌ Backend authentication failed:', err);
+            addLog(`❌ Backend authentication failed: ${err.message}`, 'error');
             const errorMsg = err.response?.data?.error || err.message || 'Unknown error';
             setLoginError(`Authentication failed: ${errorMsg}`);
           }
         },
         error_callback: (error) => {
-          console.error('❌ Google OAuth error callback:', error);
+          addLog(`❌ Google OAuth error callback: ${error.type || 'Unknown error'}`, 'error');
           setLoginError(`Google OAuth error: ${error.type || 'Unknown error'}`);
         }
       });
 
-      console.log('🎯 Prompting for Google login...');
+      addLog('🎯 Prompting for Google login...', 'info');
       // Prompt for login
       window.google.accounts.id.prompt((notification) => {
-        console.log('📋 Google prompt notification:', notification);
+        addLog(`📋 Google prompt notification: ${JSON.stringify(notification)}`, 'info');
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('⚠️ Google prompt was not displayed or skipped');
+          addLog('⚠️ Google prompt was not displayed or skipped', 'warning');
           setLoginError('Google login prompt was not displayed. Please try clicking the button again.');
         }
       });
     } catch (err) {
-      console.error('❌ Google login initialization failed:', err);
+      addLog(`❌ Google login initialization failed: ${err.message}`, 'error');
       setLoginError(`Failed to initialize Google login: ${err.message}`);
     }
+  };
+
+  const getLogColor = (type) => {
+    switch (type) {
+      case 'error': return '#f44336';
+      case 'warning': return '#ff9800';
+      case 'success': return '#4caf50';
+      default: return '#2196f3';
+    }
+  };
+
+  const getLogIcon = (type) => {
+    switch (type) {
+      case 'error': return '❌';
+      case 'warning': return '⚠️';
+      case 'success': return '✅';
+      default: return 'ℹ️';
+    }
+  };
+
+  const clearLogs = () => {
+    setLogs([]);
+    addLog('🧹 Logs cleared', 'info');
   };
 
   if (loading) {
@@ -126,7 +171,7 @@ const Login = () => {
   }
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Box
         sx={{
           display: 'flex',
@@ -134,6 +179,7 @@ const Login = () => {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: '80vh',
+          py: 2
         }}
       >
         <Paper
@@ -144,6 +190,7 @@ const Login = () => {
             borderRadius: 0,
             backgroundColor: 'background.paper',
             border: '1px solid #1E3A54',
+            mb: 2
           }}
         >
           <Typography
@@ -167,14 +214,6 @@ const Login = () => {
           {(error || loginError) && (
             <Alert severity="error" sx={{ mb: 3 }}>
               {error || loginError}
-            </Alert>
-          )}
-
-          {process.env.NODE_ENV === 'development' && (
-            <Alert severity="info" sx={{ mb: 3 }}>
-              <Typography variant="caption" component="pre" sx={{ fontSize: '0.7rem', whiteSpace: 'pre-wrap' }}>
-                Debug Info: {debugInfo}
-              </Typography>
             </Alert>
           )}
 
@@ -208,6 +247,84 @@ const Login = () => {
               ? ' All data is securely stored on Render.com.' 
               : ' You are using a development environment.'}
           </Typography>
+        </Paper>
+
+        {/* Debug Panel */}
+        <Paper
+          elevation={0}
+          sx={{
+            width: '100%',
+            border: '1px solid #1E3A54',
+            backgroundColor: 'background.paper'
+          }}
+        >
+          <Accordion defaultExpanded>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3' }}
+            >
+              <Typography variant="h6">
+                🔍 Debug Information & Logs
+              </Typography>
+              <Chip 
+                label={`${logs.length} logs`} 
+                size="small" 
+                sx={{ ml: 2, backgroundColor: '#7DE1C3', color: '#0A1929' }}
+              />
+            </AccordionSummary>
+            <AccordionDetails sx={{ maxHeight: '400px', overflow: 'auto' }}>
+              {/* Environment Info */}
+              <Typography variant="subtitle2" sx={{ mb: 2, color: '#7DE1C3' }}>
+                Environment Configuration:
+              </Typography>
+              <Box sx={{ mb: 3, p: 2, backgroundColor: '#0A1929', borderRadius: 1 }}>
+                <Typography variant="caption" component="pre" sx={{ fontSize: '0.75rem', whiteSpace: 'pre-wrap', color: '#fff' }}>
+                  {debugInfo}
+                </Typography>
+              </Box>
+
+              {/* Live Logs */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#7DE1C3' }}>
+                  Live Logs:
+                </Typography>
+                <Button 
+                  size="small" 
+                  onClick={clearLogs}
+                  sx={{ color: '#7DE1C3' }}
+                >
+                  Clear Logs
+                </Button>
+              </Box>
+              <Box sx={{ maxHeight: '200px', overflow: 'auto' }}>
+                {logs.length === 0 ? (
+                  <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                    No logs yet. Click "Sign in with Google" to start logging.
+                  </Typography>
+                ) : (
+                  logs.map((log, index) => (
+                    <Box 
+                      key={index} 
+                      sx={{ 
+                        mb: 1, 
+                        p: 1, 
+                        backgroundColor: '#f5f5f5', 
+                        borderRadius: 1,
+                        borderLeft: `4px solid ${getLogColor(log.type)}`
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ color: getLogColor(log.type), fontWeight: 'bold' }}>
+                        {getLogIcon(log.type)} {log.timestamp}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mt: 0.5, fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                        {log.message}
+                      </Typography>
+                    </Box>
+                  ))
+                )}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
         </Paper>
       </Box>
     </Container>

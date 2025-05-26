@@ -7,6 +7,9 @@ diagnose_*.js
 *_verification.js
 *_diagnostic.js
 
+# Documentación (no debe ir al repo)
+docs/
+
 # Archivos de configuración local
 .env.local
 .env.development.local

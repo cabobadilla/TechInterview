@@ -59,6 +59,7 @@ GOOGLE_CLIENT_ID=tu_google_client_id
 GOOGLE_CLIENT_SECRET=tu_google_client_secret
 JWT_SECRET=tu_jwt_secret_64_chars
 ENCRYPTION_KEY=tu_encryption_key_32_chars
+OPENAI_API_KEY=sk-tu_openai_api_key
 NODE_ENV=production
 PORT=10000
 ```
@@ -69,10 +70,16 @@ REACT_APP_API_URL=https://tu-backend.onrender.com
 GENERATE_SOURCEMAP=false
 ```
 
-## 📋 Guía Completa de Despliegue
+## 📋 Guías de Configuración
 
-Para instrucciones detalladas paso a paso, consulta:
+### Despliegue
 **[📖 Guía Completa de Despliegue en Render](docs/MONOREPO_DEPLOYMENT.md)**
+
+### Variables de Entorno
+**[🔧 Configuración de Variables de Entorno](docs/RENDER_ENV_VARS.md)**
+
+### OpenAI API Key
+**[🤖 Configuración de OpenAI API Key](docs/OPENAI_SETUP.md)**
 
 ## ✨ Características
 

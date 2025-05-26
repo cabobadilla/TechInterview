@@ -13,7 +13,6 @@ services:
     buildCommand: |
       npm install
       mkdir -p uploads
-      npm run migrate || echo "Migration skipped"
     startCommand: npm start
     
     # Configuración del servicio
@@ -42,7 +41,7 @@ services:
       - key: ENCRYPTION_KEY
         sync: false
         
-      # OpenAI (opcional, configurar en Render Dashboard)
+      # OpenAI (REQUERIDO para evaluaciones IA)
       - key: OPENAI_API_KEY
         sync: false
         

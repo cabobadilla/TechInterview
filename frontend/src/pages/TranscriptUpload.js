@@ -127,7 +127,7 @@ const TranscriptUpload = () => {
       
       addDebugInfo('API call initiated with timeout protection');
       
-      const response = await api.post('/transcript', formData, {
+      const response = await api.post('/api/transcript', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },

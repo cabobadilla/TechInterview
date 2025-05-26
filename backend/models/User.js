@@ -59,12 +59,19 @@ class User {
   // Create new user from Google OAuth
   static async createFromGoogle(googleProfile) {
     try {
+      console.log('👤 Creating user with profile:', {
+        google_id: googleProfile.google_id || googleProfile.sub || googleProfile.id,
+        email: googleProfile.email,
+        name: googleProfile.name,
+        picture: googleProfile.picture
+      });
+      
       const result = await query(
         `INSERT INTO users (google_id, email, name, picture_url, last_login)
          VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
          RETURNING *`,
         [
-          googleProfile.sub || googleProfile.id,
+          googleProfile.google_id || googleProfile.sub || googleProfile.id,
           googleProfile.email,
           googleProfile.name,
           googleProfile.picture
@@ -73,6 +80,7 @@ class User {
       return new User(result.rows[0]);
     } catch (error) {
       console.error('Error creating user from Google:', error);
+      console.error('Profile data was:', googleProfile);
       throw error;
     }
   }

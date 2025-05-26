@@ -26,6 +26,13 @@ class AuthService {
       
       const payload = ticket.getPayload();
       console.log('✅ Google token verified for user:', payload.email);
+      console.log('🔍 Google payload debug:', {
+        sub: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
+        email_verified: payload.email_verified
+      });
       
       return {
         google_id: payload.sub,

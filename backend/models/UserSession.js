@@ -32,6 +32,23 @@ class UserSession {
     }
   }
 
+  // Find session by ID
+  static async findById(sessionId) {
+    try {
+      const result = await query(
+        `SELECT * FROM user_sessions 
+         WHERE id = $1 
+         AND is_active = true 
+         AND expires_at > CURRENT_TIMESTAMP`,
+        [sessionId]
+      );
+      return result.rows.length > 0 ? new UserSession(result.rows[0]) : null;
+    } catch (error) {
+      console.error('Error finding session by ID:', error);
+      throw error;
+    }
+  }
+
   // Find session by token
   static async findByToken(sessionToken) {
     try {

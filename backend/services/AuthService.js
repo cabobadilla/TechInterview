@@ -110,10 +110,22 @@ class AuthService {
     try {
       // Verify JWT
       const decoded = jwt.verify(token, this.jwtSecret);
+      console.log('🔍 JWT decoded successfully:', { 
+        user_id: decoded.user_id, 
+        session_id: decoded.session_id,
+        email: decoded.email 
+      });
       
-      // Check if session is still valid
-      const session = await UserSession.findByToken(token);
+      // Check if session is still valid using session_id from JWT
+      const session = await UserSession.findById(decoded.session_id);
+      console.log('🔍 Session lookup result:', session ? 'Found' : 'Not found');
+      
       if (!session || !session.isValid()) {
+        console.log('❌ Session validation failed:', {
+          sessionExists: !!session,
+          sessionValid: session ? session.isValid() : false,
+          sessionData: session ? session.toJSON() : null
+        });
         throw new Error('Session expired or invalid');
       }
 
@@ -144,7 +156,7 @@ class AuthService {
   async logout(token) {
     try {
       const decoded = jwt.verify(token, this.jwtSecret);
-      const session = await UserSession.findByToken(token);
+      const session = await UserSession.findById(decoded.session_id);
       
       if (session) {
         await session.invalidate();

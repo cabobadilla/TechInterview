@@ -21,7 +21,7 @@ const addGlobalLog = (message, type = 'info') => {
 
 // Configure axios baseURL based on environment
 const api = axios.create({
-  baseURL: `${API_CONFIG.BASE_URL}/api`,
+  baseURL: API_CONFIG.BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   },
@@ -29,7 +29,7 @@ const api = axios.create({
   withCredentials: true
 });
 
-addGlobalLog(`🔧 API configured with base URL: ${API_CONFIG.BASE_URL}/api`, 'info');
+addGlobalLog(`🔧 API configured with base URL: ${API_CONFIG.BASE_URL}`, 'info');
 addGlobalLog(`⏱️ Request timeout set to 30 seconds`, 'info');
 
 // Add interceptor to add auth token to requests

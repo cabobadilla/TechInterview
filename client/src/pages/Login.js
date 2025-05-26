@@ -26,15 +26,34 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setLoginError(null);
-    // This would be replaced with actual Google OAuth implementation
-    // For now, we'll simulate a successful login
+    
     try {
-      const mockGoogleToken = "mock_google_token";
-      await login(mockGoogleToken);
-      navigate('/upload');
+      // Load Google Identity Services
+      if (!window.google) {
+        setLoginError('Google Identity Services not loaded. Please refresh the page.');
+        return;
+      }
+
+      // Initialize Google OAuth
+      window.google.accounts.id.initialize({
+        client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID || '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com',
+        callback: async (response) => {
+          try {
+            // Send the credential to our backend
+            await login(response.credential);
+            navigate('/upload');
+          } catch (err) {
+            console.error('Login failed:', err);
+            setLoginError('Failed to authenticate with Google. Please try again.');
+          }
+        }
+      });
+
+      // Prompt for login
+      window.google.accounts.id.prompt();
     } catch (err) {
-      console.error('Login failed:', err);
-      setLoginError('Failed to authenticate with Google. Please try again.');
+      console.error('Google login initialization failed:', err);
+      setLoginError('Failed to initialize Google login. Please try again.');
     }
   };
 

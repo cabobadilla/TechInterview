@@ -13,6 +13,7 @@ import TranscriptUpload from './pages/TranscriptUpload';
 import CaseSelection from './pages/CaseSelection';
 import Results from './pages/Results';
 import Login from './pages/Login';
+import EvaluationHistory from './pages/EvaluationHistory';
 
 // Creamos un tema personalizado inspirado en el diseño minimalista con acentos verde agua
 const theme = createTheme({
@@ -437,6 +438,7 @@ function App() {
                   <Results qa_pairs={qa_pairs} evaluationResults={evaluationResults} transcript={transcript} />
                 </>
               } />
+              <Route path="/history" element={<EvaluationHistory />} />
             </Route>
           </Routes>
         </Container>

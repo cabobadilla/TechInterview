@@ -63,22 +63,38 @@ const Header = () => {
           </Typography>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Reset Button - Only show when authenticated */}
+            {/* Navigation Buttons - Only show when authenticated */}
             {isAuthenticated && (
-              <Button 
-                variant="text"
-                onClick={handleReset}
-                sx={{ 
-                  color: theme.palette.text.secondary,
-                  mr: 2,
-                  '&:hover': {
-                    color: '#7DE1C3',
-                    backgroundColor: 'rgba(125, 225, 195, 0.08)'
-                  }
-                }}
-              >
-                Reset
-              </Button>
+              <>
+                <Button 
+                  variant="text"
+                  onClick={() => navigate('/history')}
+                  sx={{ 
+                    color: theme.palette.text.secondary,
+                    mr: 1,
+                    '&:hover': {
+                      color: '#7DE1C3',
+                      backgroundColor: 'rgba(125, 225, 195, 0.08)'
+                    }
+                  }}
+                >
+                  Historial
+                </Button>
+                <Button 
+                  variant="text"
+                  onClick={handleReset}
+                  sx={{ 
+                    color: theme.palette.text.secondary,
+                    mr: 2,
+                    '&:hover': {
+                      color: '#7DE1C3',
+                      backgroundColor: 'rgba(125, 225, 195, 0.08)'
+                    }
+                  }}
+                >
+                  Reset
+                </Button>
+              </>
             )}
             
             {/* User Menu or Login Button */}

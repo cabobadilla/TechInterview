@@ -646,6 +646,7 @@ function mapKeyConsiderationToPercentage(value) {
 // Add debugging endpoint
 app.get('/api/debug/status', (req, res) => {
   const status = {
+    server_type: 'LEGACY_SERVER',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     fallbackMode: USE_FALLBACK_MODE,
@@ -658,6 +659,16 @@ app.get('/api/debug/status', (req, res) => {
   
   console.log('DEBUG STATUS REQUEST:', status);
   res.json(status);
+});
+
+// Server identification endpoint
+app.get('/api/server-info', (req, res) => {
+  res.json({
+    server: 'LEGACY_SERVER',
+    version: '1.0.0',
+    features: ['mock_auth', 'file_storage', 'openai'],
+    status: 'active'
+  });
 });
 
 // Serve static assets in production

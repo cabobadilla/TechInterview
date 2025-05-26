@@ -14,6 +14,7 @@ import CaseSelection from './pages/CaseSelection';
 import Results from './pages/Results';
 import Login from './pages/Login';
 import EvaluationHistory from './pages/EvaluationHistory';
+import ServerDiagnostic from './pages/ServerDiagnostic';
 
 // Creamos un tema personalizado inspirado en el diseño minimalista con acentos verde agua
 const theme = createTheme({
@@ -439,6 +440,7 @@ function App() {
                 </>
               } />
               <Route path="/history" element={<EvaluationHistory />} />
+              <Route path="/diagnostic" element={<ServerDiagnostic />} />
             </Route>
           </Routes>
         </Container>

@@ -594,6 +594,7 @@ function mapKeyConsiderationToPercentage(value) {
 // Debug endpoint
 app.get('/api/debug/status', (req, res) => {
   const status = {
+    server_type: 'STATEFUL_SERVER_NEW',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     database_connected: true, // Will be set by database initialization
@@ -603,10 +604,24 @@ app.get('/api/debug/status', (req, res) => {
     openai_available: !!openai,
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    node_version: process.version
+    node_version: process.version,
+    google_oauth_configured: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+    database_url_configured: !!process.env.DATABASE_URL,
+    jwt_secret_configured: !!process.env.JWT_SECRET,
+    encryption_key_configured: !!process.env.ENCRYPTION_KEY
   };
   
   res.json(status);
+});
+
+// Server identification endpoint
+app.get('/api/server-info', (req, res) => {
+  res.json({
+    server: 'STATEFUL_SERVER_NEW',
+    version: '2.0.0',
+    features: ['google_oauth', 'postgresql', 'encryption', 'sessions'],
+    status: 'active'
+  });
 });
 
 // Serve static assets in production

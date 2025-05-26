@@ -17,18 +17,7 @@ Una aplicación web moderna para analizar entrevistas técnicas de arquitectura,
 - **Autenticación**: JWT, OAuth 2.0 con Google
 - **IA**: OpenAI GPT para análisis de texto
 
-## Configuración para Desarrollo
 
-1. Clona este repositorio
-2. Instala las dependencias del servidor: `npm install`
-3. Instala las dependencias del cliente: `cd client && npm install`
-4. Crea un archivo `.env` en la raíz con:
-   ```
-   OPENAI_API_KEY=tu_clave_api_openai
-   JWT_SECRET=tu_clave_secreta_jwt
-   PORT=5000
-   ```
-5. Ejecuta el servidor de desarrollo: `npm run dev`
 
 ## Configuración para Despliegue en Render.com
 
@@ -97,40 +86,7 @@ El código ya está configurado para manejar CORS en producción, aceptando soli
 └── case_studies.json       # Datos de casos de estudio
 ```
 
-## Instalación y Ejecución Local
 
-1. **Clonar el repositorio**
-   ```
-   git clone <repositorio>
-   cd tech-interview-analyzer
-   ```
-
-2. **Instalar dependencias del servidor**
-   ```
-   npm install
-   ```
-
-3. **Instalar dependencias del cliente**
-   ```
-   cd client
-   npm install
-   cd ..
-   ```
-
-4. **Configurar variables de entorno**
-   Crear un archivo `.env` en la raíz del proyecto con:
-   ```
-   NODE_ENV=development
-   PORT=5000
-   OPENAI_API_KEY=your_openai_api_key_here
-   JWT_SECRET=tu_clave_secreta_jwt
-   ```
-
-5. **Ejecutar en desarrollo**
-   ```
-   npm run dev
-   ```
-   Esto iniciará tanto el servidor (puerto 5000) como el cliente (puerto 3000).
 
 ## Despliegue en Render.com
 

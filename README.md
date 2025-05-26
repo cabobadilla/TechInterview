@@ -166,6 +166,32 @@ Si prefieres configurar manualmente, sigue estos pasos:
      - `OPENAI_API_KEY=your_openai_api_key_here`
      - `JWT_SECRET=tu_clave_secreta_jwt`
 
+## Variables de Entorno para Debugging
+
+Para resolver problemas de congelamiento en Render, puedes usar estas variables adicionales:
+
+- `SIMPLIFIED_MODE=true` - Activa el modo simplificado para pruebas
+- `USE_FALLBACK=true` - Usa modo fallback sin OpenAI para debugging
+- `DEBUG=*` - Activa logs detallados
+
+## Debugging en Render
+
+Si la aplicación se congela después de cargar el transcript:
+
+1. **Verificar logs del servidor** en el dashboard de Render
+2. **Activar modo fallback** temporalmente agregando `USE_FALLBACK=true`
+3. **Verificar la API key de OpenAI** que sea válida y tenga créditos
+4. **Revisar timeouts** - el proceso puede tomar hasta 2 minutos
+
+### Logs de Debug
+
+La aplicación ahora incluye logs detallados que muestran:
+- Proceso de carga de archivos
+- Llamadas a OpenAI API 
+- Procesamiento de respuestas
+- Información de timeouts
+- Estado del cliente en tiempo real
+
 ## Flujo de la Aplicación
 
 La aplicación sigue un flujo tipo wizard con tres pasos principales:

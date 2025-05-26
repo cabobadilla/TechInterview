@@ -29,6 +29,15 @@ const TranscriptUpload = () => {
   const [file, setFile] = useState(null);
   const [previewText, setPreviewText] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
+  const [debugInfo, setDebugInfo] = useState([]);
+  const [uploadStartTime, setUploadStartTime] = useState(null);
+
+  const addDebugInfo = (message) => {
+    const timestamp = new Date().toISOString();
+    const info = `[${timestamp}] ${message}`;
+    console.log('CLIENT DEBUG:', info);
+    setDebugInfo(prev => [...prev, info]);
+  };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -78,36 +87,82 @@ const TranscriptUpload = () => {
     
     setLoading(true);
     setError(null);
+    setDebugInfo([]);
+    setUploadStartTime(Date.now());
+    
+    addDebugInfo('Starting transcript upload process');
+    addDebugInfo(`File: ${file.name}, Size: ${file.size} bytes`);
     
     const formData = new FormData();
     formData.append('transcript', file);
     
     try {
+      addDebugInfo('FormData created, making API call...');
+      
+      // Add timeout to the request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        addDebugInfo('REQUEST TIMEOUT - Aborting after 120 seconds');
+      }, 120000); // 2 minutes timeout
+      
+      addDebugInfo('API call initiated with timeout protection');
+      
       const response = await api.post('/transcript', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
+        },
+        signal: controller.signal,
+        timeout: 120000,
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          addDebugInfo(`Upload progress: ${percentCompleted}%`);
         }
       });
       
+      clearTimeout(timeoutId);
+      const duration = Date.now() - uploadStartTime;
+      addDebugInfo(`API call completed successfully in ${duration}ms`);
+      
       const { transcript, qa_pairs } = response.data;
+      
+      addDebugInfo(`Response received - Transcript length: ${transcript?.length || 0}, QA pairs: ${qa_pairs?.length || 0}`);
       
       if (!qa_pairs || qa_pairs.length === 0) {
         throw new Error('Unable to extract questions and answers from the transcript');
       }
       
+      addDebugInfo('Setting context data and navigating...');
       setTranscript(transcript);
       setQaPairs(qa_pairs);
       nextStep();
       navigate('/case-selection');
+      addDebugInfo('Navigation completed successfully');
     } catch (error) {
+      const duration = Date.now() - uploadStartTime;
+      addDebugInfo(`ERROR occurred after ${duration}ms`);
+      
       console.error('Error uploading transcript:', error);
-      if (error.response?.status === 401) {
+      addDebugInfo(`Error type: ${error.name}`);
+      addDebugInfo(`Error message: ${error.message}`);
+      
+      if (error.name === 'AbortError') {
+        addDebugInfo('Request was aborted due to timeout');
+        setError('Request timed out. The server may be overloaded. Please try again.');
+      } else if (error.response?.status === 401) {
+        addDebugInfo('Authentication error');
         setError('Authentication required. Please login again.');
+      } else if (error.code === 'ECONNABORTED') {
+        addDebugInfo('Connection timeout');
+        setError('Connection timeout. Please check your internet connection and try again.');
       } else {
+        addDebugInfo(`Server error: ${error.response?.data?.error || error.message}`);
         setError(error.response?.data?.error || 'Failed to upload transcript');
       }
     } finally {
       setLoading(false);
+      const totalDuration = Date.now() - uploadStartTime;
+      addDebugInfo(`Process completed in ${totalDuration}ms`);
     }
   };
 
@@ -230,6 +285,64 @@ const TranscriptUpload = () => {
           )}
           
           <Divider sx={{ my: 4, borderColor: '#1E3A54' }} />
+          
+          {(loading || debugInfo.length > 0) && (
+            <Paper 
+              variant="outlined" 
+              sx={{ 
+                p: 3, 
+                mb: 4,
+                borderColor: '#1E3A54',
+                borderRadius: 0,
+                backgroundColor: 'rgba(125, 225, 195, 0.05)'
+              }}
+            >
+              <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
+                {loading ? 'Processing...' : 'Debug Information'}
+              </Typography>
+              
+              {loading && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
+                  <Typography variant="body2" color="text.secondary">
+                    Processing transcript... This may take up to 2 minutes.
+                  </Typography>
+                </Box>
+              )}
+              
+              <Box 
+                sx={{ 
+                  maxHeight: 300, 
+                  overflow: 'auto',
+                  fontFamily: 'monospace',
+                  fontSize: '0.8rem',
+                  lineHeight: 1.4
+                }}
+              >
+                {debugInfo.map((info, index) => (
+                  <Typography 
+                    key={index} 
+                    variant="caption" 
+                    component="div" 
+                    sx={{ 
+                      color: info.includes('ERROR') ? '#ff6b6b' : 
+                             info.includes('SUCCESS') || info.includes('completed') ? '#7DE1C3' : 
+                             'text.secondary',
+                      mb: 0.5
+                    }}
+                  >
+                    {info}
+                  </Typography>
+                ))}
+              </Box>
+              
+              {loading && uploadStartTime && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+                  Elapsed time: {Math.round((Date.now() - uploadStartTime) / 1000)}s
+                </Typography>
+              )}
+            </Paper>
+          )}
           
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button

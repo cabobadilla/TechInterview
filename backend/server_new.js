@@ -37,7 +37,8 @@ app.use(cors({
           process.env.FRONTEND_URL || 'https://tech-interview-analyzer-frontend.onrender.com',
           'https://techanalyzer.onrender.com',
           'https://tech-interview-frontend.onrender.com',
-          'https://tech-interview-analyzer.onrender.com'
+          'https://tech-interview-analyzer.onrender.com',
+          'https://techinterview.onrender.com'
         ] 
       : ['http://localhost:3000', 'http://localhost:3001'];
     

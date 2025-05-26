@@ -82,7 +82,7 @@ El código ya está configurado para manejar CORS en producción, aceptando soli
 │       ├── context/        # Contextos React (Auth, Analyzer)
 │       └── pages/          # Páginas de la aplicación
 ├── uploads/                # Directorio para archivos subidos (transcripciones)
-├── server.js               # Servidor Express
+├── server_new.js           # Servidor Express con PostgreSQL
 └── case_studies.json       # Datos de casos de estudio
 ```
 
@@ -114,7 +114,7 @@ Si prefieres configurar manualmente, sigue estos pasos:
      ```
    - **Start Command:** 
      ```
-     node server.js
+     npm start
      ```
    - **Variables de Entorno:**
      - `NODE_ENV=production`

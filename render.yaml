@@ -64,7 +64,7 @@ services:
       mkdir -p uploads
       
       # Iniciar el servidor
-      node server.js
+      npm start
     envVars:
       - key: NODE_ENV
         value: production

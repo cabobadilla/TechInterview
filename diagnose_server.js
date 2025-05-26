@@ -21,10 +21,9 @@ try {
   
   if (packageJson.scripts.start === 'node server_new.js') {
     console.log('✅ Configurado para usar SERVIDOR STATEFUL (server_new.js)');
-  } else if (packageJson.scripts.start === 'node server.js') {
-    console.log('⚠️  Configurado para usar SERVIDOR LEGACY (server.js)');
   } else {
     console.log('❓ Start script no reconocido:', packageJson.scripts.start);
+    console.log('⚠️  Debería ser: "node server_new.js"');
   }
 } catch (error) {
   console.log('❌ Error leyendo package.json:', error.message);
@@ -33,7 +32,6 @@ try {
 // Verificar archivos del servidor
 console.log('\n📁 === ARCHIVOS DEL SERVIDOR ===');
 const serverFiles = [
-  { file: 'server.js', type: 'LEGACY' },
   { file: 'server_new.js', type: 'STATEFUL' }
 ];
 

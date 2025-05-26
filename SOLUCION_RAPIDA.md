@@ -4,7 +4,7 @@
 
 Tu aplicación muestra el error "Can't continue with google.com - Something went wrong" porque:
 
-1. **Servidor Legacy ejecutándose**: Los logs muestran que se está ejecutando `server.js` en lugar de `server_new.js`
+1. **Configuración incorrecta**: El Start Command debe ser `npm start` para ejecutar `server_new.js`
 2. **Variables de entorno faltantes**: No están configuradas las credenciales de Google OAuth
 
 ## ⚡ SOLUCIÓN INMEDIATA (5 minutos)
@@ -16,7 +16,12 @@ Visita: `https://tu-app.onrender.com/api/server-info`
 ```json
 {"server": "LEGACY_SERVER", ...}
 ```
-👆 **Este es el problema principal**
+👆 **Esto indica que el Start Command está mal configurado**
+
+**Deberías ver:**
+```json
+{"server": "STATEFUL_SERVER_NEW", ...}
+```
 
 ### Paso 2: Configurar Variables de Entorno en Render
 

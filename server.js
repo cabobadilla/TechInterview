@@ -61,6 +61,10 @@ if (SIMPLIFIED_MODE) {
 let USE_FALLBACK_MODE = !process.env.OPENAI_API_KEY || process.env.USE_FALLBACK === 'true';
 console.log('Fallback mode enabled:', USE_FALLBACK_MODE);
 
+// Evaluation fallback mode (can be separate from extraction fallback)
+const USE_EVALUATION_FALLBACK = process.env.USE_EVALUATION_FALLBACK === 'true';
+console.log('Evaluation fallback mode enabled:', USE_EVALUATION_FALLBACK);
+
 // Configure OpenAI with better error handling
 let openai;
 if (!USE_FALLBACK_MODE) {
@@ -235,25 +239,67 @@ app.get('/api/cases', authenticateToken, (req, res) => {
 
 // 3. Evaluate answers
 app.post('/api/evaluate', authenticateToken, async (req, res) => {
+  console.log('=== EVALUATION PROCESSING START ===');
+  console.log('Request received at:', new Date().toISOString());
+  console.log('Request body structure:', {
+    hasQaPairs: !!req.body.qa_pairs,
+    qaPairsCount: req.body.qa_pairs ? req.body.qa_pairs.length : 0,
+    caseStudyKey: req.body.case_study_key,
+    level: req.body.level
+  });
+  
   try {
     const { qa_pairs, case_study_key, level } = req.body;
     
+    console.log('Step 1: Validating input data...');
     if (!qa_pairs || !case_study_key || !caseStudies[case_study_key]) {
+      console.log('ERROR: Missing required data');
+      console.log('Validation details:', {
+        hasQaPairs: !!qa_pairs,
+        hasCaseStudyKey: !!case_study_key,
+        caseStudyExists: !!caseStudies[case_study_key]
+      });
       return res.status(400).json({ error: 'Missing required data' });
     }
     
+    console.log('Step 2: Input validation passed');
+    console.log('Step 3: Preparing expert solution...');
     const case_study = caseStudies[case_study_key];
     const expert_solution = {
       process: case_study.process_answer,
       considerations: case_study.key_considerations_answer
     };
+    console.log('Step 4: Expert solution prepared');
     
+    console.log('Step 5: Calling evaluateAnswers...');
     // Evaluate the answers using OpenAI
     const evaluation_results = await evaluateAnswers(qa_pairs, expert_solution, level);
+    console.log('Step 6: evaluateAnswers completed successfully, results count:', evaluation_results ? evaluation_results.length : 'null');
     
-    return res.json({ evaluation_results });
+    console.log('Step 7: Sending evaluation response...');
+    console.log('Response data preview:', {
+      resultsCount: evaluation_results.length,
+      firstResultPreview: evaluation_results[0] ? {
+        hasQuestion: !!evaluation_results[0].question,
+        hasApproachEval: !!evaluation_results[0].approach_evaluation,
+        hasConsiderationsEval: !!evaluation_results[0].key_considerations_evaluation,
+        hasScores: !!(evaluation_results[0].approach_score && evaluation_results[0].key_considerations_score)
+      } : 'No first result'
+    });
+    
+    const responseData = { evaluation_results };
+    console.log('Step 8: Response object created, sending JSON...');
+    
+    const result = res.json(responseData);
+    console.log('Step 9: res.json() called, result:', typeof result);
+    console.log('=== EVALUATION PROCESSING SUCCESS ===');
+    return result;
   } catch (error) {
-    console.error('Error evaluating answers:', error);
+    console.error('=== EVALUATION PROCESSING ERROR ===');
+    console.error('Error at:', new Date().toISOString());
+    console.error('Error details:', error);
+    console.error('Error stack:', error.stack);
+    console.error('====================================');
     return res.status(500).json({ error: 'Failed to evaluate answers' });
   }
 });
@@ -406,10 +452,39 @@ async function extractQAPairs(transcript) {
 }
 
 async function evaluateAnswers(qa_pairs, expert_solution, level) {
+  console.log('>>> evaluateAnswers START <<<');
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('Input QA pairs count:', qa_pairs.length);
+  console.log('Level:', level);
+  console.log('Fallback mode:', USE_FALLBACK_MODE);
+  
   try {
+    if (USE_FALLBACK_MODE || USE_EVALUATION_FALLBACK) {
+      console.log('Using FALLBACK mode - generating mock evaluation results');
+      
+      // Create mock evaluation results for debugging
+      const mockResults = qa_pairs.map((pair, index) => ({
+        question: pair.question,
+        expert_answer: "Mock expert answer for testing purposes",
+        candidate_answer: pair.answer,
+        approach_evaluation: index % 2 === 0 ? "High" : "Medium",
+        key_considerations_evaluation: index % 3 === 0 ? "Correct" : "Partially Correct",
+        feedback: "This is a mock evaluation for debugging purposes. The candidate's approach shows understanding of the topic.",
+        approach_score: index % 2 === 0 ? 100 : 66,
+        key_considerations_score: index % 3 === 0 ? 100 : 66
+      }));
+      
+      console.log('Generated mock evaluation results:', mockResults.length);
+      console.log('>>> evaluateAnswers SUCCESS (FALLBACK) <<<');
+      return mockResults;
+    }
+    
+    console.log('Step A: Getting level expectations...');
     // Get expectations based on level
     const expectations = getLevelExpectations(level);
+    console.log('Step B: Expectations retrieved for level:', level);
     
+    console.log('Step C: Building evaluation prompt...');
     const prompt = `As a senior tech architect evaluating a peer, analyze the following Q&A pairs from an architecture interview.
     The candidate is applying for a ${level} position.
     
@@ -440,48 +515,105 @@ async function evaluateAnswers(qa_pairs, expert_solution, level) {
         }
     ]`;
     
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a senior tech architect evaluating interview responses. Provide your evaluation in English. Output ONLY valid JSON as a list of objects without any markdown formatting or explanation." },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.3,
+    console.log('Step D: Prompt built, length:', prompt.length);
+    console.log('Step E: About to call OpenAI API for evaluation...');
+    
+    // Add timeout and more detailed logging for OpenAI call
+    const startTime = Date.now();
+    console.log('Step F: Making OpenAI evaluation API call at:', new Date().toISOString());
+    
+    const response = await Promise.race([
+      openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are a senior tech architect evaluating interview responses. Provide your evaluation in English. Output ONLY valid JSON as a list of objects without any markdown formatting or explanation." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.3,
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('OpenAI evaluation API call timeout after 90 seconds')), 90000)
+      )
+    ]);
+    
+    const apiCallDuration = Date.now() - startTime;
+    console.log('Step G: OpenAI evaluation API call completed in', apiCallDuration, 'ms');
+    console.log('Step H: Processing OpenAI evaluation response...');
+    console.log('Response status:', response.status);
+    console.log('Response data structure:', {
+      hasChoices: !!response.data.choices,
+      choicesLength: response.data.choices ? response.data.choices.length : 0,
+      firstChoiceExists: response.data.choices && response.data.choices[0],
+      hasMessage: response.data.choices && response.data.choices[0] && response.data.choices[0].message,
+      hasContent: response.data.choices && response.data.choices[0] && response.data.choices[0].message && response.data.choices[0].message.content
     });
     
+    // Get the content from OpenAI response
     let content = response.data.choices[0].message.content.trim();
+    console.log('Step I: Raw evaluation content length:', content.length);
+    console.log('Step J: Raw evaluation content preview (first 200 chars):', content.substring(0, 200));
     
     // Clean up markdown format if it exists
     if (content.startsWith('```')) {
+      console.log('Step K: Removing markdown formatting from evaluation...');
       // Remove markdown code blocks
       content = content.replace(/```(?:json)?\n([\s\S]*?)```/g, '$1').trim();
+      console.log('Step L: Markdown removed from evaluation');
+    } else {
+      console.log('Step K: No markdown formatting detected in evaluation');
     }
     
-    console.log("OpenAI response:", content.substring(0, 100) + "..."); // Debug log
+    console.log("Step M: Processed evaluation content for parsing:", content.substring(0, 100) + "...");
+    console.log('Step N: About to parse evaluation JSON...');
     
     try {
       const results = JSON.parse(content);
+      console.log('Step O: Evaluation JSON parsing successful');
+      console.log('Step P: Evaluation result type:', typeof results);
+      console.log('Step Q: Evaluation result is array:', Array.isArray(results));
+      console.log('Step R: Evaluation result length:', results.length);
       
       // Verify the result is an array
       if (!Array.isArray(results)) {
-        console.error("Parsed result is not an array:", results);
-        throw new Error("Expected array result from OpenAI");
+        console.error("Parsed evaluation result is not an array:", results);
+        throw new Error("Expected array result from OpenAI evaluation");
       }
       
+      console.log('Step S: Adding percentage scores to evaluation results...');
       // Add percentage scores
-      results.forEach(result => {
+      results.forEach((result, index) => {
         result.approach_score = mapApproachToPercentage(result.approach_evaluation);
         result.key_considerations_score = mapKeyConsiderationToPercentage(result.key_considerations_evaluation);
+        console.log(`Step S.${index + 1}: Added scores for result ${index + 1}`);
       });
       
+      console.log('Step T: All percentage scores added successfully');
+      console.log('>>> evaluateAnswers SUCCESS <<<');
       return results;
     } catch (parseError) {
+      console.error('>>> evaluateAnswers JSON PARSE ERROR <<<');
       console.error("JSON parse error:", parseError.message);
       console.error("Raw content:", content);
-      throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+      console.error('>>> evaluateAnswers JSON PARSE ERROR END <<<');
+      throw new Error(`Failed to parse OpenAI evaluation response: ${parseError.message}`);
     }
   } catch (error) {
-    console.error('Error evaluating answers:', error);
+    console.error('>>> evaluateAnswers ERROR <<<');
+    console.error('Error timestamp:', new Date().toISOString());
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Additional error context
+    if (error.response) {
+      console.error('OpenAI evaluation API error response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
+    }
+    
+    console.error('>>> evaluateAnswers ERROR END <<<');
     throw error;
   }
 }

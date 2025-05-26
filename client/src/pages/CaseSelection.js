@@ -4,7 +4,7 @@ import {
   Paper, Typography, Button, Box, Alert, 
   FormControl, InputLabel, Select, MenuItem, 
   Grid, Card, CardContent, Divider, Chip,
-  useTheme, useMediaQuery
+  useTheme, useMediaQuery, CircularProgress
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import { useAuth } from '../context/AuthContext';
@@ -64,19 +64,36 @@ const CaseSelection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('=== CLIENT EVALUATION START ===');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Selected case:', selectedCase);
+    console.log('Selected level:', selectedLevel);
+    console.log('QA pairs count:', qaPairs ? qaPairs.length : 0);
+    
     if (!selectedCase) {
+      console.log('ERROR: No case study selected');
       setError('Please select a case study');
       return;
     }
     
     if (!selectedLevel) {
+      console.log('ERROR: No experience level selected');
       setError('Please select an experience level');
       return;
     }
     
+    const evaluationStartTime = Date.now();
+    
     try {
       setIsEvaluating(true);
       setError('');
+      
+      console.log('Step 1: Starting evaluation API call...');
+      console.log('Request payload:', {
+        qa_pairs_count: qaPairs.length,
+        case_study_key: selectedCase,
+        level: selectedLevel
+      });
       
       const response = await api.post('/evaluate', {
         qa_pairs: qaPairs,
@@ -84,18 +101,60 @@ const CaseSelection = () => {
         level: selectedLevel
       });
       
+      const evaluationDuration = Date.now() - evaluationStartTime;
+      console.log('Step 2: Evaluation API call completed in', evaluationDuration, 'ms');
+      
+      console.log('Step 3: Processing evaluation response...');
+      console.log('Response structure:', {
+        hasData: !!response.data,
+        hasEvaluationResults: !!response.data.evaluation_results,
+        resultsCount: response.data.evaluation_results ? response.data.evaluation_results.length : 0
+      });
+      
+      if (!response.data.evaluation_results || response.data.evaluation_results.length === 0) {
+        console.log('ERROR: No evaluation results in response');
+        throw new Error('No evaluation results received from server');
+      }
+      
+      console.log('Step 4: Setting evaluation results in context...');
       setEvaluationResults(response.data.evaluation_results);
+      console.log('Step 5: Evaluation results set successfully');
+      
+      console.log('Step 6: Advancing to next step...');
       nextStep();
+      console.log('Step 7: Step advanced successfully');
+      
+      console.log('Step 8: Navigating to results page...');
       navigate('/results');
+      console.log('Step 9: Navigation completed successfully');
+      console.log('=== CLIENT EVALUATION SUCCESS ===');
     } catch (error) {
-      console.error('Error evaluating answers:', error);
+      const evaluationDuration = Date.now() - evaluationStartTime;
+      console.error('=== CLIENT EVALUATION ERROR ===');
+      console.error('Error occurred after', evaluationDuration, 'ms');
+      console.error('Error type:', error.constructor.name);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error);
+      
+      if (error.response) {
+        console.error('Server response status:', error.response.status);
+        console.error('Server response data:', error.response.data);
+      }
+      
       if (error.response?.status === 401) {
+        console.log('Authentication error detected');
         setError('Authentication required. Please login again.');
       } else {
+        console.log('Setting general error message');
         setError(error.response?.data?.error || 'Failed to evaluate answers');
       }
+      console.error('=== CLIENT EVALUATION ERROR END ===');
     } finally {
+      console.log('Step 10: Entering finally block...');
       setIsEvaluating(false);
+      console.log('Step 11: Evaluation loading set to false');
+      const totalDuration = Date.now() - evaluationStartTime;
+      console.log('Step 12: Total evaluation process completed in', totalDuration, 'ms');
     }
   };
   
@@ -254,6 +313,34 @@ const CaseSelection = () => {
           
           <Divider sx={{ my: 4 }} />
           
+          {isEvaluating && (
+            <Paper 
+              variant="outlined" 
+              sx={{ 
+                p: 3, 
+                mb: 4,
+                borderColor: '#1E3A54',
+                borderRadius: 0,
+                backgroundColor: 'rgba(125, 225, 195, 0.05)'
+              }}
+            >
+              <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
+                Evaluating Responses...
+              </Typography>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Analyzing candidate responses with AI. This may take up to 2 minutes.
+                </Typography>
+              </Box>
+              
+              <Typography variant="caption" color="text.secondary">
+                Please wait while we evaluate the interview responses against the selected case study...
+              </Typography>
+            </Paper>
+          )}
+          
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button
               variant="text"
@@ -261,6 +348,7 @@ const CaseSelection = () => {
                 prevStep();
                 navigate('/upload');
               }}
+              disabled={isEvaluating}
             >
               Back
             </Button>
@@ -268,13 +356,20 @@ const CaseSelection = () => {
             <Button
               type="submit"
               variant="contained"
-              disabled={loading || !selectedCase || !selectedLevel}
+              disabled={loading || !selectedCase || !selectedLevel || isEvaluating}
               sx={{ 
                 minWidth: 120,
                 py: 1
               }}
             >
-              Continue
+              {isEvaluating ? (
+                <>
+                  <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />
+                  Evaluating...
+                </>
+              ) : (
+                'Continue'
+              )}
             </Button>
           </Box>
         </Box>

@@ -47,14 +47,26 @@ JWT_SECRET=tu_jwt_secret
 
 ### Paso 3: Debugging con Modos Especiales
 
-#### Para problemas de OpenAI:
+#### Para problemas de OpenAI (extracción):
 ```
 USE_FALLBACK=true
+```
+
+#### Para problemas de OpenAI (evaluación):
+```
+USE_EVALUATION_FALLBACK=true
 ```
 
 #### Para problemas de timeout:
 ```
 SIMPLIFIED_MODE=true
+```
+
+#### Para debugging completo:
+```
+DEBUG=*
+USE_FALLBACK=false
+USE_EVALUATION_FALLBACK=false
 ```
 
 ### Paso 4: Verificar Estado del Servidor

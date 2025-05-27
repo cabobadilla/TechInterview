@@ -58,6 +58,9 @@ const Results = () => {
     selectedCase, 
     selectedLevel,
     evaluationResults,
+    evaluationId,
+    setEvaluationId,
+    transcriptId,
     prevStep,
     loading, 
     setLoading, 
@@ -74,6 +77,8 @@ const Results = () => {
     considerations: 0
   });
   const [isLoadingCases, setIsLoadingCases] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null); // null, 'success', 'error', 'already_saved'
   
   // Validación inicial y carga de datos
   useEffect(() => {
@@ -82,6 +87,14 @@ const Results = () => {
     addLog(`Selected Case: ${selectedCase || 'null'}`, 'info', 'Results');
     addLog(`Selected Level: ${selectedLevel || 'null'}`, 'info', 'Results');
     addLog(`Evaluation Results: ${evaluationResults ? evaluationResults.length : 'null'}`, 'info', 'Results');
+    addLog(`Evaluation ID: ${evaluationId || 'null'}`, 'info', 'Results');
+    addLog(`Transcript ID: ${transcriptId || 'null'}`, 'info', 'Results');
+    
+    if (evaluationId) {
+      addLog('✅ Evaluation already saved to database', 'success', 'Results');
+    } else {
+      addLog('⚠️ No evaluation ID found - evaluation may need to be saved manually', 'warning', 'Results');
+    }
     
     // Redireccionar si faltan datos críticos
     if (!qaPairs || qaPairs.length === 0) {
@@ -104,6 +117,13 @@ const Results = () => {
     }
     
     addLog('✅ All required data present, proceeding with initialization', 'success', 'Results');
+    
+    // Log save button availability
+    if (evaluationId) {
+      addLog('💾 Save button will show as "Already Saved"', 'info', 'Results');
+    } else {
+      addLog('💾 Save button will be available for manual save', 'info', 'Results');
+    }
     
     // Cargar casos de estudio
     const fetchCases = async () => {
@@ -201,6 +221,76 @@ const Results = () => {
       addLog('⚠️ No evaluation results available for average calculation', 'warning', 'Results');
     }
   }, [evaluationResults, setError]);
+  
+  // Función para guardar evaluación en el historial
+  const saveEvaluationToHistory = async () => {
+    addLog('💾 Starting manual evaluation save...', 'info', 'Results');
+    
+    if (!evaluationResults || !qaPairs || !selectedCase || !selectedLevel || !transcriptId) {
+      addLog('❌ Missing required data for saving evaluation', 'error', 'Results');
+      setError('Missing required data to save evaluation');
+      return;
+    }
+    
+    // Check if already saved
+    if (evaluationId) {
+      addLog(`ℹ️ Evaluation already has ID: ${evaluationId}`, 'info', 'Results');
+      setSaveStatus('already_saved');
+      return;
+    }
+    
+    setIsSaving(true);
+    setSaveStatus(null);
+    const saveStartTime = Date.now();
+    
+    try {
+      addLog('📡 Making API call to save evaluation...', 'info', 'Results');
+      addLog(`📊 Data to save: ${evaluationResults.length} results, case: ${selectedCase}, level: ${selectedLevel}`, 'info', 'Results');
+      
+      const response = await api.post('/api/evaluations/save', {
+        qa_pairs: qaPairs,
+        case_study_key: selectedCase,
+        level: selectedLevel,
+        transcript_id: transcriptId,
+        evaluation_results: evaluationResults
+      });
+      
+      const saveDuration = Date.now() - saveStartTime;
+      addLog(`✅ Save API call completed in ${saveDuration}ms`, 'success', 'Results');
+      
+      if (response.data.already_exists) {
+        addLog(`ℹ️ Evaluation already exists with ID: ${response.data.evaluation_id}`, 'info', 'Results');
+        setSaveStatus('already_saved');
+      } else {
+        addLog(`✅ Evaluation saved successfully with ID: ${response.data.evaluation_id}`, 'success', 'Results');
+        setSaveStatus('success');
+      }
+      
+      // Update the evaluation ID in context if we got one
+      if (response.data.evaluation_id && !evaluationId) {
+        addLog(`📝 Updating evaluation ID in context: ${response.data.evaluation_id}`, 'info', 'Results');
+        setEvaluationId(response.data.evaluation_id);
+      }
+      
+    } catch (error) {
+      const saveDuration = Date.now() - saveStartTime;
+      addLog(`❌ Save failed after ${saveDuration}ms: ${error.message}`, 'error', 'Results');
+      console.error('Error saving evaluation:', error);
+      
+      if (error.response?.status === 401) {
+        addLog('🔐 Authentication error during save', 'error', 'Results');
+        setError('Authentication required. Please login again.');
+      } else {
+        addLog(`🔧 Server error during save: ${error.response?.data?.error || error.message}`, 'error', 'Results');
+        setError(error.response?.data?.error || 'Failed to save evaluation to history');
+      }
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
+      const totalDuration = Date.now() - saveStartTime;
+      addLog(`🏁 Save process completed in ${totalDuration}ms`, 'info', 'Results');
+    }
+  };
   
   // Función para descargar resultados como CSV
   const downloadCSV = () => {
@@ -357,11 +447,56 @@ const Results = () => {
                             fullWidth
                             sx={{ 
                               mt: 3,
-                              py: 1
+                              py: 1,
+                              mb: 2
                             }}
                           >
                             Download Results (CSV)
                           </Button>
+                          
+                          <Button 
+                            variant="contained" 
+                            onClick={saveEvaluationToHistory}
+                            fullWidth
+                            disabled={isSaving || evaluationId || saveStatus === 'already_saved'}
+                            sx={{ 
+                              py: 1,
+                              backgroundColor: evaluationId || saveStatus === 'already_saved' ? '#4caf50' : '#7DE1C3',
+                              color: evaluationId || saveStatus === 'already_saved' ? 'white' : '#0A1929',
+                              '&:hover': { 
+                                backgroundColor: evaluationId || saveStatus === 'already_saved' ? '#45a049' : '#55C4A5' 
+                              },
+                              '&:disabled': {
+                                backgroundColor: evaluationId || saveStatus === 'already_saved' ? '#4caf50' : undefined,
+                                color: evaluationId || saveStatus === 'already_saved' ? 'white' : undefined
+                              }
+                            }}
+                          >
+                            {isSaving ? (
+                              <>
+                                <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />
+                                Saving...
+                              </>
+                            ) : evaluationId || saveStatus === 'already_saved' ? (
+                              '✓ Saved to History'
+                            ) : saveStatus === 'success' ? (
+                              '✓ Saved Successfully'
+                            ) : (
+                              'Save to History'
+                            )}
+                          </Button>
+                          
+                          {saveStatus === 'error' && (
+                            <Alert severity="error" sx={{ mt: 2, fontSize: '0.8rem' }}>
+                              Failed to save evaluation. Please try again.
+                            </Alert>
+                          )}
+                          
+                          {(evaluationId || saveStatus === 'already_saved') && (
+                            <Alert severity="success" sx={{ mt: 2, fontSize: '0.8rem' }}>
+                              Evaluation is saved in your history.
+                            </Alert>
+                          )}
                         </CardContent>
                       </Card>
                     </Grid>

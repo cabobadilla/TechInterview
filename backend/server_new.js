@@ -437,6 +437,77 @@ app.get('/api/evaluations/:id', AuthService.authenticateToken(), async (req, res
   }
 });
 
+// 5.1. Manually save evaluation to history (backup endpoint)
+app.post('/api/evaluations/save', AuthService.authenticateToken(), async (req, res) => {
+  console.log('=== MANUAL EVALUATION SAVE START ===');
+  console.log('User:', req.user.email);
+  
+  const startTime = Date.now();
+  
+  try {
+    const { qa_pairs, case_study_key, level, transcript_id, evaluation_results } = req.body;
+    
+    if (!qa_pairs || !case_study_key || !level || !evaluation_results) {
+      console.log('❌ Missing required data for manual save');
+      return res.status(400).json({ error: 'Missing required data' });
+    }
+    
+    // Get case study from database
+    const caseStudy = await CaseStudy.findByKey(case_study_key);
+    if (!caseStudy) {
+      console.log('❌ Case study not found:', case_study_key);
+      return res.status(404).json({ error: 'Case study not found' });
+    }
+    
+    console.log('📚 Case study found for manual save:', caseStudy.name);
+    
+    // Check if evaluation already exists for this transcript and case study
+    const existingEvaluations = await Evaluation.findByTranscriptId(transcript_id);
+    const duplicateEvaluation = existingEvaluations.find(eval => 
+      eval.case_study_id === caseStudy.id && eval.expected_level === level
+    );
+    
+    if (duplicateEvaluation) {
+      console.log('⚠️ Evaluation already exists with ID:', duplicateEvaluation.id);
+      return res.json({ 
+        evaluation_id: duplicateEvaluation.id,
+        message: 'Evaluation already saved',
+        already_exists: true
+      });
+    }
+    
+    const processingDuration = Date.now() - startTime;
+    
+    // Save evaluation to database
+    console.log('💾 Manually saving evaluation to database...');
+    const evaluation = await Evaluation.create(
+      {
+        user_id: req.user.id,
+        transcript_id: transcript_id,
+        case_study_id: caseStudy.id,
+        expected_level: level,
+        evaluation_results: evaluation_results,
+        processing_duration_ms: processingDuration,
+        openai_model_used: 'gpt-3.5-turbo'
+      },
+      evaluation_results
+    );
+    
+    console.log('✅ Evaluation manually saved with ID:', evaluation.id);
+    console.log('=== MANUAL EVALUATION SAVE SUCCESS ===');
+    
+    return res.json({ 
+      evaluation_id: evaluation.id,
+      message: 'Evaluation saved successfully',
+      processing_duration_ms: processingDuration
+    });
+  } catch (error) {
+    console.error('=== MANUAL EVALUATION SAVE ERROR ===');
+    console.error('Error:', error);
+    return res.status(500).json({ error: 'Failed to save evaluation' });
+  }
+});
+
 // 6. Get user's transcripts
 app.get('/api/transcripts', AuthService.authenticateToken(), async (req, res) => {
   try {

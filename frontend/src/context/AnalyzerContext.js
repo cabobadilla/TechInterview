@@ -13,6 +13,7 @@ export const AnalyzerProvider = ({ children }) => {
   const [selectedCase, setSelectedCase] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('L3'); // Default to L3
   const [evaluationResults, setEvaluationResults] = useState(null);
+  const [evaluationId, setEvaluationId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,6 +26,7 @@ export const AnalyzerProvider = ({ children }) => {
     setSelectedCase(null);
     setSelectedLevel('L3');
     setEvaluationResults(null);
+    setEvaluationId(null);
     setError(null);
   };
 
@@ -53,6 +55,8 @@ export const AnalyzerProvider = ({ children }) => {
     setSelectedLevel,
     evaluationResults,
     setEvaluationResults,
+    evaluationId,
+    setEvaluationId,
     loading,
     setLoading,
     error,

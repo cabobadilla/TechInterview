@@ -20,6 +20,7 @@ export const API_CONFIG = {
     CASE_STUDIES: '/api/case-studies',
     EVALUATE: '/api/evaluate',
     EVALUATIONS: '/api/evaluations',
+    EVALUATIONS_SAVE: '/api/evaluations/save',
     TRANSCRIPTS: '/api/transcripts',
     
     // Debug endpoints

@@ -27,7 +27,8 @@ const CaseSelection = () => {
     loading, 
     error, 
     setError,
-    setEvaluationResults
+    setEvaluationResults,
+    setEvaluationId
   } = useAnalyzer();
   
   const { api } = useAuth();
@@ -159,7 +160,8 @@ const CaseSelection = () => {
       console.log('Response structure:', {
         hasData: !!response.data,
         hasEvaluationResults: !!response.data.evaluation_results,
-        resultsCount: response.data.evaluation_results ? response.data.evaluation_results.length : 0
+        resultsCount: response.data.evaluation_results ? response.data.evaluation_results.length : 0,
+        hasEvaluationId: !!response.data.evaluation_id
       });
       
       if (!response.data.evaluation_results || response.data.evaluation_results.length === 0) {
@@ -168,8 +170,21 @@ const CaseSelection = () => {
       }
       
       console.log('Step 4: Setting evaluation results in context...');
+      addLog('Setting evaluation results in context...', 'info', 'CaseSelection');
       setEvaluationResults(response.data.evaluation_results);
       console.log('Step 5: Evaluation results set successfully');
+      addLog('✅ Evaluation results set successfully', 'success', 'CaseSelection');
+      
+      if (response.data.evaluation_id) {
+        console.log('Step 5.1: Setting evaluation ID in context...');
+        addLog(`Setting evaluation ID: ${response.data.evaluation_id}`, 'info', 'CaseSelection');
+        setEvaluationId(response.data.evaluation_id);
+        console.log('Step 5.2: Evaluation ID set successfully:', response.data.evaluation_id);
+        addLog(`✅ Evaluation saved to database with ID: ${response.data.evaluation_id}`, 'success', 'CaseSelection');
+      } else {
+        console.log('WARNING: No evaluation_id in response - evaluation may not have been saved');
+        addLog('⚠️ No evaluation_id in response - evaluation may not have been saved to database', 'warning', 'CaseSelection');
+      }
       
       console.log('Step 6: Advancing to next step...');
       nextStep();

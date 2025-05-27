@@ -294,7 +294,7 @@ app.post('/api/transcript', AuthService.authenticateToken(), upload.single('tran
 });
 
 // 2. Get all case studies
-app.get('/api/cases', AuthService.authenticateToken(), async (req, res) => {
+app.get('/api/case-studies', AuthService.authenticateToken(), async (req, res) => {
   try {
     console.log('📚 Fetching case studies for user:', req.user.email);
     

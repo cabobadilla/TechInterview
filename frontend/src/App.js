@@ -15,6 +15,7 @@ import CaseSelection from './pages/CaseSelection';
 import Results from './pages/Results';
 import Login from './pages/Login';
 import EvaluationHistory from './pages/EvaluationHistory';
+import EvaluationDetails from './pages/EvaluationDetails';
 import ServerDiagnostic from './pages/ServerDiagnostic';
 import Logs from './pages/Logs';
 
@@ -443,6 +444,7 @@ function App() {
                   </>
                 } />
                 <Route path="/history" element={<EvaluationHistory />} />
+                <Route path="/evaluation/:id" element={<EvaluationDetails />} />
                 <Route path="/diagnostic" element={<ServerDiagnostic />} />
                 <Route path="/logs" element={<Logs />} />
               </Route>

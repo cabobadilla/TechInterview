@@ -435,21 +435,49 @@ app.get('/api/evaluations', AuthService.authenticateToken(), async (req, res) =>
 
 // 5. Get specific evaluation details
 app.get('/api/evaluations/:id', AuthService.authenticateToken(), async (req, res) => {
+  console.log('=== EVALUATION DETAILS REQUEST START ===');
+  console.log('User:', req.user.email);
+  console.log('Evaluation ID:', req.params.id);
+  
   try {
+    console.log('📊 Finding evaluation by ID...');
     const evaluation = await Evaluation.findById(req.params.id);
     
     if (!evaluation) {
+      console.log('❌ Evaluation not found');
       return res.status(404).json({ error: 'Evaluation not found' });
     }
     
+    console.log('✅ Evaluation found:', evaluation.case_study_name);
+    console.log('📊 Evaluation basic data:', {
+      id: evaluation.id,
+      case_study_name: evaluation.case_study_name,
+      expected_level: evaluation.expected_level,
+      overall_score: evaluation.overall_score,
+      questions_count: evaluation.questions?.length || 0
+    });
+    
     // Check if user owns this evaluation
     if (evaluation.user_id !== req.user.id) {
+      console.log('❌ Access denied - user does not own this evaluation');
       return res.status(403).json({ error: 'Access denied' });
     }
     
+    console.log('🔍 Getting detailed evaluation data...');
     const detailedEvaluation = await evaluation.toDetailedJSON();
+    
+    console.log('📊 Detailed evaluation structure:', {
+      has_questions: !!detailedEvaluation.questions,
+      questions_count: detailedEvaluation.questions?.length || 0,
+      overall_score: detailedEvaluation.overall_score,
+      overall_approach_score: detailedEvaluation.overall_approach_score,
+      overall_considerations_score: detailedEvaluation.overall_considerations_score
+    });
+    
+    console.log('=== EVALUATION DETAILS REQUEST SUCCESS ===');
     return res.json(detailedEvaluation);
   } catch (error) {
+    console.error('=== EVALUATION DETAILS REQUEST ERROR ===');
     console.error('Error fetching evaluation details:', error);
     return res.status(500).json({ error: 'Failed to fetch evaluation details' });
   }

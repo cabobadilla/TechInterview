@@ -1,0 +1,468 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Button,
+  CircularProgress,
+  Alert,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  LinearProgress
+} from '@mui/material';
+import {
+  ArrowBack,
+  Download,
+  Assessment,
+  Schedule,
+  Person,
+  CheckCircle,
+  Warning,
+  Error as ErrorIcon,
+  Info
+} from '@mui/icons-material';
+import { useAuth } from '../context/AuthContext';
+import { useLogs } from '../context/LogsContext';
+
+const EvaluationDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { api } = useAuth();
+  const { addLog } = useLogs();
+  
+  const [evaluation, setEvaluation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    addLog('=== EVALUATION DETAILS PAGE INITIALIZATION ===', 'info', 'EvaluationDetails');
+    addLog(`Evaluation ID: ${id}`, 'info', 'EvaluationDetails');
+    fetchEvaluationDetails();
+  }, [id]);
+
+  const fetchEvaluationDetails = async () => {
+    try {
+      setLoading(true);
+      addLog('🔍 Starting evaluation details fetch...', 'info', 'EvaluationDetails');
+      addLog(`📊 Fetching evaluation with ID: ${id}`, 'info', 'EvaluationDetails');
+      
+      const response = await api.get(`/api/evaluations/${id}`);
+      addLog(`✅ API response received for evaluation details`, 'success', 'EvaluationDetails');
+      addLog(`📊 Evaluation data: ${response.data.case_study_name} - ${response.data.expected_level}`, 'info', 'EvaluationDetails');
+      
+      setEvaluation(response.data);
+      addLog(`✅ Evaluation details loaded successfully`, 'success', 'EvaluationDetails');
+      
+    } catch (err) {
+      addLog(`❌ Failed to fetch evaluation details: ${err.message}`, 'error', 'EvaluationDetails');
+      console.error('Error fetching evaluation details:', err);
+      
+      if (err.response?.status === 404) {
+        addLog('❌ Evaluation not found (404)', 'error', 'EvaluationDetails');
+        setError('Evaluation not found');
+      } else if (err.response?.status === 403) {
+        addLog('❌ Access denied to evaluation (403)', 'error', 'EvaluationDetails');
+        setError('Access denied to this evaluation');
+      } else if (err.response?.status === 401) {
+        addLog('🔐 Authentication error - user may need to login again', 'error', 'EvaluationDetails');
+        setError('Authentication required. Please login again.');
+      } else {
+        addLog(`🔧 Server error: ${JSON.stringify(err.response?.data)}`, 'error', 'EvaluationDetails');
+        setError('Failed to load evaluation details');
+      }
+    } finally {
+      setLoading(false);
+      addLog('🏁 Evaluation details fetch completed', 'info', 'EvaluationDetails');
+    }
+  };
+
+  const getLogIcon = (type) => {
+    switch (type) {
+      case 'error': return <ErrorIcon sx={{ color: '#ff6b6b', fontSize: 16 }} />;
+      case 'warning': return <Warning sx={{ color: '#ffa726', fontSize: 16 }} />;
+      case 'success': return <CheckCircle sx={{ color: '#7DE1C3', fontSize: 16 }} />;
+      case 'info': 
+      default: return <Info sx={{ color: '#64b5f6', fontSize: 16 }} />;
+    }
+  };
+
+  const getScoreColor = (score) => {
+    if (score >= 80) return '#7DE1C3';
+    if (score >= 60) return '#ffa726';
+    return '#ff6b6b';
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const downloadCSV = () => {
+    if (!evaluation || !evaluation.questions) {
+      addLog('❌ No evaluation data for CSV download', 'error', 'EvaluationDetails');
+      return;
+    }
+
+    addLog('📥 Starting CSV download from evaluation details...', 'info', 'EvaluationDetails');
+    
+    try {
+      const headers = [
+        'Question', 
+        'Answer', 
+        'Expert Answer',
+        'Approach Evaluation', 
+        'Considerations Evaluation',
+        'Approach Score', 
+        'Considerations Score',
+        'Feedback'
+      ];
+      
+      const rows = evaluation.questions.map(question => [
+        question.question || '',
+        question.candidate_answer || '',
+        question.expert_answer || '',
+        question.approach_evaluation || '',
+        question.key_considerations_evaluation || '',
+        question.approach_score || 0,
+        question.key_considerations_score || 0,
+        question.feedback || ''
+      ]);
+      
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `evaluation-${evaluation.case_study_name}-${evaluation.expected_level}-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      addLog('✅ CSV download completed successfully', 'success', 'EvaluationDetails');
+    } catch (error) {
+      addLog(`❌ CSV download error: ${error.message}`, 'error', 'EvaluationDetails');
+      console.error('CSV download error:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress size={40} thickness={2} sx={{ color: '#7DE1C3' }} />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/history')}
+        >
+          Back to History
+        </Button>
+      </Container>
+    );
+  }
+
+  if (!evaluation) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          No evaluation data found
+        </Alert>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/history')}
+        >
+          Back to History
+        </Button>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/history')}
+          sx={{ minWidth: 'auto' }}
+        >
+          Back
+        </Button>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#7DE1C3', mb: 0 }}>
+            Evaluation Details
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {evaluation.case_study_name} - {evaluation.expected_level}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Summary Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={3}>
+          <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54', height: '100%' }}>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Assessment sx={{ fontSize: 40, color: '#7DE1C3', mb: 1 }} />
+              <Typography variant="h4" sx={{ color: '#7DE1C3', fontWeight: 'bold' }}>
+                {evaluation.overall_score}%
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Overall Score
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} md={3}>
+          <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54', height: '100%' }}>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Person sx={{ fontSize: 40, color: '#7DE1C3', mb: 1 }} />
+              <Typography variant="h6" sx={{ color: '#7DE1C3' }}>
+                {evaluation.expected_level}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Expected Level
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} md={3}>
+          <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54', height: '100%' }}>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Schedule sx={{ fontSize: 40, color: '#7DE1C3', mb: 1 }} />
+              <Typography variant="h6" sx={{ color: '#7DE1C3' }}>
+                {evaluation.questions?.length || 0}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Questions
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} md={3}>
+          <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54', height: '100%' }}>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Typography variant="h6" sx={{ color: '#7DE1C3' }}>
+                {formatDate(evaluation.created_at).split(',')[0]}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Date
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Score Breakdown */}
+      <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54', mb: 4 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', mb: 3 }}>
+            Score Breakdown
+          </Typography>
+          
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Methodological Approach
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {evaluation.overall_approach_score}%
+                  </Typography>
+                </Box>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={evaluation.overall_approach_score} 
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: '#1E3A54',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: getScoreColor(evaluation.overall_approach_score),
+                      borderRadius: 4,
+                    }
+                  }}
+                />
+              </Box>
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Key Considerations
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {evaluation.overall_considerations_score}%
+                  </Typography>
+                </Box>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={evaluation.overall_considerations_score} 
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: '#1E3A54',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: getScoreColor(evaluation.overall_considerations_score),
+                      borderRadius: 4,
+                    }
+                  }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button
+              variant="contained"
+              startIcon={<Download />}
+              onClick={downloadCSV}
+              sx={{
+                backgroundColor: '#7DE1C3',
+                color: '#0A1929',
+                '&:hover': { backgroundColor: '#55C4A5' }
+              }}
+            >
+              Download CSV
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Detailed Questions */}
+      <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54' }}>
+        <CardContent sx={{ p: 0 }}>
+          <Box sx={{ p: 3, borderBottom: '1px solid #1E3A54' }}>
+            <Typography variant="h6" sx={{ color: '#7DE1C3' }}>
+              Detailed Evaluation
+            </Typography>
+          </Box>
+          
+          {evaluation.questions && evaluation.questions.length > 0 ? (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3', fontWeight: 'bold' }}>
+                      Question
+                    </TableCell>
+                    <TableCell sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3', fontWeight: 'bold' }}>
+                      Answer
+                    </TableCell>
+                    <TableCell sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3', fontWeight: 'bold' }}>
+                      Approach
+                    </TableCell>
+                    <TableCell sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3', fontWeight: 'bold' }}>
+                      Considerations
+                    </TableCell>
+                    <TableCell sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3', fontWeight: 'bold' }}>
+                      Feedback
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {evaluation.questions.map((question, index) => (
+                    <TableRow key={index}>
+                      <TableCell sx={{ verticalAlign: 'top', maxWidth: 200 }}>
+                        <Typography variant="body2">{question.question || 'N/A'}</Typography>
+                      </TableCell>
+                      <TableCell sx={{ verticalAlign: 'top', maxWidth: 250 }}>
+                        <Typography variant="body2">{question.candidate_answer || 'N/A'}</Typography>
+                      </TableCell>
+                      <TableCell sx={{ verticalAlign: 'top' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Chip
+                            label={question.approach_evaluation || 'N/A'}
+                            size="small"
+                            sx={{
+                              backgroundColor: getScoreColor(question.approach_score),
+                              color: 'white',
+                              fontWeight: 'bold'
+                            }}
+                          />
+                          <Typography variant="caption" color="text.secondary">
+                            Score: {question.approach_score || 0}%
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ verticalAlign: 'top' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Chip
+                            label={question.key_considerations_evaluation || 'N/A'}
+                            size="small"
+                            sx={{
+                              backgroundColor: getScoreColor(question.key_considerations_score),
+                              color: 'white',
+                              fontWeight: 'bold'
+                            }}
+                          />
+                          <Typography variant="caption" color="text.secondary">
+                            Score: {question.key_considerations_score || 0}%
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ verticalAlign: 'top', maxWidth: 300 }}>
+                        <Typography variant="body2">{question.feedback || 'N/A'}</Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="h6" color="text.secondary">
+                No detailed questions available
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                The evaluation data may not include question-level details
+              </Typography>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    </Container>
+  );
+};
+
+export default EvaluationDetails; 

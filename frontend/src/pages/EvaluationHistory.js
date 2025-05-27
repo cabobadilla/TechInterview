@@ -32,10 +32,12 @@ import {
   Person
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import { useLogs } from '../context/LogsContext';
 import { useNavigate } from 'react-router-dom';
 
 const EvaluationHistory = () => {
   const { api, user } = useAuth();
+  const { addLog } = useLogs();
   const navigate = useNavigate();
   const [evaluations, setEvaluations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,20 +47,49 @@ const EvaluationHistory = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    addLog('=== EVALUATION HISTORY PAGE INITIALIZATION ===', 'info', 'EvaluationHistory');
+    addLog(`User: ${user?.email || 'Unknown'}`, 'info', 'EvaluationHistory');
+    addLog(`Current page: ${page}`, 'info', 'EvaluationHistory');
     fetchEvaluations();
   }, [page]);
 
   const fetchEvaluations = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/evaluations?page=${page}&limit=10`);
-      setEvaluations(response.data.evaluations);
-      setTotalPages(response.data.totalPages);
+      addLog('🔍 Starting evaluation history fetch...', 'info', 'EvaluationHistory');
+      addLog(`📊 Fetching page ${page} with limit 10`, 'info', 'EvaluationHistory');
+      
+      console.log('🔍 Fetching evaluations from API...');
+      const response = await api.get(`/api/evaluations?page=${page}&limit=10`);
+      console.log('📊 Evaluations API response:', response.data);
+      
+      addLog(`✅ API response received: ${response.data.evaluations?.length || 0} evaluations`, 'success', 'EvaluationHistory');
+      addLog(`📊 Total evaluations in DB: ${response.data.pagination?.total || 0}`, 'info', 'EvaluationHistory');
+      
+      setEvaluations(response.data.evaluations || []);
+      setTotalPages(Math.ceil((response.data.pagination?.total || 0) / (response.data.pagination?.limit || 10)));
+      
+      console.log('✅ Evaluations loaded:', response.data.evaluations?.length || 0);
+      addLog(`✅ Evaluation history loaded successfully`, 'success', 'EvaluationHistory');
+      
+      if (response.data.evaluations?.length === 0) {
+        addLog('ℹ️ No evaluations found in history', 'info', 'EvaluationHistory');
+      }
     } catch (err) {
-      console.error('Error fetching evaluations:', err);
+      console.error('❌ Error fetching evaluations:', err);
+      console.error('Error details:', err.response?.data || err.message);
+      
+      addLog(`❌ Failed to fetch evaluation history: ${err.message}`, 'error', 'EvaluationHistory');
+      if (err.response?.status === 401) {
+        addLog('🔐 Authentication error - user may need to login again', 'error', 'EvaluationHistory');
+      } else if (err.response?.data) {
+        addLog(`🔧 Server error: ${JSON.stringify(err.response.data)}`, 'error', 'EvaluationHistory');
+      }
+      
       setError('Failed to load evaluation history');
     } finally {
       setLoading(false);
+      addLog('🏁 Evaluation history fetch completed', 'info', 'EvaluationHistory');
     }
   };
 

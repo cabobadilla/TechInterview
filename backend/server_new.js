@@ -391,16 +391,24 @@ app.post('/api/evaluate', AuthService.authenticateToken(), async (req, res) => {
 
 // 4. Get user's evaluation history
 app.get('/api/evaluations', AuthService.authenticateToken(), async (req, res) => {
+  console.log('=== EVALUATION HISTORY REQUEST START ===');
+  console.log('User:', req.user.email);
+  console.log('User ID:', req.user.id);
+  
   try {
     const { page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
     
     console.log('📊 Fetching evaluations for user:', req.user.email);
+    console.log('📊 Query params - page:', page, 'limit:', limit, 'offset:', offset);
     
     const evaluations = await Evaluation.findByUserId(req.user.id, limit, offset);
-    const statistics = await Evaluation.getUserStatistics(req.user.id);
+    console.log('📊 Raw evaluations found:', evaluations.length);
     
-    return res.json({
+    const statistics = await Evaluation.getUserStatistics(req.user.id);
+    console.log('📊 Statistics:', statistics);
+    
+    const response = {
       evaluations: evaluations.map(e => e.toJSON()),
       statistics,
       pagination: {
@@ -408,8 +416,18 @@ app.get('/api/evaluations', AuthService.authenticateToken(), async (req, res) =>
         limit: parseInt(limit),
         total: statistics.overall.total_evaluations
       }
+    };
+    
+    console.log('📊 Final response structure:', {
+      evaluations_count: response.evaluations.length,
+      total_evaluations: statistics.overall.total_evaluations,
+      pagination: response.pagination
     });
+    
+    console.log('=== EVALUATION HISTORY REQUEST SUCCESS ===');
+    return res.json(response);
   } catch (error) {
+    console.error('=== EVALUATION HISTORY REQUEST ERROR ===');
     console.error('Error fetching evaluations:', error);
     return res.status(500).json({ error: 'Failed to fetch evaluations' });
   }

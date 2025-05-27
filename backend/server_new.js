@@ -301,6 +301,22 @@ app.get('/api/case-studies', AuthService.authenticateToken(), async (req, res) =
     // Get case studies in legacy format for backward compatibility
     const caseStudies = await CaseStudy.getAllInLegacyFormat();
     
+    console.log('📊 Case studies found:', Object.keys(caseStudies).length);
+    
+    // If no case studies found, try to seed the database
+    if (Object.keys(caseStudies).length === 0) {
+      console.log('⚠️ No case studies found, attempting to seed database...');
+      try {
+        await seedCaseStudies();
+        const reloadedCaseStudies = await CaseStudy.getAllInLegacyFormat();
+        console.log('✅ Database seeded, case studies found:', Object.keys(reloadedCaseStudies).length);
+        return res.json(reloadedCaseStudies);
+      } catch (seedError) {
+        console.error('❌ Failed to seed database:', seedError);
+        return res.status(500).json({ error: 'No case studies available and failed to seed database' });
+      }
+    }
+    
     return res.json(caseStudies);
   } catch (error) {
     console.error('Error fetching case studies:', error);
@@ -642,6 +658,66 @@ function mapApproachToPercentage(value) {
 function mapKeyConsiderationToPercentage(value) {
   const mapping = { "Correct": 100, "Partially Correct": 66, "Incorrect": 0 };
   return mapping[value] || 0;
+}
+
+// Seed case studies function
+async function seedCaseStudies() {
+  console.log('🌱 Seeding case studies database...');
+  
+  const caseStudiesData = [
+    {
+      key: 'cloud_migration',
+      name: 'Cloud Migration Strategy',
+      objective: 'Design a comprehensive strategy for migrating legacy applications to the cloud',
+      process_answer: ["Assessment and Planning", "Application Portfolio Analysis", "Migration Strategy Selection", "Security and Compliance Planning", "Cost Optimization", "Migration Execution", "Post-Migration Optimization"],
+      key_considerations_answer: ["Security and Compliance", "Data Migration Strategy", "Downtime Minimization", "Cost Management", "Performance Monitoring", "Disaster Recovery", "Team Training"]
+    },
+    {
+      key: 'microservices_architecture',
+      name: 'Microservices Architecture Design',
+      objective: 'Design a microservices architecture for a monolithic e-commerce application',
+      process_answer: ["Domain Analysis", "Service Decomposition", "API Design", "Data Management Strategy", "Communication Patterns", "Deployment Strategy", "Monitoring and Observability"],
+      key_considerations_answer: ["Service Boundaries", "Data Consistency", "Inter-service Communication", "Fault Tolerance", "Security", "Testing Strategy", "Operational Complexity"]
+    },
+    {
+      key: 'system_scalability',
+      name: 'System Scalability Design',
+      objective: 'Design a scalable system architecture for high-traffic applications',
+      process_answer: ["Load Analysis", "Horizontal vs Vertical Scaling", "Database Scaling", "Caching Strategy", "Load Balancing", "Auto-scaling Implementation", "Performance Monitoring"],
+      key_considerations_answer: ["Performance Bottlenecks", "Database Scaling", "Caching Strategy", "Load Distribution", "Cost Optimization", "Monitoring and Alerting", "Disaster Recovery"]
+    },
+    {
+      key: 'data_pipeline',
+      name: 'Data Pipeline Architecture',
+      objective: 'Design a real-time data processing pipeline for analytics',
+      process_answer: ["Data Source Analysis", "Ingestion Strategy", "Processing Framework Selection", "Storage Design", "Real-time vs Batch Processing", "Data Quality Assurance", "Monitoring and Alerting"],
+      key_considerations_answer: ["Data Quality", "Scalability", "Fault Tolerance", "Data Governance", "Security and Privacy", "Cost Optimization", "Performance Monitoring"]
+    },
+    {
+      key: 'api_design',
+      name: 'RESTful API Design',
+      objective: 'Design a comprehensive RESTful API for a complex business domain',
+      process_answer: ["Resource Identification", "HTTP Methods and Status Codes", "URL Structure Design", "Request/Response Format", "Authentication and Authorization", "Versioning Strategy", "Documentation"],
+      key_considerations_answer: ["RESTful Principles", "Security", "Versioning", "Error Handling", "Performance", "Documentation", "Testing Strategy"]
+    }
+  ];
+
+  try {
+    for (const caseStudyData of caseStudiesData) {
+      // Check if case study already exists
+      const existing = await CaseStudy.findByKey(caseStudyData.key);
+      if (!existing) {
+        await CaseStudy.create(caseStudyData);
+        console.log(`✅ Created case study: ${caseStudyData.name}`);
+      } else {
+        console.log(`⏭️ Case study already exists: ${caseStudyData.name}`);
+      }
+    }
+    console.log('🌱 Case studies seeding completed');
+  } catch (error) {
+    console.error('❌ Error seeding case studies:', error);
+    throw error;
+  }
 }
 
 // Health check endpoint

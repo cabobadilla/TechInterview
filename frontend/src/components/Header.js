@@ -96,6 +96,20 @@ const Header = () => {
                 </Button>
                 <Button 
                   variant="text"
+                  onClick={() => navigate('/logs')}
+                  sx={{ 
+                    color: theme.palette.text.secondary,
+                    mr: 1,
+                    '&:hover': {
+                      color: '#7DE1C3',
+                      backgroundColor: 'rgba(125, 225, 195, 0.08)'
+                    }
+                  }}
+                >
+                  Logs
+                </Button>
+                <Button 
+                  variant="text"
                   onClick={handleReset}
                   sx={{ 
                     color: theme.palette.text.secondary,

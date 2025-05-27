@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import { useAuth } from '../context/AuthContext';
+import { useLogs } from '../context/LogsContext';
 
 const CaseSelection = () => {
   const navigate = useNavigate();
@@ -30,113 +31,73 @@ const CaseSelection = () => {
   } = useAnalyzer();
   
   const { api } = useAuth();
+  const { addLog } = useLogs();
   
   const [cases, setCases] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
-  const [debugInfo, setDebugInfo] = useState([]);
-  const [fetchStartTime, setFetchStartTime] = useState(null);
-  const [realTimeTimer, setRealTimeTimer] = useState(0);
-
-  // Real-time timer for debugging
-  React.useEffect(() => {
-    let interval;
-    if (isLoading && fetchStartTime) {
-      interval = setInterval(() => {
-        setRealTimeTimer(Math.round((Date.now() - fetchStartTime) / 1000));
-      }, 1000);
-    } else {
-      setRealTimeTimer(0);
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isLoading, fetchStartTime]);
-
-  const addDebugInfo = (message) => {
-    const timestamp = new Date().toISOString();
-    const info = `[${timestamp}] ${message}`;
-    console.log('CASE STUDIES DEBUG:', info);
-    setDebugInfo(prev => [...prev, info]);
-  };
   
   // Redireccionar si no hay QA pairs
   useEffect(() => {
     if (!qaPairs || qaPairs.length === 0) {
-      addDebugInfo('❌ No QA pairs found, redirecting to upload');
+      addLog('❌ No QA pairs found, redirecting to upload', 'error', 'CaseSelection');
       navigate('/upload');
       return;
     }
     
-    addDebugInfo(`✅ QA pairs found: ${qaPairs.length} pairs`);
+    addLog(`✅ QA pairs found: ${qaPairs.length} pairs`, 'success', 'CaseSelection');
     
     // Cargar casos de estudio
     const fetchCases = async () => {
-      try {
+            try {
         setIsLoading(true);
-        setFetchStartTime(Date.now());
-        setDebugInfo([]);
+        const startTime = Date.now();
         
-        addDebugInfo('🚀 Starting case studies fetch...');
-        addDebugInfo(`📡 API Base URL: ${api.defaults?.baseURL || 'Not set'}`);
-        addDebugInfo('📡 Making request to: /api/case-studies');
+        addLog('🚀 Starting case studies fetch...', 'info', 'CaseSelection');
+        addLog(`📡 API Base URL: ${api.defaults?.baseURL || 'Not set'}`, 'info', 'CaseSelection');
+        addLog('📡 Making request to: /api/case-studies', 'info', 'CaseSelection');
         
         const response = await api.get('/api/case-studies');
         
-        const duration = Date.now() - fetchStartTime;
-        addDebugInfo(`✅ API call completed in ${duration}ms`);
-        addDebugInfo(`📊 Response status: ${response.status}`);
-        addDebugInfo(`📊 Response data type: ${typeof response.data}`);
-        addDebugInfo(`📊 Response data keys: ${Object.keys(response.data || {}).length}`);
+        const duration = Date.now() - startTime;
+        addLog(`✅ API call completed in ${duration}ms`, 'success', 'CaseSelection');
+        addLog(`📊 Response status: ${response.status}`, 'info', 'CaseSelection');
         
         if (response.data && typeof response.data === 'object') {
           const caseKeys = Object.keys(response.data);
-          addDebugInfo(`📚 Case studies found: ${caseKeys.length}`);
-          caseKeys.forEach((key, index) => {
-            addDebugInfo(`  ${index + 1}. ${key}: ${response.data[key]?.name || 'No name'}`);
-          });
+          addLog(`📚 Case studies found: ${caseKeys.length}`, 'success', 'CaseSelection');
           
-          setCases(response.data);
-          addDebugInfo('✅ Case studies set in state successfully');
+        setCases(response.data);
+          addLog('✅ Case studies set in state successfully', 'success', 'CaseSelection');
         } else {
-          addDebugInfo('❌ Invalid response data format');
+          addLog('❌ Invalid response data format', 'error', 'CaseSelection');
           throw new Error('Invalid response format');
         }
         
       } catch (error) {
-        const duration = Date.now() - fetchStartTime;
-        addDebugInfo(`❌ Error occurred after ${duration}ms`);
-        addDebugInfo(`❌ Error type: ${error.constructor.name}`);
-        addDebugInfo(`❌ Error message: ${error.message}`);
-        
+        addLog(`❌ Error fetching case studies: ${error.message}`, 'error', 'CaseSelection');
         console.error('Error fetching cases:', error);
         
         if (error.response) {
-          addDebugInfo(`❌ Response status: ${error.response.status}`);
-          addDebugInfo(`❌ Response data: ${JSON.stringify(error.response.data)}`);
+          addLog(`❌ Response status: ${error.response.status}`, 'error', 'CaseSelection');
           
           if (error.response.status === 401) {
-            addDebugInfo('🔐 Authentication error detected');
-            setError('Authentication required. Please login again.');
+            addLog('🔐 Authentication error detected', 'error', 'CaseSelection');
+          setError('Authentication required. Please login again.');
           } else {
-            addDebugInfo('🔧 Server error detected');
+            addLog('🔧 Server error detected', 'error', 'CaseSelection');
             setError(error.response?.data?.error || 'Failed to fetch case studies');
           }
         } else if (error.request) {
-          addDebugInfo('🌐 Network error - no response received');
-          addDebugInfo(`🌐 Request details: ${JSON.stringify(error.request)}`);
+          addLog('🌐 Network error - no response received', 'error', 'CaseSelection');
           setError('Network error. Please check your connection.');
         } else {
-          addDebugInfo('⚙️ Request setup error');
+          addLog('⚙️ Request setup error', 'error', 'CaseSelection');
           setError('Failed to fetch case studies');
         }
       } finally {
-        addDebugInfo('🏁 Entering finally block...');
         setIsLoading(false);
-        const totalDuration = Date.now() - fetchStartTime;
-        addDebugInfo(`🏁 Total process completed in ${totalDuration}ms`);
-        addDebugInfo('=== CASE STUDIES FETCH COMPLETE ===');
+        addLog('🏁 Case studies fetch completed', 'info', 'CaseSelection');
       }
     };
     
@@ -284,65 +245,6 @@ const CaseSelection = () => {
           >
             {error}
           </Alert>
-        )}
-
-        {/* Debug Information Panel */}
-        {(isLoading || debugInfo.length > 0) && (
-          <Paper 
-            variant="outlined" 
-            sx={{ 
-              p: 3, 
-              mb: 4,
-              borderColor: '#1E3A54',
-              borderRadius: 0,
-              backgroundColor: 'rgba(125, 225, 195, 0.05)'
-            }}
-          >
-            <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
-              {isLoading ? 'Loading Case Studies...' : 'Debug Information'}
-            </Typography>
-            
-            {isLoading && (
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
-                <Typography variant="body2" color="text.secondary">
-                  Fetching case studies from server...
-                </Typography>
-              </Box>
-            )}
-            
-            <Box 
-              sx={{ 
-                maxHeight: 300, 
-                overflow: 'auto',
-                fontFamily: 'monospace',
-                fontSize: '0.8rem',
-                lineHeight: 1.4
-              }}
-            >
-              {debugInfo.map((info, index) => (
-                <Typography 
-                  key={index} 
-                  variant="caption" 
-                  component="div" 
-                  sx={{ 
-                    color: info.includes('❌') ? '#ff6b6b' : 
-                           info.includes('✅') || info.includes('🚀') ? '#7DE1C3' : 
-                           'text.secondary',
-                    mb: 0.5
-                  }}
-                >
-                  {info}
-                </Typography>
-              ))}
-            </Box>
-            
-            {isLoading && fetchStartTime && (
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                Elapsed time: {realTimeTimer}s
-              </Typography>
-            )}
-          </Paper>
         )}
         
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>

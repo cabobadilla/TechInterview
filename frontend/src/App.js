@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Container, Box, ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { useAnalyzer } from './context/AnalyzerContext';
+import { LogsProvider } from './context/LogsContext';
 
 // Componentes
 import Header from './components/Header';
@@ -15,6 +16,7 @@ import Results from './pages/Results';
 import Login from './pages/Login';
 import EvaluationHistory from './pages/EvaluationHistory';
 import ServerDiagnostic from './pages/ServerDiagnostic';
+import Logs from './pages/Logs';
 
 // Creamos un tema personalizado inspirado en el diseño minimalista con acentos verde agua
 const theme = createTheme({
@@ -409,43 +411,46 @@ function App() {
   const { step, qa_pairs, evaluationResults, transcript, selectedCase, setSelectedCase } = useAnalyzer();
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ minHeight: '100vh', backgroundColor: theme.palette.background.default }}>
-        <Header />
-        <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
-          <Routes>
-            {/* Ruta pública para login */}
-            <Route path="/login" element={<Login />} />
+    <LogsProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ minHeight: '100vh', backgroundColor: theme.palette.background.default }}>
+          <Header />
+          <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+            <Routes>
+              {/* Ruta pública para login */}
+              <Route path="/login" element={<Login />} />
 
-            {/* Rutas protegidas */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Navigate to="/upload" replace />} />
-              <Route path="/upload" element={
-                <>
-                  <Stepper activeStep={step} />
-                  <TranscriptUpload />
-                </>
-              } />
-              <Route path="/select-case" element={
-                <>
-                  <Stepper activeStep={step} />
-                  <CaseSelection selectedCase={selectedCase} setSelectedCase={setSelectedCase} />
-                </>
-              } />
-              <Route path="/results" element={
-                <>
-                  <Stepper activeStep={step} />
-                  <Results qa_pairs={qa_pairs} evaluationResults={evaluationResults} transcript={transcript} />
-                </>
-              } />
-              <Route path="/history" element={<EvaluationHistory />} />
-              <Route path="/diagnostic" element={<ServerDiagnostic />} />
-            </Route>
-          </Routes>
-        </Container>
-      </Box>
-    </ThemeProvider>
+              {/* Rutas protegidas */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Navigate to="/upload" replace />} />
+                <Route path="/upload" element={
+                  <>
+                    <Stepper activeStep={step} />
+                    <TranscriptUpload />
+                  </>
+                } />
+                <Route path="/select-case" element={
+                  <>
+                    <Stepper activeStep={step} />
+                    <CaseSelection selectedCase={selectedCase} setSelectedCase={setSelectedCase} />
+                  </>
+                } />
+                <Route path="/results" element={
+                  <>
+                    <Stepper activeStep={step} />
+                    <Results qa_pairs={qa_pairs} evaluationResults={evaluationResults} transcript={transcript} />
+                  </>
+                } />
+                <Route path="/history" element={<EvaluationHistory />} />
+                <Route path="/diagnostic" element={<ServerDiagnostic />} />
+                <Route path="/logs" element={<Logs />} />
+              </Route>
+            </Routes>
+          </Container>
+        </Box>
+      </ThemeProvider>
+    </LogsProvider>
   );
 }
 

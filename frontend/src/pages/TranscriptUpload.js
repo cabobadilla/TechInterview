@@ -8,6 +8,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import { useAuth } from '../context/AuthContext';
+import { useLogs } from '../context/LogsContext';
 
 const TranscriptUpload = () => {
   const navigate = useNavigate();
@@ -26,38 +27,11 @@ const TranscriptUpload = () => {
   } = useAnalyzer();
   
   const { api } = useAuth();
+  const { addLog } = useLogs();
   
   const [file, setFile] = useState(null);
   const [previewText, setPreviewText] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
-  const [debugInfo, setDebugInfo] = useState([]);
-  const [uploadStartTime, setUploadStartTime] = useState(null);
-  const [realTimeTimer, setRealTimeTimer] = useState(0);
-  const [emergencyMode, setEmergencyMode] = useState(false);
-  const [successData, setSuccessData] = useState(null);
-
-  // Real-time timer for debugging
-  React.useEffect(() => {
-    let interval;
-    if (loading && uploadStartTime) {
-      interval = setInterval(() => {
-        setRealTimeTimer(Math.round((Date.now() - uploadStartTime) / 1000));
-      }, 1000);
-    } else {
-      setRealTimeTimer(0);
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [loading, uploadStartTime]);
-
-  const addDebugInfo = (message) => {
-    const timestamp = new Date().toISOString();
-    const info = `[${timestamp}] ${message}`;
-    console.log('CLIENT DEBUG:', info);
-    setDebugInfo(prev => [...prev, info]);
-  };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -107,26 +81,25 @@ const TranscriptUpload = () => {
     
     setLoading(true);
     setError(null);
-    setDebugInfo([]);
-    setUploadStartTime(Date.now());
+    const uploadStartTime = Date.now();
     
-    addDebugInfo('Starting transcript upload process');
-    addDebugInfo(`File: ${file.name}, Size: ${file.size} bytes`);
+    addLog('Starting transcript upload process', 'info', 'TranscriptUpload');
+    addLog(`File: ${file.name}, Size: ${file.size} bytes`, 'info', 'TranscriptUpload');
     
     const formData = new FormData();
     formData.append('transcript', file);
     
     try {
-      addDebugInfo('FormData created, making API call...');
+      addLog('FormData created, making API call...', 'info', 'TranscriptUpload');
       
       // Add timeout to the request
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        addDebugInfo('REQUEST TIMEOUT - Aborting after 120 seconds');
+        addLog('REQUEST TIMEOUT - Aborting after 120 seconds', 'error', 'TranscriptUpload');
       }, 120000); // 2 minutes timeout
       
-      addDebugInfo('API call initiated with timeout protection');
+      addLog('API call initiated with timeout protection', 'info', 'TranscriptUpload');
       
       const response = await api.post('/api/transcript', formData, {
         headers: {
@@ -136,89 +109,73 @@ const TranscriptUpload = () => {
         timeout: 120000,
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          addDebugInfo(`Upload progress: ${percentCompleted}%`);
+          addLog(`Upload progress: ${percentCompleted}%`, 'info', 'TranscriptUpload');
         }
       });
       
       clearTimeout(timeoutId);
       const duration = Date.now() - uploadStartTime;
-      addDebugInfo(`API call completed successfully in ${duration}ms`);
+      addLog(`API call completed successfully in ${duration}ms`, 'success', 'TranscriptUpload');
       
-      addDebugInfo('Extracting data from response...');
+      addLog('Extracting data from response...', 'info', 'TranscriptUpload');
       const { transcript, qa_pairs, transcript_id } = response.data;
       
-      addDebugInfo(`Response validation - Response exists: ${!!response.data}`);
-      addDebugInfo(`Response validation - Transcript exists: ${!!transcript}`);
-      addDebugInfo(`Response validation - QA pairs exists: ${!!qa_pairs}`);
-      addDebugInfo(`Response validation - Transcript ID exists: ${!!transcript_id}`);
-      addDebugInfo(`Response received - Transcript length: ${transcript?.length || 0}, QA pairs: ${qa_pairs?.length || 0}, ID: ${transcript_id || 'Not set'}`);
+      addLog(`Response received - Transcript length: ${transcript?.length || 0}, QA pairs: ${qa_pairs?.length || 0}, ID: ${transcript_id || 'Not set'}`, 'info', 'TranscriptUpload');
       
       if (!qa_pairs || qa_pairs.length === 0) {
-        addDebugInfo('ERROR: No QA pairs found in response');
+        addLog('ERROR: No QA pairs found in response', 'error', 'TranscriptUpload');
         throw new Error('Unable to extract questions and answers from the transcript');
       }
       
-      addDebugInfo('QA pairs validation passed');
-      addDebugInfo('Setting transcript in context...');
-      
-      // Emergency mode - bypass context and navigation
-      if (emergencyMode) {
-        addDebugInfo('EMERGENCY MODE: Skipping context and navigation');
-        setSuccessData({ transcript, qa_pairs, transcript_id });
-        addDebugInfo('EMERGENCY MODE: Success data set, process complete');
-        return;
-      }
+      addLog('QA pairs validation passed', 'success', 'TranscriptUpload');
+      addLog('Setting transcript in context...', 'info', 'TranscriptUpload');
       
       // Use try-catch for context operations
       try {
         setTranscript(transcript);
-        addDebugInfo('Transcript set successfully');
+        addLog('Transcript set successfully', 'success', 'TranscriptUpload');
         
         setTranscriptId(transcript_id);
-        addDebugInfo(`Transcript ID set successfully: ${transcript_id}`);
+        addLog(`Transcript ID set successfully: ${transcript_id}`, 'success', 'TranscriptUpload');
         
         setQaPairs(qa_pairs);
-        addDebugInfo('QA pairs set successfully');
+        addLog('QA pairs set successfully', 'success', 'TranscriptUpload');
         
-        addDebugInfo('Advancing to next step...');
+        addLog('Advancing to next step...', 'info', 'TranscriptUpload');
         nextStep();
-        addDebugInfo('Step advanced successfully');
+        addLog('Step advanced successfully', 'success', 'TranscriptUpload');
         
-        addDebugInfo('Navigating to case selection...');
+        addLog('Navigating to case selection...', 'info', 'TranscriptUpload');
         navigate('/select-case');
-        addDebugInfo('Navigation completed successfully');
+        addLog('Navigation completed successfully', 'success', 'TranscriptUpload');
       } catch (contextError) {
-        addDebugInfo(`Context/Navigation error: ${contextError.message}`);
+        addLog(`Context/Navigation error: ${contextError.message}`, 'error', 'TranscriptUpload');
         throw contextError;
       }
     } catch (error) {
       const duration = Date.now() - uploadStartTime;
-      addDebugInfo(`ERROR occurred after ${duration}ms`);
+      addLog(`ERROR occurred after ${duration}ms`, 'error', 'TranscriptUpload');
       
       console.error('Error uploading transcript:', error);
-      addDebugInfo(`Error type: ${error.name}`);
-      addDebugInfo(`Error message: ${error.message}`);
+      addLog(`Error: ${error.message}`, 'error', 'TranscriptUpload');
       
       if (error.name === 'AbortError') {
-        addDebugInfo('Request was aborted due to timeout');
+        addLog('Request was aborted due to timeout', 'error', 'TranscriptUpload');
         setError('Request timed out. The server may be overloaded. Please try again.');
       } else if (error.response?.status === 401) {
-        addDebugInfo('Authentication error');
+        addLog('Authentication error', 'error', 'TranscriptUpload');
         setError('Authentication required. Please login again.');
       } else if (error.code === 'ECONNABORTED') {
-        addDebugInfo('Connection timeout');
+        addLog('Connection timeout', 'error', 'TranscriptUpload');
         setError('Connection timeout. Please check your internet connection and try again.');
       } else {
-        addDebugInfo(`Server error: ${error.response?.data?.error || error.message}`);
+        addLog(`Server error: ${error.response?.data?.error || error.message}`, 'error', 'TranscriptUpload');
         setError(error.response?.data?.error || 'Failed to upload transcript');
       }
     } finally {
-      addDebugInfo('Entering finally block...');
       setLoading(false);
-      addDebugInfo('Loading set to false');
       const totalDuration = Date.now() - uploadStartTime;
-      addDebugInfo(`Process completed in ${totalDuration}ms`);
-      addDebugInfo('=== CLIENT PROCESS COMPLETE ===');
+      addLog(`Process completed in ${totalDuration}ms`, 'info', 'TranscriptUpload');
     }
   };
 
@@ -342,7 +299,7 @@ const TranscriptUpload = () => {
           
           <Divider sx={{ my: 4, borderColor: '#1E3A54' }} />
           
-          {(loading || debugInfo.length > 0) && (
+          {loading && (
             <Paper 
               variant="outlined" 
               sx={{ 
@@ -354,116 +311,35 @@ const TranscriptUpload = () => {
               }}
             >
               <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
-                {loading ? 'Processing...' : 'Debug Information'}
+                Processing...
               </Typography>
               
-              {loading && (
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
-                  <Typography variant="body2" color="text.secondary">
-                    Processing transcript... This may take up to 2 minutes.
-                  </Typography>
-                </Box>
-              )}
-              
-              <Box 
-                sx={{ 
-                  maxHeight: 300, 
-                  overflow: 'auto',
-                  fontFamily: 'monospace',
-                  fontSize: '0.8rem',
-                  lineHeight: 1.4
-                }}
-              >
-                {debugInfo.map((info, index) => (
-                  <Typography 
-                    key={index} 
-                    variant="caption" 
-                    component="div" 
-                    sx={{ 
-                      color: info.includes('ERROR') ? '#ff6b6b' : 
-                             info.includes('SUCCESS') || info.includes('completed') ? '#7DE1C3' : 
-                             'text.secondary',
-                      mb: 0.5
-                    }}
-                  >
-                    {info}
-                  </Typography>
-                ))}
-              </Box>
-              
-              {loading && uploadStartTime && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                  Elapsed time: {realTimeTimer}s
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Processing transcript... This may take up to 2 minutes.
                 </Typography>
-              )}
+              </Box>
             </Paper>
           )}
           
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <Button
-                onClick={() => setEmergencyMode(!emergencyMode)}
-                variant="outlined"
-                size="small"
-                sx={{ 
-                  color: emergencyMode ? '#ff6b6b' : '#7DE1C3',
-                  borderColor: emergencyMode ? '#ff6b6b' : '#7DE1C3'
-                }}
-              >
-                {emergencyMode ? 'Disable' : 'Enable'} Emergency Mode
-              </Button>
-              
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={loading || !file}
-                sx={{ 
-                  minWidth: 180,
-                  py: 1
-                }}
-              >
-                {loading ? (
-                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                ) : (
-                  'Process Transcript'
-                )}
-              </Button>
-            </Box>
-          </Box>
-          
-          {/* Emergency mode success display */}
-          {successData && emergencyMode && (
-            <Paper 
-              variant="outlined" 
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading || !file}
               sx={{ 
-                p: 3, 
-                mt: 4,
-                borderColor: '#7DE1C3',
-                borderRadius: 0,
-                backgroundColor: 'rgba(125, 225, 195, 0.1)'
+                minWidth: 180,
+                py: 1
               }}
             >
-              <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
-                🎉 Success (Emergency Mode)
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Transcript processed successfully! Data extracted:
-              </Typography>
-              <Box sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-                <Typography>Transcript length: {successData.transcript?.length || 0} characters</Typography>
-                <Typography>Questions extracted: {successData.qa_pairs?.length || 0}</Typography>
-                {successData.qa_pairs?.map((pair, index) => (
-                  <Box key={index} sx={{ mt: 1, p: 1, backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    <Typography variant="caption" sx={{ color: '#7DE1C3' }}>Q{index + 1}:</Typography>
-                    <Typography variant="caption" component="div">
-                      {pair.question?.substring(0, 100)}...
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </Paper>
-          )}
+              {loading ? (
+                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+              ) : (
+                'Process Transcript'
+              )}
+            </Button>
+          </Box>
         </Box>
       </Box>
     </Paper>

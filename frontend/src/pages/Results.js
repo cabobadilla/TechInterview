@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useAnalyzer } from '../context/AnalyzerContext';
 import { useAuth } from '../context/AuthContext';
+import { useLogs } from '../context/LogsContext';
 
 // Componente para mostrar puntuación con barra de progreso
 const ScoreDisplay = ({ label, value }) => {
@@ -65,121 +66,84 @@ const Results = () => {
   } = useAnalyzer();
   
   const { api } = useAuth();
+  const { addLog } = useLogs();
   
   const [cases, setCases] = useState({});
   const [averageScores, setAverageScores] = useState({
     approach: 0,
     considerations: 0
   });
-  const [debugInfo, setDebugInfo] = useState([]);
   const [isLoadingCases, setIsLoadingCases] = useState(false);
-  const [fetchStartTime, setFetchStartTime] = useState(null);
-  const [realTimeTimer, setRealTimeTimer] = useState(0);
-
-  // Real-time timer for debugging
-  React.useEffect(() => {
-    let interval;
-    if (isLoadingCases && fetchStartTime) {
-      interval = setInterval(() => {
-        setRealTimeTimer(Math.round((Date.now() - fetchStartTime) / 1000));
-      }, 1000);
-    } else {
-      setRealTimeTimer(0);
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isLoadingCases, fetchStartTime]);
-
-  const addDebugInfo = (message) => {
-    const timestamp = new Date().toISOString();
-    const info = `[${timestamp}] ${message}`;
-    console.log('RESULTS DEBUG:', info);
-    setDebugInfo(prev => [...prev, info]);
-  };
   
   // Validación inicial y carga de datos
   useEffect(() => {
-    addDebugInfo('=== RESULTS PAGE INITIALIZATION ===');
-    addDebugInfo(`QA Pairs: ${qaPairs ? qaPairs.length : 'null'}`);
-    addDebugInfo(`Selected Case: ${selectedCase || 'null'}`);
-    addDebugInfo(`Selected Level: ${selectedLevel || 'null'}`);
-    addDebugInfo(`Evaluation Results: ${evaluationResults ? evaluationResults.length : 'null'}`);
+    addLog('=== RESULTS PAGE INITIALIZATION ===', 'info', 'Results');
+    addLog(`QA Pairs: ${qaPairs ? qaPairs.length : 'null'}`, 'info', 'Results');
+    addLog(`Selected Case: ${selectedCase || 'null'}`, 'info', 'Results');
+    addLog(`Selected Level: ${selectedLevel || 'null'}`, 'info', 'Results');
+    addLog(`Evaluation Results: ${evaluationResults ? evaluationResults.length : 'null'}`, 'info', 'Results');
     
     // Redireccionar si faltan datos críticos
     if (!qaPairs || qaPairs.length === 0) {
-      addDebugInfo('❌ No QA pairs found, redirecting to upload');
+      addLog('❌ No QA pairs found, redirecting to upload', 'error', 'Results');
       navigate('/upload');
       return;
     }
     
     if (!selectedCase || !selectedLevel) {
-      addDebugInfo('❌ Missing case or level selection, redirecting to case selection');
+      addLog('❌ Missing case or level selection, redirecting to case selection', 'error', 'Results');
       navigate('/select-case');
       return;
     }
     
     if (!evaluationResults || evaluationResults.length === 0) {
-      addDebugInfo('❌ No evaluation results found, redirecting to case selection');
+      addLog('❌ No evaluation results found, redirecting to case selection', 'error', 'Results');
       setError('No evaluation results found. Please complete the evaluation process.');
       navigate('/select-case');
       return;
     }
     
-    addDebugInfo('✅ All required data present, proceeding with initialization');
+    addLog('✅ All required data present, proceeding with initialization', 'success', 'Results');
     
     // Cargar casos de estudio
     const fetchCases = async () => {
       try {
         setIsLoadingCases(true);
-        setFetchStartTime(Date.now());
+        const startTime = Date.now();
         
-        addDebugInfo('🚀 Starting case studies fetch for results page...');
-        addDebugInfo(`📡 API Base URL: ${api.defaults?.baseURL || 'Not set'}`);
-        addDebugInfo('📡 Making request to: /api/case-studies');
+        addLog('🚀 Starting case studies fetch for results page...', 'info', 'Results');
+        addLog(`📡 API Base URL: ${api.defaults?.baseURL || 'Not set'}`, 'info', 'Results');
+        addLog('📡 Making request to: /api/case-studies', 'info', 'Results');
         
         const response = await api.get('/api/case-studies');
         
-        const duration = Date.now() - fetchStartTime;
-        addDebugInfo(`✅ Case studies API call completed in ${duration}ms`);
-        addDebugInfo(`📊 Response status: ${response.status}`);
-        addDebugInfo(`📊 Response data type: ${typeof response.data}`);
-        addDebugInfo(`📊 Response data keys: ${Object.keys(response.data || {}).length}`);
+        const duration = Date.now() - startTime;
+        addLog(`✅ Case studies API call completed in ${duration}ms`, 'success', 'Results');
+        addLog(`📊 Response status: ${response.status}`, 'info', 'Results');
         
         if (response.data && typeof response.data === 'object') {
           const caseKeys = Object.keys(response.data);
-          addDebugInfo(`📚 Case studies found: ${caseKeys.length}`);
-          caseKeys.forEach((key, index) => {
-            addDebugInfo(`  ${index + 1}. ${key}: ${response.data[key]?.name || 'No name'}`);
-          });
+          addLog(`📚 Case studies found: ${caseKeys.length}`, 'success', 'Results');
           
           setCases(response.data);
-          addDebugInfo('✅ Case studies set in state successfully');
+          addLog('✅ Case studies set in state successfully', 'success', 'Results');
         } else {
-          addDebugInfo('❌ Invalid case studies response data format');
+          addLog('❌ Invalid case studies response data format', 'error', 'Results');
           throw new Error('Invalid response format');
         }
         
       } catch (error) {
-        const duration = Date.now() - fetchStartTime;
-        addDebugInfo(`❌ Case studies error occurred after ${duration}ms`);
-        addDebugInfo(`❌ Error type: ${error.constructor.name}`);
-        addDebugInfo(`❌ Error message: ${error.message}`);
-        
+        addLog(`❌ Error fetching case studies: ${error.message}`, 'error', 'Results');
         console.error('Error fetching cases:', error);
         
         if (error.response) {
-          addDebugInfo(`❌ Response status: ${error.response.status}`);
-          addDebugInfo(`❌ Response data: ${JSON.stringify(error.response.data)}`);
+          addLog(`❌ Response status: ${error.response.status}`, 'error', 'Results');
         }
         
         setError('Error loading case studies for display');
       } finally {
-        addDebugInfo('🏁 Case studies fetch finally block...');
         setIsLoadingCases(false);
-        const totalDuration = Date.now() - fetchStartTime;
-        addDebugInfo(`🏁 Case studies fetch completed in ${totalDuration}ms`);
+        addLog('🏁 Case studies fetch completed', 'info', 'Results');
       }
     };
     
@@ -189,8 +153,8 @@ const Results = () => {
   // Calcular promedios cuando se cargan los resultados
   useEffect(() => {
     if (evaluationResults && evaluationResults.length > 0) {
-      addDebugInfo('🧮 Calculating average scores...');
-      addDebugInfo(`📊 Processing ${evaluationResults.length} evaluation results`);
+      addLog('🧮 Calculating average scores...', 'info', 'Results');
+      addLog(`📊 Processing ${evaluationResults.length} evaluation results`, 'info', 'Results');
       
       try {
         // Validar que todos los resultados tengan las propiedades necesarias
@@ -199,61 +163,51 @@ const Results = () => {
           const hasConsiderations = typeof result.key_considerations_score === 'number';
           
           if (!hasApproach || !hasConsiderations) {
-            addDebugInfo(`⚠️ Invalid result found: approach_score=${result.approach_score}, key_considerations_score=${result.key_considerations_score}`);
+            addLog(`⚠️ Invalid result found: approach_score=${result.approach_score}, key_considerations_score=${result.key_considerations_score}`, 'warning', 'Results');
           }
           
           return hasApproach && hasConsiderations;
         });
         
-        addDebugInfo(`📊 Valid results for calculation: ${validResults.length}/${evaluationResults.length}`);
+        addLog(`📊 Valid results for calculation: ${validResults.length}/${evaluationResults.length}`, 'info', 'Results');
         
         if (validResults.length === 0) {
-          addDebugInfo('❌ No valid results for score calculation');
+          addLog('❌ No valid results for score calculation', 'error', 'Results');
           setError('Invalid evaluation results format');
           return;
         }
         
-        const approachSum = validResults.reduce((sum, item) => {
-          addDebugInfo(`  Adding approach score: ${item.approach_score}`);
-          return sum + item.approach_score;
-        }, 0);
-        
-        const considerationsSum = validResults.reduce((sum, item) => {
-          addDebugInfo(`  Adding considerations score: ${item.key_considerations_score}`);
-          return sum + item.key_considerations_score;
-        }, 0);
+        const approachSum = validResults.reduce((sum, item) => sum + item.approach_score, 0);
+        const considerationsSum = validResults.reduce((sum, item) => sum + item.key_considerations_score, 0);
         
         const avgApproach = Math.round(approachSum / validResults.length);
         const avgConsiderations = Math.round(considerationsSum / validResults.length);
         const overallScore = Math.round((avgApproach + avgConsiderations) / 2);
         
-        addDebugInfo(`📊 Calculated averages:`);
-        addDebugInfo(`  Approach: ${approachSum}/${validResults.length} = ${avgApproach}%`);
-        addDebugInfo(`  Considerations: ${considerationsSum}/${validResults.length} = ${avgConsiderations}%`);
-        addDebugInfo(`  Overall: (${avgApproach} + ${avgConsiderations})/2 = ${overallScore}%`);
+        addLog(`📊 Calculated averages: Approach=${avgApproach}%, Considerations=${avgConsiderations}%, Overall=${overallScore}%`, 'success', 'Results');
         
         setAverageScores({
           approach: avgApproach,
           considerations: avgConsiderations
         });
         
-        addDebugInfo('✅ Average scores calculated and set successfully');
+        addLog('✅ Average scores calculated and set successfully', 'success', 'Results');
       } catch (error) {
-        addDebugInfo(`❌ Error calculating averages: ${error.message}`);
+        addLog(`❌ Error calculating averages: ${error.message}`, 'error', 'Results');
         console.error('Error calculating averages:', error);
         setError('Error calculating average scores');
       }
     } else {
-      addDebugInfo('⚠️ No evaluation results available for average calculation');
+      addLog('⚠️ No evaluation results available for average calculation', 'warning', 'Results');
     }
   }, [evaluationResults, setError]);
   
   // Función para descargar resultados como CSV
   const downloadCSV = () => {
-    addDebugInfo('📥 Starting CSV download...');
+    addLog('📥 Starting CSV download...', 'info', 'Results');
     
     if (!evaluationResults) {
-      addDebugInfo('❌ No evaluation results for CSV download');
+      addLog('❌ No evaluation results for CSV download', 'error', 'Results');
       return;
     }
     
@@ -293,9 +247,9 @@ const Results = () => {
       link.click();
       document.body.removeChild(link);
       
-      addDebugInfo('✅ CSV download completed successfully');
+      addLog('✅ CSV download completed successfully', 'success', 'Results');
     } catch (error) {
-      addDebugInfo(`❌ CSV download error: ${error.message}`);
+      addLog(`❌ CSV download error: ${error.message}`, 'error', 'Results');
       console.error('CSV download error:', error);
     }
   };
@@ -346,66 +300,6 @@ const Results = () => {
                 >
                   {error}
                 </Alert>
-              )}
-
-              {/* Debug Information Panel */}
-              {debugInfo.length > 0 && (
-                <Paper 
-                  variant="outlined" 
-                  sx={{ 
-                    p: 3, 
-                    mb: 4,
-                    borderColor: '#1E3A54',
-                    borderRadius: 0,
-                    backgroundColor: 'rgba(125, 225, 195, 0.05)'
-                  }}
-                >
-                  <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
-                    {isLoadingCases ? 'Loading Case Studies...' : 'Debug Information'}
-                  </Typography>
-                  
-                  {isLoadingCases && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
-                      <Typography variant="body2" color="text.secondary">
-                        Loading case studies for display...
-                      </Typography>
-                    </Box>
-                  )}
-                  
-                  <Box 
-                    sx={{ 
-                      maxHeight: 300, 
-                      overflow: 'auto',
-                      fontFamily: 'monospace',
-                      fontSize: '0.8rem',
-                      lineHeight: 1.4
-                    }}
-                  >
-                    {debugInfo.map((info, index) => (
-                      <Typography 
-                        key={index} 
-                        variant="caption" 
-                        component="div" 
-                        sx={{ 
-                          color: info.includes('❌') ? '#ff6b6b' : 
-                                 info.includes('✅') || info.includes('🚀') ? '#7DE1C3' : 
-                                 info.includes('⚠️') ? '#ffa726' :
-                                 'text.secondary',
-                          mb: 0.5
-                        }}
-                      >
-                        {info}
-                      </Typography>
-                    ))}
-                  </Box>
-                  
-                  {isLoadingCases && fetchStartTime && (
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                      Elapsed time: {realTimeTimer}s
-                    </Typography>
-                  )}
-                </Paper>
               )}
               
               {evaluationResults && evaluationResults.length > 0 ? (

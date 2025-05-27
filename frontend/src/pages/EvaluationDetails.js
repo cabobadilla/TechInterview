@@ -11,14 +11,12 @@ import {
   Button,
   CircularProgress,
   Alert,
-  Divider,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   LinearProgress
 } from '@mui/material';
 import {
@@ -26,11 +24,7 @@ import {
   Download,
   Assessment,
   Schedule,
-  Person,
-  CheckCircle,
-  Warning,
-  Error as ErrorIcon,
-  Info
+  Person
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useLogs } from '../context/LogsContext';
@@ -46,27 +40,48 @@ const EvaluationDetails = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('EvaluationDetails component mounted');
+    console.log('Evaluation ID from params:', id);
+    
     addLog('=== EVALUATION DETAILS PAGE INITIALIZATION ===', 'info', 'EvaluationDetails');
     addLog(`Evaluation ID: ${id}`, 'info', 'EvaluationDetails');
-    fetchEvaluationDetails();
+    
+    if (id) {
+      fetchEvaluationDetails();
+    } else {
+      addLog('❌ No evaluation ID provided', 'error', 'EvaluationDetails');
+      setError('No evaluation ID provided');
+      setLoading(false);
+    }
   }, [id]);
 
   const fetchEvaluationDetails = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       addLog('🔍 Starting evaluation details fetch...', 'info', 'EvaluationDetails');
       addLog(`📊 Fetching evaluation with ID: ${id}`, 'info', 'EvaluationDetails');
       
-      const response = await api.get(`/api/evaluations/${id}`);
-      addLog(`✅ API response received for evaluation details`, 'success', 'EvaluationDetails');
-      addLog(`📊 Evaluation data: ${response.data.case_study_name} - ${response.data.expected_level}`, 'info', 'EvaluationDetails');
+      console.log('Making API call to:', `/api/evaluations/${id}`);
       
-      setEvaluation(response.data);
-      addLog(`✅ Evaluation details loaded successfully`, 'success', 'EvaluationDetails');
+      const response = await api.get(`/api/evaluations/${id}`);
+      
+      console.log('API response received:', response.data);
+      addLog(`✅ API response received for evaluation details`, 'success', 'EvaluationDetails');
+      
+      if (response.data) {
+        addLog(`📊 Evaluation data: ${response.data.case_study_name || 'Unknown'} - ${response.data.expected_level || 'Unknown'}`, 'info', 'EvaluationDetails');
+        setEvaluation(response.data);
+        addLog(`✅ Evaluation details loaded successfully`, 'success', 'EvaluationDetails');
+      } else {
+        addLog('❌ No data in API response', 'error', 'EvaluationDetails');
+        setError('No evaluation data received');
+      }
       
     } catch (err) {
-      addLog(`❌ Failed to fetch evaluation details: ${err.message}`, 'error', 'EvaluationDetails');
       console.error('Error fetching evaluation details:', err);
+      addLog(`❌ Failed to fetch evaluation details: ${err.message}`, 'error', 'EvaluationDetails');
       
       if (err.response?.status === 404) {
         addLog('❌ Evaluation not found (404)', 'error', 'EvaluationDetails');
@@ -79,21 +94,11 @@ const EvaluationDetails = () => {
         setError('Authentication required. Please login again.');
       } else {
         addLog(`🔧 Server error: ${JSON.stringify(err.response?.data)}`, 'error', 'EvaluationDetails');
-        setError('Failed to load evaluation details');
+        setError(`Failed to load evaluation details: ${err.message}`);
       }
     } finally {
       setLoading(false);
       addLog('🏁 Evaluation details fetch completed', 'info', 'EvaluationDetails');
-    }
-  };
-
-  const getLogIcon = (type) => {
-    switch (type) {
-      case 'error': return <ErrorIcon sx={{ color: '#ff6b6b', fontSize: 16 }} />;
-      case 'warning': return <Warning sx={{ color: '#ffa726', fontSize: 16 }} />;
-      case 'success': return <CheckCircle sx={{ color: '#7DE1C3', fontSize: 16 }} />;
-      case 'info': 
-      default: return <Info sx={{ color: '#64b5f6', fontSize: 16 }} />;
     }
   };
 
@@ -104,13 +109,17 @@ const EvaluationDetails = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return 'Invalid date';
+    }
   };
 
   const downloadCSV = () => {
@@ -153,7 +162,7 @@ const EvaluationDetails = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `evaluation-${evaluation.case_study_name}-${evaluation.expected_level}-${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `evaluation-${evaluation.case_study_name || 'unknown'}-${evaluation.expected_level || 'unknown'}-${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -167,16 +176,21 @@ const EvaluationDetails = () => {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress size={40} thickness={2} sx={{ color: '#7DE1C3' }} />
+        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress size={40} thickness={2} sx={{ color: '#7DE1C3', mb: 2 }} />
+          <Typography variant="body2" color="text.secondary">
+            Loading evaluation details...
+          </Typography>
         </Box>
       </Container>
     );
   }
 
+  // Error state
   if (error) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -194,6 +208,7 @@ const EvaluationDetails = () => {
     );
   }
 
+  // No data state
   if (!evaluation) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -211,6 +226,7 @@ const EvaluationDetails = () => {
     );
   }
 
+  // Main content
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
@@ -228,7 +244,7 @@ const EvaluationDetails = () => {
             Evaluation Details
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {evaluation.case_study_name} - {evaluation.expected_level}
+            {evaluation.case_study_name || 'Unknown Case Study'} - {evaluation.expected_level || 'Unknown Level'}
           </Typography>
         </Box>
       </Box>
@@ -240,7 +256,7 @@ const EvaluationDetails = () => {
             <CardContent sx={{ textAlign: 'center' }}>
               <Assessment sx={{ fontSize: 40, color: '#7DE1C3', mb: 1 }} />
               <Typography variant="h4" sx={{ color: '#7DE1C3', fontWeight: 'bold' }}>
-                {evaluation.overall_score}%
+                {evaluation.overall_score || 0}%
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Overall Score
@@ -254,7 +270,7 @@ const EvaluationDetails = () => {
             <CardContent sx={{ textAlign: 'center' }}>
               <Person sx={{ fontSize: 40, color: '#7DE1C3', mb: 1 }} />
               <Typography variant="h6" sx={{ color: '#7DE1C3' }}>
-                {evaluation.expected_level}
+                {evaluation.expected_level || 'N/A'}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Expected Level
@@ -281,7 +297,7 @@ const EvaluationDetails = () => {
           <Card sx={{ backgroundColor: 'background.paper', border: '1px solid #1E3A54', height: '100%' }}>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h6" sx={{ color: '#7DE1C3' }}>
-                {formatDate(evaluation.created_at).split(',')[0]}
+                {evaluation.created_at ? formatDate(evaluation.created_at).split(',')[0] : 'N/A'}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Date
@@ -306,18 +322,18 @@ const EvaluationDetails = () => {
                     Methodological Approach
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    {evaluation.overall_approach_score}%
+                    {evaluation.overall_approach_score || 0}%
                   </Typography>
                 </Box>
                 <LinearProgress 
                   variant="determinate" 
-                  value={evaluation.overall_approach_score} 
+                  value={evaluation.overall_approach_score || 0} 
                   sx={{
                     height: 8,
                     borderRadius: 4,
                     backgroundColor: '#1E3A54',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: getScoreColor(evaluation.overall_approach_score),
+                      backgroundColor: getScoreColor(evaluation.overall_approach_score || 0),
                       borderRadius: 4,
                     }
                   }}
@@ -332,18 +348,18 @@ const EvaluationDetails = () => {
                     Key Considerations
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    {evaluation.overall_considerations_score}%
+                    {evaluation.overall_considerations_score || 0}%
                   </Typography>
                 </Box>
                 <LinearProgress 
                   variant="determinate" 
-                  value={evaluation.overall_considerations_score} 
+                  value={evaluation.overall_considerations_score || 0} 
                   sx={{
                     height: 8,
                     borderRadius: 4,
                     backgroundColor: '#1E3A54',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: getScoreColor(evaluation.overall_considerations_score),
+                      backgroundColor: getScoreColor(evaluation.overall_considerations_score || 0),
                       borderRadius: 4,
                     }
                   }}
@@ -357,6 +373,7 @@ const EvaluationDetails = () => {
               variant="contained"
               startIcon={<Download />}
               onClick={downloadCSV}
+              disabled={!evaluation.questions || evaluation.questions.length === 0}
               sx={{
                 backgroundColor: '#7DE1C3',
                 color: '#0A1929',
@@ -415,7 +432,7 @@ const EvaluationDetails = () => {
                             label={question.approach_evaluation || 'N/A'}
                             size="small"
                             sx={{
-                              backgroundColor: getScoreColor(question.approach_score),
+                              backgroundColor: getScoreColor(question.approach_score || 0),
                               color: 'white',
                               fontWeight: 'bold'
                             }}
@@ -431,7 +448,7 @@ const EvaluationDetails = () => {
                             label={question.key_considerations_evaluation || 'N/A'}
                             size="small"
                             sx={{
-                              backgroundColor: getScoreColor(question.key_considerations_score),
+                              backgroundColor: getScoreColor(question.key_considerations_score || 0),
                               color: 'white',
                               fontWeight: 'bold'
                             }}

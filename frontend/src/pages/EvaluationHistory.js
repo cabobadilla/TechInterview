@@ -98,6 +98,8 @@ const EvaluationHistory = () => {
   };
 
   const handleViewDetails = (evaluationId) => {
+    addLog(`🔍 Navigating to evaluation details: ${evaluationId}`, 'info', 'EvaluationHistory');
+    console.log('🔍 Navigating to evaluation details:', evaluationId);
     navigate(`/evaluation/${evaluationId}`);
   };
 

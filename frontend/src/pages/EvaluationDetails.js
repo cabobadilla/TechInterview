@@ -42,11 +42,15 @@ const EvaluationDetails = () => {
   useEffect(() => {
     console.log('EvaluationDetails component mounted');
     console.log('Evaluation ID from params:', id);
+    console.log('API object:', api);
+    console.log('addLog function:', addLog);
     
     addLog('=== EVALUATION DETAILS PAGE INITIALIZATION ===', 'info', 'EvaluationDetails');
     addLog(`Evaluation ID: ${id}`, 'info', 'EvaluationDetails');
+    addLog(`API available: ${!!api}`, 'info', 'EvaluationDetails');
     
     if (id) {
+      addLog('🚀 Starting fetchEvaluationDetails...', 'info', 'EvaluationDetails');
       fetchEvaluationDetails();
     } else {
       addLog('❌ No evaluation ID provided', 'error', 'EvaluationDetails');
@@ -56,22 +60,39 @@ const EvaluationDetails = () => {
   }, [id]);
 
   const fetchEvaluationDetails = async () => {
+    addLog('📍 fetchEvaluationDetails function called', 'info', 'EvaluationDetails');
+    console.log('fetchEvaluationDetails function called');
+    
     try {
+      addLog('🔄 Setting loading state...', 'info', 'EvaluationDetails');
       setLoading(true);
       setError(null);
       
       addLog('🔍 Starting evaluation details fetch...', 'info', 'EvaluationDetails');
       addLog(`📊 Fetching evaluation with ID: ${id}`, 'info', 'EvaluationDetails');
+      addLog(`🌐 API base URL: ${api?.defaults?.baseURL || 'undefined'}`, 'info', 'EvaluationDetails');
       
       console.log('Making API call to:', `/api/evaluations/${id}`);
+      console.log('API object details:', {
+        baseURL: api?.defaults?.baseURL,
+        headers: api?.defaults?.headers,
+        timeout: api?.defaults?.timeout
+      });
       
+      addLog('🚀 Making API request...', 'info', 'EvaluationDetails');
       const response = await api.get(`/api/evaluations/${id}`);
       
-      console.log('API response received:', response.data);
-      addLog(`✅ API response received for evaluation details`, 'success', 'EvaluationDetails');
+      console.log('API response received:', response);
+      console.log('Response data:', response.data);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      addLog(`✅ API response received with status: ${response.status}`, 'success', 'EvaluationDetails');
+      addLog(`📦 Response data keys: ${Object.keys(response.data || {}).join(', ')}`, 'info', 'EvaluationDetails');
       
       if (response.data) {
         addLog(`📊 Evaluation data: ${response.data.case_study_name || 'Unknown'} - ${response.data.expected_level || 'Unknown'}`, 'info', 'EvaluationDetails');
+        addLog(`📊 Questions count: ${response.data.questions?.length || 0}`, 'info', 'EvaluationDetails');
         setEvaluation(response.data);
         addLog(`✅ Evaluation details loaded successfully`, 'success', 'EvaluationDetails');
       } else {
@@ -81,22 +102,44 @@ const EvaluationDetails = () => {
       
     } catch (err) {
       console.error('Error fetching evaluation details:', err);
-      addLog(`❌ Failed to fetch evaluation details: ${err.message}`, 'error', 'EvaluationDetails');
+      console.error('Error details:', {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        config: err.config
+      });
       
-      if (err.response?.status === 404) {
-        addLog('❌ Evaluation not found (404)', 'error', 'EvaluationDetails');
-        setError('Evaluation not found');
-      } else if (err.response?.status === 403) {
-        addLog('❌ Access denied to evaluation (403)', 'error', 'EvaluationDetails');
-        setError('Access denied to this evaluation');
-      } else if (err.response?.status === 401) {
-        addLog('🔐 Authentication error - user may need to login again', 'error', 'EvaluationDetails');
-        setError('Authentication required. Please login again.');
+      addLog(`❌ API call failed: ${err.message}`, 'error', 'EvaluationDetails');
+      addLog(`🔧 Error type: ${err.constructor.name}`, 'error', 'EvaluationDetails');
+      
+      if (err.response) {
+        addLog(`📊 Response status: ${err.response.status}`, 'error', 'EvaluationDetails');
+        addLog(`📊 Response data: ${JSON.stringify(err.response.data)}`, 'error', 'EvaluationDetails');
+        
+        if (err.response.status === 404) {
+          addLog('❌ Evaluation not found (404)', 'error', 'EvaluationDetails');
+          setError('Evaluation not found');
+        } else if (err.response.status === 403) {
+          addLog('❌ Access denied to evaluation (403)', 'error', 'EvaluationDetails');
+          setError('Access denied to this evaluation');
+        } else if (err.response.status === 401) {
+          addLog('🔐 Authentication error - user may need to login again', 'error', 'EvaluationDetails');
+          setError('Authentication required. Please login again.');
+        } else {
+          addLog(`🔧 Server error: ${JSON.stringify(err.response.data)}`, 'error', 'EvaluationDetails');
+          setError(`Server error (${err.response.status}): ${err.response.statusText}`);
+        }
+      } else if (err.request) {
+        addLog('🌐 Network error - no response received', 'error', 'EvaluationDetails');
+        addLog(`📊 Request details: ${JSON.stringify(err.request)}`, 'error', 'EvaluationDetails');
+        setError('Network error - unable to reach server');
       } else {
-        addLog(`🔧 Server error: ${JSON.stringify(err.response?.data)}`, 'error', 'EvaluationDetails');
-        setError(`Failed to load evaluation details: ${err.message}`);
+        addLog(`⚙️ Request setup error: ${err.message}`, 'error', 'EvaluationDetails');
+        setError(`Request error: ${err.message}`);
       }
     } finally {
+      addLog('🏁 Setting loading to false...', 'info', 'EvaluationDetails');
       setLoading(false);
       addLog('🏁 Evaluation details fetch completed', 'info', 'EvaluationDetails');
     }

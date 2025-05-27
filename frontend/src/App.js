@@ -445,7 +445,7 @@ function App() {
                   </>
                 } />
                 <Route path="/history" element={<EvaluationHistory />} />
-                <Route path="/evaluation/:id" element={<EvaluationDetailsTest />} />
+                <Route path="/evaluation/:id" element={<EvaluationDetails />} />
                 <Route path="/diagnostic" element={<ServerDiagnostic />} />
                 <Route path="/logs" element={<Logs />} />
               </Route>

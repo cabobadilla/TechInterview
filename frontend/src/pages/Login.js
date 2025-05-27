@@ -8,29 +8,40 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Chip
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { setGlobalLogHandler } from '../context/AuthContext';
 
 const Login = () => {
-  const { user, loading, error, login } = useAuth();
+  const { user, loading, error, login, api } = useAuth();
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState(null);
-  const [debugInfo, setDebugInfo] = useState('');
-  const [logs, setLogs] = useState([]);
   const [showGoogleButton, setShowGoogleButton] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'checking', 'online', 'offline'
 
   const addLog = (message, type = 'info') => {
-    const timestamp = new Date().toLocaleTimeString();
-    const newLog = { timestamp, message, type };
-    setLogs(prev => [...prev, newLog]);
-    console.log(`${timestamp} [${type.toUpperCase()}]`, message);
+    console.log(`[${type.toUpperCase()}]`, message);
+  };
+
+  // Check backend status
+  const checkBackendStatus = async () => {
+    try {
+      if (!api) {
+        setBackendStatus('offline');
+        return;
+      }
+      
+      const response = await api.get('/health');
+      if (response.status === 200) {
+        setBackendStatus('online');
+      } else {
+        setBackendStatus('offline');
+      }
+    } catch (error) {
+      setBackendStatus('offline');
+    }
   };
 
   useEffect(() => {
@@ -42,27 +53,14 @@ const Login = () => {
       navigate('/upload');
     }
 
-    // Debug information
-    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    const apiUrl = process.env.REACT_APP_API_URL;
-    const nodeEnv = process.env.NODE_ENV;
-    
-    const debugData = {
-      googleClientId: googleClientId ? `${googleClientId.substring(0, 20)}...` : 'NOT SET',
-      apiUrl: apiUrl || 'NOT SET',
-      nodeEnv: nodeEnv || 'NOT SET',
-      googleLoaded: !!window.google,
-      timestamp: new Date().toISOString()
-    };
-    
-    addLog(`🔍 Login Debug Info: ${JSON.stringify(debugData, null, 2)}`, 'info');
-    setDebugInfo(JSON.stringify(debugData, null, 2));
+    // Check backend status
+    checkBackendStatus();
 
     // Cleanup function
     return () => {
       setGlobalLogHandler(null);
     };
-  }, [user, navigate]);
+  }, [user, navigate, api]);
 
   const handleGoogleLogin = async () => {
     addLog('🚀 Starting Google login process...', 'info');
@@ -145,29 +143,6 @@ const Login = () => {
     }
   };
 
-  const getLogColor = (type) => {
-    switch (type) {
-      case 'error': return '#f44336';
-      case 'warning': return '#ff9800';
-      case 'success': return '#4caf50';
-      default: return '#2196f3';
-    }
-  };
-
-  const getLogIcon = (type) => {
-    switch (type) {
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'success': return '✅';
-      default: return 'ℹ️';
-    }
-  };
-
-  const clearLogs = () => {
-    setLogs([]);
-    addLog('🧹 Logs cleared', 'info');
-  };
-
   const renderGoogleButton = () => {
     addLog('🔘 Rendering Google Sign-In button...', 'info');
     const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -213,6 +188,24 @@ const Login = () => {
       }
     } catch (err) {
       addLog(`❌ Failed to render Google button: ${err.message}`, 'error');
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (backendStatus) {
+      case 'online': return '#4caf50'; // Green
+      case 'offline': return '#f44336'; // Red
+      case 'checking': return '#ff9800'; // Orange
+      default: return '#9e9e9e'; // Gray
+    }
+  };
+
+  const getStatusText = () => {
+    switch (backendStatus) {
+      case 'online': return 'Backend Online';
+      case 'offline': return 'Backend Offline';
+      case 'checking': return 'Checking...';
+      default: return 'Unknown';
     }
   };
 
@@ -337,83 +330,27 @@ const Login = () => {
           </Typography>
         </Paper>
 
-        {/* Debug Panel */}
-        <Paper
-          elevation={0}
-          sx={{
-            width: '100%',
-            border: '1px solid #1E3A54',
-            backgroundColor: 'background.paper'
-          }}
-        >
-          <Accordion defaultExpanded>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              sx={{ backgroundColor: '#1E3A54', color: '#7DE1C3' }}
-            >
-              <Typography variant="h6">
-                🔍 Debug Information & Logs
-              </Typography>
-              <Chip 
-                label={`${logs.length} logs`} 
-                size="small" 
-                sx={{ ml: 2, backgroundColor: '#7DE1C3', color: '#0A1929' }}
-              />
-            </AccordionSummary>
-            <AccordionDetails sx={{ maxHeight: '400px', overflow: 'auto' }}>
-              {/* Environment Info */}
-              <Typography variant="subtitle2" sx={{ mb: 2, color: '#7DE1C3' }}>
-                Environment Configuration:
-              </Typography>
-              <Box sx={{ mb: 3, p: 2, backgroundColor: '#0A1929', borderRadius: 1 }}>
-                <Typography variant="caption" component="pre" sx={{ fontSize: '0.75rem', whiteSpace: 'pre-wrap', color: '#fff' }}>
-                  {debugInfo}
-                </Typography>
-              </Box>
-
-              {/* Live Logs */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: '#7DE1C3' }}>
-                  Live Logs:
-                </Typography>
-                <Button 
-                  size="small" 
-                  onClick={clearLogs}
-                  sx={{ color: '#7DE1C3' }}
-                >
-                  Clear Logs
-                </Button>
-              </Box>
-              <Box sx={{ maxHeight: '200px', overflow: 'auto' }}>
-                {logs.length === 0 ? (
-                  <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-                    No logs yet. Click "Sign in with Google" to start logging.
-                  </Typography>
-                ) : (
-                  logs.map((log, index) => (
-                    <Box 
-                      key={index} 
-                      sx={{ 
-                        mb: 1, 
-                        p: 1, 
-                        backgroundColor: '#f5f5f5', 
-                        borderRadius: 1,
-                        borderLeft: `4px solid ${getLogColor(log.type)}`
-                      }}
-                    >
-                      <Typography variant="caption" sx={{ color: getLogColor(log.type), fontWeight: 'bold' }}>
-                        {getLogIcon(log.type)} {log.timestamp}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mt: 0.5, fontFamily: 'monospace', fontSize: '0.8rem' }}>
-                        {log.message}
-                      </Typography>
-                    </Box>
-                  ))
-                )}
-              </Box>
-            </AccordionDetails>
-          </Accordion>
-        </Paper>
+        {/* Simple Backend Status Indicator */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+          <Box
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              backgroundColor: getStatusColor(),
+              mr: 1,
+              animation: backendStatus === 'checking' ? 'pulse 1.5s ease-in-out infinite' : 'none',
+              '@keyframes pulse': {
+                '0%': { opacity: 1 },
+                '50%': { opacity: 0.5 },
+                '100%': { opacity: 1 }
+              }
+            }}
+          />
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+            {getStatusText()}
+          </Typography>
+        </Box>
       </Box>
     </Container>
   );

@@ -27,7 +27,7 @@ class Transcript {
       const key = Transcript.getEncryptionKey();
       const iv = crypto.randomBytes(16);
       
-      const cipher = crypto.createCipher(algorithm, key);
+      const cipher = crypto.createCipheriv(algorithm, key, iv);
       cipher.setAAD(Buffer.from('transcript-data'));
       
       let encrypted = cipher.update(content, 'utf8', 'hex');
@@ -58,7 +58,7 @@ class Transcript {
       const authTag = Buffer.from(parts[1], 'hex');
       const encrypted = parts[2];
       
-      const decipher = crypto.createDecipher(algorithm, key);
+      const decipher = crypto.createDecipheriv(algorithm, key, iv);
       decipher.setAAD(Buffer.from('transcript-data'));
       decipher.setAuthTag(authTag);
       

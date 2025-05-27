@@ -33,28 +33,109 @@ const CaseSelection = () => {
   const [cases, setCases] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [debugInfo, setDebugInfo] = useState([]);
+  const [fetchStartTime, setFetchStartTime] = useState(null);
+  const [realTimeTimer, setRealTimeTimer] = useState(0);
+
+  // Real-time timer for debugging
+  React.useEffect(() => {
+    let interval;
+    if (isLoading && fetchStartTime) {
+      interval = setInterval(() => {
+        setRealTimeTimer(Math.round((Date.now() - fetchStartTime) / 1000));
+      }, 1000);
+    } else {
+      setRealTimeTimer(0);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading, fetchStartTime]);
+
+  const addDebugInfo = (message) => {
+    const timestamp = new Date().toISOString();
+    const info = `[${timestamp}] ${message}`;
+    console.log('CASE STUDIES DEBUG:', info);
+    setDebugInfo(prev => [...prev, info]);
+  };
   
   // Redireccionar si no hay QA pairs
   useEffect(() => {
     if (!qaPairs || qaPairs.length === 0) {
+      addDebugInfo('❌ No QA pairs found, redirecting to upload');
       navigate('/upload');
+      return;
     }
+    
+    addDebugInfo(`✅ QA pairs found: ${qaPairs.length} pairs`);
     
     // Cargar casos de estudio
     const fetchCases = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/cases');
-        setCases(response.data);
-      } catch (error) {
-        console.error('Error fetching cases:', error);
-        if (error.response?.status === 401) {
-          setError('Authentication required. Please login again.');
+        setFetchStartTime(Date.now());
+        setDebugInfo([]);
+        
+        addDebugInfo('🚀 Starting case studies fetch...');
+        addDebugInfo(`📡 API Base URL: ${api.defaults?.baseURL || 'Not set'}`);
+        addDebugInfo('📡 Making request to: /api/case-studies');
+        
+        const response = await api.get('/api/case-studies');
+        
+        const duration = Date.now() - fetchStartTime;
+        addDebugInfo(`✅ API call completed in ${duration}ms`);
+        addDebugInfo(`📊 Response status: ${response.status}`);
+        addDebugInfo(`📊 Response data type: ${typeof response.data}`);
+        addDebugInfo(`📊 Response data keys: ${Object.keys(response.data || {}).length}`);
+        
+        if (response.data && typeof response.data === 'object') {
+          const caseKeys = Object.keys(response.data);
+          addDebugInfo(`📚 Case studies found: ${caseKeys.length}`);
+          caseKeys.forEach((key, index) => {
+            addDebugInfo(`  ${index + 1}. ${key}: ${response.data[key]?.name || 'No name'}`);
+          });
+          
+          setCases(response.data);
+          addDebugInfo('✅ Case studies set in state successfully');
         } else {
-          setError(error.response?.data?.error || 'Failed to fetch case studies');
+          addDebugInfo('❌ Invalid response data format');
+          throw new Error('Invalid response format');
+        }
+        
+      } catch (error) {
+        const duration = Date.now() - fetchStartTime;
+        addDebugInfo(`❌ Error occurred after ${duration}ms`);
+        addDebugInfo(`❌ Error type: ${error.constructor.name}`);
+        addDebugInfo(`❌ Error message: ${error.message}`);
+        
+        console.error('Error fetching cases:', error);
+        
+        if (error.response) {
+          addDebugInfo(`❌ Response status: ${error.response.status}`);
+          addDebugInfo(`❌ Response data: ${JSON.stringify(error.response.data)}`);
+          
+          if (error.response.status === 401) {
+            addDebugInfo('🔐 Authentication error detected');
+            setError('Authentication required. Please login again.');
+          } else {
+            addDebugInfo('🔧 Server error detected');
+            setError(error.response?.data?.error || 'Failed to fetch case studies');
+          }
+        } else if (error.request) {
+          addDebugInfo('🌐 Network error - no response received');
+          addDebugInfo(`🌐 Request details: ${JSON.stringify(error.request)}`);
+          setError('Network error. Please check your connection.');
+        } else {
+          addDebugInfo('⚙️ Request setup error');
+          setError('Failed to fetch case studies');
         }
       } finally {
+        addDebugInfo('🏁 Entering finally block...');
         setIsLoading(false);
+        const totalDuration = Date.now() - fetchStartTime;
+        addDebugInfo(`🏁 Total process completed in ${totalDuration}ms`);
+        addDebugInfo('=== CASE STUDIES FETCH COMPLETE ===');
       }
     };
     
@@ -95,7 +176,7 @@ const CaseSelection = () => {
         level: selectedLevel
       });
       
-      const response = await api.post('/evaluate', {
+      const response = await api.post('/api/evaluate', {
         qa_pairs: qaPairs,
         case_study_key: selectedCase,
         level: selectedLevel
@@ -194,6 +275,65 @@ const CaseSelection = () => {
           >
             {error}
           </Alert>
+        )}
+
+        {/* Debug Information Panel */}
+        {(isLoading || debugInfo.length > 0) && (
+          <Paper 
+            variant="outlined" 
+            sx={{ 
+              p: 3, 
+              mb: 4,
+              borderColor: '#1E3A54',
+              borderRadius: 0,
+              backgroundColor: 'rgba(125, 225, 195, 0.05)'
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ color: '#7DE1C3', fontWeight: 400 }}>
+              {isLoading ? 'Loading Case Studies...' : 'Debug Information'}
+            </Typography>
+            
+            {isLoading && (
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CircularProgress size={16} sx={{ mr: 1, color: '#7DE1C3' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Fetching case studies from server...
+                </Typography>
+              </Box>
+            )}
+            
+            <Box 
+              sx={{ 
+                maxHeight: 300, 
+                overflow: 'auto',
+                fontFamily: 'monospace',
+                fontSize: '0.8rem',
+                lineHeight: 1.4
+              }}
+            >
+              {debugInfo.map((info, index) => (
+                <Typography 
+                  key={index} 
+                  variant="caption" 
+                  component="div" 
+                  sx={{ 
+                    color: info.includes('❌') ? '#ff6b6b' : 
+                           info.includes('✅') || info.includes('🚀') ? '#7DE1C3' : 
+                           'text.secondary',
+                    mb: 0.5
+                  }}
+                >
+                  {info}
+                </Typography>
+              ))}
+            </Box>
+            
+            {isLoading && fetchStartTime && (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+                Elapsed time: {realTimeTimer}s
+              </Typography>
+            )}
+          </Paper>
         )}
         
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>

@@ -113,7 +113,7 @@ const Stepper = ({ activeStep }) => {
           color: '#7DE1C3'
         }}
       >
-        Tech Interview Analyzer
+        Tech-Interview
       </Typography>
       
       <MuiStepper 

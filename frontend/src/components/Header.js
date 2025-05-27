@@ -59,7 +59,7 @@ const Header = () => {
             }}
             onClick={() => navigate('/')}
           >
-            TECHANALYZER
+            Tech-Interview
           </Typography>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

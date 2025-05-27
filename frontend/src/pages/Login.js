@@ -247,7 +247,7 @@ const Login = () => {
             gutterBottom
             sx={{ mb: 2, color: '#7DE1C3' }}
           >
-            Welcome to TECHANALYZER
+            Welcome to Tech-Interview
           </Typography>
           
           <Typography
@@ -255,7 +255,7 @@ const Login = () => {
             align="center"
             sx={{ mb: 4, color: 'text.secondary' }}
           >
-            Sign in to access the interview analysis tool
+            Sign in to access the Tech-Interview platform
           </Typography>
 
           {(error || loginError) && (

@@ -16,6 +16,7 @@ const CaseSelection = () => {
   
   const { 
     qaPairs, 
+    transcriptId,
     setSelectedCase, 
     selectedCase,
     setSelectedLevel,
@@ -162,6 +163,12 @@ const CaseSelection = () => {
       setError('Please select an experience level');
       return;
     }
+
+    if (!transcriptId) {
+      console.log('ERROR: No transcript ID found');
+      setError('Transcript ID missing. Please upload transcript again.');
+      return;
+    }
     
     const evaluationStartTime = Date.now();
     
@@ -173,13 +180,15 @@ const CaseSelection = () => {
       console.log('Request payload:', {
         qa_pairs_count: qaPairs.length,
         case_study_key: selectedCase,
-        level: selectedLevel
+        level: selectedLevel,
+        transcript_id: transcriptId
       });
       
       const response = await api.post('/api/evaluate', {
         qa_pairs: qaPairs,
         case_study_key: selectedCase,
-        level: selectedLevel
+        level: selectedLevel,
+        transcript_id: transcriptId
       });
       
       const evaluationDuration = Date.now() - evaluationStartTime;

@@ -7,6 +7,7 @@ export const useAnalyzer = () => useContext(AnalyzerContext);
 export const AnalyzerProvider = ({ children }) => {
   // Estado global para toda la aplicación
   const [transcript, setTranscript] = useState(null);
+  const [transcriptId, setTranscriptId] = useState(null);
   const [qaPairs, setQaPairs] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -18,6 +19,7 @@ export const AnalyzerProvider = ({ children }) => {
   // Función para reiniciar todos los estados
   const resetAll = () => {
     setTranscript(null);
+    setTranscriptId(null);
     setQaPairs([]);
     setCurrentStep(1);
     setSelectedCase(null);
@@ -39,6 +41,8 @@ export const AnalyzerProvider = ({ children }) => {
   const value = {
     transcript,
     setTranscript,
+    transcriptId,
+    setTranscriptId,
     qaPairs,
     setQaPairs,
     currentStep,

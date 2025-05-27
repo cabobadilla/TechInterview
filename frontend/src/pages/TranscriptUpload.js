@@ -16,6 +16,7 @@ const TranscriptUpload = () => {
   
   const { 
     setTranscript, 
+    setTranscriptId,
     setQaPairs, 
     nextStep, 
     loading, 
@@ -144,12 +145,13 @@ const TranscriptUpload = () => {
       addDebugInfo(`API call completed successfully in ${duration}ms`);
       
       addDebugInfo('Extracting data from response...');
-      const { transcript, qa_pairs } = response.data;
+      const { transcript, qa_pairs, transcript_id } = response.data;
       
       addDebugInfo(`Response validation - Response exists: ${!!response.data}`);
       addDebugInfo(`Response validation - Transcript exists: ${!!transcript}`);
       addDebugInfo(`Response validation - QA pairs exists: ${!!qa_pairs}`);
-      addDebugInfo(`Response received - Transcript length: ${transcript?.length || 0}, QA pairs: ${qa_pairs?.length || 0}`);
+      addDebugInfo(`Response validation - Transcript ID exists: ${!!transcript_id}`);
+      addDebugInfo(`Response received - Transcript length: ${transcript?.length || 0}, QA pairs: ${qa_pairs?.length || 0}, ID: ${transcript_id || 'Not set'}`);
       
       if (!qa_pairs || qa_pairs.length === 0) {
         addDebugInfo('ERROR: No QA pairs found in response');
@@ -162,7 +164,7 @@ const TranscriptUpload = () => {
       // Emergency mode - bypass context and navigation
       if (emergencyMode) {
         addDebugInfo('EMERGENCY MODE: Skipping context and navigation');
-        setSuccessData({ transcript, qa_pairs });
+        setSuccessData({ transcript, qa_pairs, transcript_id });
         addDebugInfo('EMERGENCY MODE: Success data set, process complete');
         return;
       }
@@ -171,6 +173,9 @@ const TranscriptUpload = () => {
       try {
         setTranscript(transcript);
         addDebugInfo('Transcript set successfully');
+        
+        setTranscriptId(transcript_id);
+        addDebugInfo(`Transcript ID set successfully: ${transcript_id}`);
         
         setQaPairs(qa_pairs);
         addDebugInfo('QA pairs set successfully');

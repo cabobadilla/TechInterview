@@ -131,5 +131,32 @@
             "CI/CD strategy for multiple services",
             "Testing strategies for distributed systems"
         ]
+    },
+    "domain_driven_decoupling": {
+        "type": "Domain-Driven Architecture",
+        "name": "Monolith to Domain-Driven Microservices Decoupling",
+        "objective": "Transform a tightly-coupled monolithic system into a domain-driven architecture with loosely-coupled microservices, improving maintainability, scalability, and team autonomy.",
+        "process_answer": [
+            "Conduct domain modeling and identify bounded contexts using Domain-Driven Design principles",
+            "Map existing monolith components to business domains and subdomains",
+            "Design domain boundaries and define ubiquitous language for each context",
+            "Implement the Strangler Fig pattern for gradual migration",
+            "Extract domains incrementally starting with the most independent ones",
+            "Establish anti-corruption layers between domains during transition",
+            "Implement event-driven communication patterns between domains",
+            "Deploy each domain as independent microservices with dedicated databases"
+        ],
+        "key_considerations_answer": [
+            "Domain expertise and collaboration with business stakeholders",
+            "Data consistency and eventual consistency patterns across domains",
+            "Transaction management in distributed domain boundaries",
+            "Event sourcing and CQRS implementation for complex domains",
+            "Service mesh implementation for inter-domain communication",
+            "Domain-specific security and authorization models",
+            "Organizational alignment with Conway's Law (team structure mirrors architecture)",
+            "Monitoring and observability across domain boundaries",
+            "Backward compatibility during the migration process",
+            "Performance implications of distributed domain calls"
+        ]
     }
 }

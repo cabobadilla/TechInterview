@@ -838,6 +838,36 @@ async function seedCaseStudies() {
   }
 }
 
+// Temporary endpoint to force case studies migration
+app.post('/api/admin/migrate-case-studies', AuthService.authenticateToken(), async (req, res) => {
+  try {
+    console.log('🔄 FORCED MIGRATION: Starting case studies re-migration...');
+    console.log('User:', req.user.email);
+    
+    const { migrateCaseStudies } = require('./scripts/migrate-case-studies');
+    await migrateCaseStudies();
+    
+    // Verify the migration
+    const caseStudies = await CaseStudy.getAllForFrontend();
+    console.log('✅ FORCED MIGRATION: Completed successfully');
+    console.log('📊 Total cases after migration:', Object.keys(caseStudies).length);
+    
+    return res.json({
+      success: true,
+      message: 'Case studies migration completed successfully',
+      total_cases: Object.keys(caseStudies).length,
+      cases: Object.keys(caseStudies)
+    });
+  } catch (error) {
+    console.error('❌ FORCED MIGRATION: Failed:', error);
+    return res.status(500).json({ 
+      success: false,
+      error: 'Migration failed',
+      details: error.message 
+    });
+  }
+});
+
 // Health check endpoint
 app.get('/health', async (req, res) => {
   try {

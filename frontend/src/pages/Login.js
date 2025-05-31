@@ -10,13 +10,14 @@ import {
   Divider,
   Chip
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { setGlobalLogHandler } from '../context/AuthContext';
 
 const Login = () => {
   const { user, loading, error, login, api } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loginError, setLoginError] = useState(null);
   const [showGoogleButton, setShowGoogleButton] = useState(false);
   const [backendStatus, setBackendStatus] = useState('checking'); // 'checking', 'online', 'offline'
@@ -24,6 +25,9 @@ const Login = () => {
   const addLog = (message, type = 'info') => {
     console.log(`[${type.toUpperCase()}]`, message);
   };
+
+  // Get the intended destination after login
+  const from = location.state?.from || '/upload';
 
   // Check backend status
   const checkBackendStatus = async () => {
@@ -48,9 +52,10 @@ const Login = () => {
     // Set up global log handler to capture AuthContext logs
     setGlobalLogHandler(addLog);
 
-    // If user is already logged in, redirect to home
+    // If user is already logged in, redirect to intended destination
     if (user) {
-      navigate('/upload');
+      addLog(`✅ User already authenticated, redirecting to: ${from}`, 'success');
+      navigate(from, { replace: true });
     }
 
     // Check backend status
@@ -60,7 +65,7 @@ const Login = () => {
     return () => {
       setGlobalLogHandler(null);
     };
-  }, [user, navigate, api]);
+  }, [user, navigate, api, from]);
 
   const handleGoogleLogin = async () => {
     addLog('🚀 Starting Google login process...', 'info');
@@ -80,7 +85,7 @@ const Login = () => {
         try {
           await login(mockToken);
           addLog('✅ Mock login successful', 'success');
-          navigate('/upload');
+          navigate(from, { replace: true });
         } catch (mockErr) {
           addLog(`❌ Mock login failed: ${mockErr.message}`, 'error');
           setLoginError(`Mock login failed: ${mockErr.message}`);
@@ -101,16 +106,28 @@ const Login = () => {
 
       // Initialize Google OAuth with real credentials
       addLog('🔧 Initializing Google OAuth...', 'info');
+      
+      // Set up timeout for Google OAuth
+      const oauthTimeout = setTimeout(() => {
+        addLog('⏰ Google OAuth timeout - redirecting to login page', 'warning');
+        setLoginError('Google login timed out. Please try again.');
+        // Clear any existing Google OAuth state
+        if (window.google?.accounts?.id) {
+          window.google.accounts.id.cancel();
+        }
+      }, 60000); // 60 seconds timeout
+
       window.google.accounts.id.initialize({
         client_id: googleClientId,
         callback: async (response) => {
+          clearTimeout(oauthTimeout);
           addLog('📞 Google OAuth callback received', 'info');
           try {
             addLog('🔐 Sending credential to backend...', 'info');
             // Send the credential to our backend
             await login(response.credential);
             addLog('✅ Backend authentication successful', 'success');
-            navigate('/upload');
+            navigate(from, { replace: true });
           } catch (err) {
             addLog(`❌ Backend authentication failed: ${err.message}`, 'error');
             const errorMsg = err.response?.data?.error || err.message || 'Unknown error';
@@ -118,6 +135,7 @@ const Login = () => {
           }
         },
         error_callback: (error) => {
+          clearTimeout(oauthTimeout);
           addLog(`❌ Google OAuth error callback: ${error.type || 'Unknown error'}`, 'error');
           setLoginError(`Google OAuth error: ${error.type || 'Unknown error'}`);
         }
@@ -162,7 +180,7 @@ const Login = () => {
             addLog('🔐 Sending credential to backend...', 'info');
             await login(response.credential);
             addLog('✅ Backend authentication successful', 'success');
-            navigate('/upload');
+            navigate(from, { replace: true });
           } catch (err) {
             addLog(`❌ Backend authentication failed: ${err.message}`, 'error');
             const errorMsg = err.response?.data?.error || err.message || 'Unknown error';

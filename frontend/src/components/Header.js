@@ -33,6 +33,18 @@ const Header = () => {
     handleClose();
   };
 
+  // Handle click on app name - redirect based on authentication status
+  const handleAppNameClick = () => {
+    if (isAuthenticated) {
+      // If authenticated, reset the process and go to upload
+      resetAll();
+      navigate('/upload');
+    } else {
+      // If not authenticated, go to login
+      navigate('/login');
+    }
+  };
+
   return (
     <AppBar 
       position="static" 
@@ -55,9 +67,12 @@ const Header = () => {
               color: '#7DE1C3',
               letterSpacing: '-0.02em',
               fontFamily: '"Inter", sans-serif',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              '&:hover': {
+                opacity: 0.8
+              }
             }}
-            onClick={() => navigate('/')}
+            onClick={handleAppNameClick}
           >
             Tech-Interview
           </Typography>

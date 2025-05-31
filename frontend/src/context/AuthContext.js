@@ -48,7 +48,7 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor for logging
+// Add response interceptor for logging and auth handling
 api.interceptors.response.use(
   (response) => {
     addGlobalLog(`📥 API Response: ${response.status} ${response.config.url}`, 'success');
@@ -61,6 +61,19 @@ api.interceptors.response.use(
     const errorMessage = errorData.error || error.message || 'Unknown error';
     
     addGlobalLog(`❌ API Response Error: ${status} ${url} - ${errorMessage}`, 'error');
+    
+    // Handle authentication errors globally
+    if (status === 401) {
+      addGlobalLog('🔐 Authentication error detected - clearing session', 'warning');
+      localStorage.removeItem('token');
+      
+      // Redirect to login if not already there
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login') {
+        addGlobalLog(`🔄 Redirecting from ${currentPath} to /login`, 'info');
+        window.location.href = '/login';
+      }
+    }
     
     // Add more detailed error information
     if (error.code === 'ERR_NETWORK') {
@@ -115,11 +128,17 @@ export const AuthProvider = ({ children }) => {
         addGlobalLog('❌ Token verification failed: no user data', 'warning');
         // Token invalid, remove from storage
         localStorage.removeItem('token');
+        setUser(null);
       }
     } catch (err) {
       addGlobalLog(`❌ Error verifying token: ${err.message}`, 'error');
       localStorage.removeItem('token');
-      setError('Session expired. Please log in again.');
+      setUser(null);
+      
+      // Only set error if it's not a 401 (handled by interceptor)
+      if (err.response?.status !== 401) {
+        setError('Session verification failed. Please log in again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -179,6 +198,7 @@ export const AuthProvider = ({ children }) => {
     addGlobalLog('👋 Logging out...', 'info');
     localStorage.removeItem('token');
     setUser(null);
+    setError(null);
   };
 
   return (

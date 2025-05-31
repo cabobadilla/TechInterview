@@ -11,9 +11,6 @@ diagnose_*.js
 validate_backend.sh
 README_VALIDATION.md
 
-# Documentación (no debe ir al repo)
-docs/
-
 # Archivos de configuración local
 .env.local
 .env.development.local

@@ -144,10 +144,10 @@ const EvaluationHistory = () => {
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#7DE1C3' }}>
-          Historial de Evaluaciones
+          Evaluation History
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Consulta todas tus evaluaciones anteriores y revisa tu progreso
+          Review all your previous evaluations and track your progress
         </Typography>
       </Box>
 
@@ -162,7 +162,7 @@ const EvaluationHistory = () => {
                   {evaluations.length}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Evaluaciones Totales
+                  Total Evaluations
                 </Typography>
               </Box>
             </Grid>
@@ -170,10 +170,10 @@ const EvaluationHistory = () => {
               <Box textAlign="center">
                 <Person sx={{ fontSize: 40, color: '#7DE1C3', mb: 1 }} />
                 <Typography variant="h6" color="primary">
-                  {user?.name || 'Usuario'}
+                  {user?.name || 'User'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Perfil Activo
+                  Active Profile
                 </Typography>
               </Box>
             </Grid>
@@ -184,7 +184,7 @@ const EvaluationHistory = () => {
                   {evaluations.length > 0 ? formatDate(evaluations[0].created_at).split(',')[0] : 'N/A'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Última Evaluación
+                  Last Evaluation
                 </Typography>
               </Box>
             </Grid>
@@ -196,7 +196,7 @@ const EvaluationHistory = () => {
                     : 0}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Promedio General
+                  Overall Average
                 </Typography>
               </Box>
             </Grid>
@@ -217,10 +217,10 @@ const EvaluationHistory = () => {
           <CardContent sx={{ textAlign: 'center', py: 6 }}>
             <Assessment sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              No hay evaluaciones disponibles
+              No evaluations available
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Realiza tu primera evaluación para ver el historial aquí
+              Complete your first evaluation to see the history here
             </Typography>
             <Button
               variant="contained"
@@ -231,7 +231,7 @@ const EvaluationHistory = () => {
                 '&:hover': { backgroundColor: '#55C4A5' }
               }}
             >
-              Comenzar Evaluación
+              Start Evaluation
             </Button>
           </CardContent>
         </Card>
@@ -296,21 +296,21 @@ const EvaluationHistory = () => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" gutterBottom>
-                        Resumen de Resultados:
+                        Results Summary:
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        • Preguntas evaluadas: {evaluation.questions_count || 'N/A'}
+                        • Questions evaluated: {evaluation.questions_count || 'N/A'}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        • Tiempo de procesamiento: {evaluation.processing_duration_ms ? `${Math.round(evaluation.processing_duration_ms / 1000)}s` : 'N/A'}
+                        • Processing time: {evaluation.processing_duration_ms ? `${Math.round(evaluation.processing_duration_ms / 1000)}s` : 'N/A'}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        • Modelo utilizado: {evaluation.openai_model_used || 'N/A'}
+                        • Model used: {evaluation.openai_model_used || 'N/A'}
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" gutterBottom>
-                        Acciones:
+                        Actions:
                       </Typography>
                       <Button
                         size="small"
@@ -318,7 +318,7 @@ const EvaluationHistory = () => {
                         onClick={() => handleViewDetails(evaluation.id)}
                         sx={{ mr: 1, mb: 1 }}
                       >
-                        Ver Detalles
+                        View Details
                       </Button>
                       <Button
                         size="small"
@@ -326,7 +326,7 @@ const EvaluationHistory = () => {
                         sx={{ mr: 1, mb: 1 }}
                         disabled
                       >
-                        Descargar PDF
+                        Download PDF
                       </Button>
                     </Grid>
                   </Grid>

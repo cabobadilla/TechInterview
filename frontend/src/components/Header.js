@@ -93,7 +93,7 @@ const Header = () => {
                     }
                   }}
                 >
-                  Historial
+                  History
                 </Button>
                 <Button 
                   variant="text"
@@ -107,7 +107,7 @@ const Header = () => {
                     }
                   }}
                 >
-                  Diagnóstico
+                  Diagnostic
                 </Button>
                 <Button 
                   variant="text"

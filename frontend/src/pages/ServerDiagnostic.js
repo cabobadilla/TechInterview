@@ -114,10 +114,10 @@ const ServerDiagnostic = () => {
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#7DE1C3' }}>
-            Diagnóstico del Servidor
+            Server Diagnostic
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Información técnica y estado del sistema
+            Technical information and system status
           </Typography>
         </Box>
         <Button
@@ -126,7 +126,7 @@ const ServerDiagnostic = () => {
           onClick={fetchDiagnosticData}
           disabled={loading}
         >
-          Actualizar
+          Refresh
         </Button>
       </Box>
 
@@ -145,8 +145,8 @@ const ServerDiagnostic = () => {
           icon={getServerTypeIcon(serverInfo.server)}
         >
           {serverInfo.server === 'STATEFUL_SERVER_NEW' 
-            ? '✅ Servidor STATEFUL ejecutándose correctamente (con autenticación real y base de datos)'
-            : '⚠️ Servidor LEGACY ejecutándose (modo de prueba sin autenticación real)'
+            ? '✅ STATEFUL server running correctly (with real authentication and database)'
+            : '⚠️ LEGACY server running (test mode without real authentication)'
           }
         </Alert>
       )}
@@ -158,7 +158,7 @@ const ServerDiagnostic = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Computer sx={{ mr: 1, color: '#7DE1C3' }} />
-                <Typography variant="h6">Información del Servidor</Typography>
+                <Typography variant="h6">Server Information</Typography>
                 <IconButton
                   size="small"
                   onClick={() => handleExpandToggle('server')}
@@ -178,14 +178,14 @@ const ServerDiagnostic = () => {
                       sx={{ mb: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">
-                      Versión: {serverInfo.version || 'N/A'}
+                      Version: {serverInfo.version || 'N/A'}
                     </Typography>
                   </Box>
                   
                   <Collapse in={expanded.server}>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="subtitle2" gutterBottom>
-                      Características:
+                      Features:
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       {serverInfo.features?.map((feature, index) => (
@@ -200,7 +200,7 @@ const ServerDiagnostic = () => {
                   </Collapse>
                 </>
               ) : (
-                <Typography color="error">No se pudo obtener información del servidor</Typography>
+                <Typography color="error">Could not retrieve server information</Typography>
               )}
             </CardContent>
           </Card>
@@ -212,7 +212,7 @@ const ServerDiagnostic = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Info sx={{ mr: 1, color: '#7DE1C3' }} />
-                <Typography variant="h6">Estado del Sistema</Typography>
+                <Typography variant="h6">System Status</Typography>
                 <IconButton
                   size="small"
                   onClick={() => handleExpandToggle('system')}
@@ -227,7 +227,7 @@ const ServerDiagnostic = () => {
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
                       <Typography variant="body2" color="text.secondary">
-                        Tiempo activo:
+                        Uptime:
                       </Typography>
                       <Typography variant="body1">
                         {formatUptime(debugStatus.uptime)}
@@ -235,7 +235,7 @@ const ServerDiagnostic = () => {
                     </Grid>
                     <Grid item xs={6}>
                       <Typography variant="body2" color="text.secondary">
-                        Memoria:
+                        Memory:
                       </Typography>
                       <Typography variant="body1">
                         {formatMemory(debugStatus.memory?.rss || 0)}
@@ -246,13 +246,13 @@ const ServerDiagnostic = () => {
                   <Collapse in={expanded.system}>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="subtitle2" gutterBottom>
-                      Detalles técnicos:
+                      Technical details:
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Node.js: {debugStatus.node_version}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Entorno: {debugStatus.environment}
+                      Environment: {debugStatus.environment}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Timestamp: {new Date(debugStatus.timestamp).toLocaleString()}
@@ -260,7 +260,7 @@ const ServerDiagnostic = () => {
                   </Collapse>
                 </>
               ) : (
-                <Typography color="error">No se pudo obtener estado del sistema</Typography>
+                <Typography color="error">Could not retrieve system status</Typography>
               )}
             </CardContent>
           </Card>
@@ -272,7 +272,7 @@ const ServerDiagnostic = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Security sx={{ mr: 1, color: '#7DE1C3' }} />
-                <Typography variant="h6">Estado de Configuración</Typography>
+                <Typography variant="h6">Configuration Status</Typography>
               </Box>
               
               {debugStatus && (
@@ -280,25 +280,25 @@ const ServerDiagnostic = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Componente</TableCell>
-                        <TableCell>Estado</TableCell>
-                        <TableCell>Descripción</TableCell>
+                        <TableCell>Component</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Description</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       <TableRow>
-                        <TableCell>Base de Datos</TableCell>
+                        <TableCell>Database</TableCell>
                         <TableCell>
                           <Chip
-                            label={debugStatus.database_url_configured ? 'Configurada' : 'No configurada'}
+                            label={debugStatus.database_url_configured ? 'Configured' : 'Not configured'}
                             color={debugStatus.database_url_configured ? 'success' : 'error'}
                             size="small"
                           />
                         </TableCell>
                         <TableCell>
                           {debugStatus.database_url_configured 
-                            ? 'PostgreSQL configurado correctamente'
-                            : 'Falta configurar DATABASE_URL'
+                            ? 'PostgreSQL configured correctly'
+                            : 'Missing DATABASE_URL configuration'
                           }
                         </TableCell>
                       </TableRow>
@@ -307,24 +307,24 @@ const ServerDiagnostic = () => {
                         <TableCell>Google OAuth</TableCell>
                         <TableCell>
                           <Chip
-                            label={debugStatus.google_oauth_configured ? 'Configurado' : 'No configurado'}
+                            label={debugStatus.google_oauth_configured ? 'Configured' : 'Not configured'}
                             color={debugStatus.google_oauth_configured ? 'success' : 'error'}
                             size="small"
                           />
                         </TableCell>
                         <TableCell>
                           {debugStatus.google_oauth_configured 
-                            ? 'GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET configurados'
-                            : 'Faltan credenciales de Google OAuth'
+                            ? 'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET configured'
+                            : 'Missing Google OAuth credentials'
                           }
                         </TableCell>
                       </TableRow>
                       
                       <TableRow>
-                        <TableCell>Seguridad</TableCell>
+                        <TableCell>Security</TableCell>
                         <TableCell>
                           <Chip
-                            label={debugStatus.jwt_secret_configured && debugStatus.encryption_key_configured ? 'Configurada' : 'Incompleta'}
+                            label={debugStatus.jwt_secret_configured && debugStatus.encryption_key_configured ? 'Configured' : 'Incomplete'}
                             color={debugStatus.jwt_secret_configured && debugStatus.encryption_key_configured ? 'success' : 'warning'}
                             size="small"
                           />
@@ -339,15 +339,15 @@ const ServerDiagnostic = () => {
                         <TableCell>OpenAI</TableCell>
                         <TableCell>
                           <Chip
-                            label={debugStatus.openaiAvailable ? 'Disponible' : 'No disponible'}
+                            label={debugStatus.openaiAvailable ? 'Available' : 'Not available'}
                             color={debugStatus.openaiAvailable ? 'success' : 'warning'}
                             size="small"
                           />
                         </TableCell>
                         <TableCell>
                           {debugStatus.openaiAvailable 
-                            ? 'API de OpenAI configurada'
-                            : 'Usando modo fallback'
+                            ? 'OpenAI API configured'
+                            : 'Using fallback mode'
                           }
                         </TableCell>
                       </TableRow>
@@ -366,21 +366,21 @@ const ServerDiagnostic = () => {
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <Cloud sx={{ mr: 1, color: '#7DE1C3' }} />
-                  <Typography variant="h6">Recomendaciones</Typography>
+                  <Typography variant="h6">Recommendations</Typography>
                 </Box>
                 
                 {serverInfo?.server === 'LEGACY_SERVER' && (
                   <Alert severity="warning" sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" gutterBottom>
-                      Servidor Legacy Detectado
+                      Legacy Server Detected
                     </Typography>
                     <Typography variant="body2">
-                      Tu aplicación está ejecutándose con el servidor legacy. Para usar todas las funcionalidades:
+                      Your application is running with the legacy server. To use all features:
                     </Typography>
                     <Box component="ul" sx={{ mt: 1, pl: 2 }}>
-                      <li>Configura todas las variables de entorno requeridas</li>
-                      <li>Verifica que el Start Command en Render sea "npm start"</li>
-                      <li>Haz un Manual Deploy para aplicar cambios</li>
+                      <li>Configure all required environment variables</li>
+                      <li>Verify that the Start Command in Render is "npm start"</li>
+                      <li>Perform a Manual Deploy to apply changes</li>
                     </Box>
                   </Alert>
                 )}
@@ -388,10 +388,10 @@ const ServerDiagnostic = () => {
                 {!debugStatus.google_oauth_configured && (
                   <Alert severity="info" sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" gutterBottom>
-                      Configurar Google OAuth
+                      Configure Google OAuth
                     </Typography>
                     <Typography variant="body2">
-                      Para autenticación real, configura GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en las variables de entorno de Render.
+                      For real authentication, configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Render environment variables.
                     </Typography>
                   </Alert>
                 )}
@@ -399,10 +399,10 @@ const ServerDiagnostic = () => {
                 {!debugStatus.database_url_configured && (
                   <Alert severity="error" sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" gutterBottom>
-                      Base de Datos Requerida
+                      Database Required
                     </Typography>
                     <Typography variant="body2">
-                      Crea una base de datos PostgreSQL en Render y configura DATABASE_URL para persistencia de datos.
+                      Create a PostgreSQL database in Render and configure DATABASE_URL for data persistence.
                     </Typography>
                   </Alert>
                 )}

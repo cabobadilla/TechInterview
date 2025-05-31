@@ -4,24 +4,28 @@ class CaseStudy {
   constructor(data) {
     this.id = data.id;
     this.key = data.key;
+    this.type = data.type;
     this.name = data.name;
     this.objective = data.objective;
-    this.process_answer = data.process_answer;
-    this.key_considerations_answer = data.key_considerations_answer;
+    this.process_answer = Array.isArray(data.process_answer) ? data.process_answer : JSON.parse(data.process_answer || '[]');
+    this.key_considerations_answer = Array.isArray(data.key_considerations_answer) ? data.key_considerations_answer : JSON.parse(data.key_considerations_answer || '[]');
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
     this.is_active = data.is_active;
   }
 
-  // Find all active case studies
+  // Get all case studies
   static async findAll() {
     try {
+      console.log('🔍 Fetching all case studies from database...');
       const result = await query(
-        'SELECT * FROM case_studies WHERE is_active = true ORDER BY name'
+        'SELECT * FROM case_studies ORDER BY created_at ASC'
       );
+      
+      console.log(`✅ Found ${result.rows.length} case studies in database`);
       return result.rows.map(row => new CaseStudy(row));
     } catch (error) {
-      console.error('Error finding all case studies:', error);
+      console.error('❌ Error fetching case studies:', error);
       throw error;
     }
   }
@@ -29,13 +33,21 @@ class CaseStudy {
   // Find case study by key
   static async findByKey(key) {
     try {
+      console.log(`🔍 Fetching case study with key: ${key}`);
       const result = await query(
-        'SELECT * FROM case_studies WHERE key = $1 AND is_active = true',
+        'SELECT * FROM case_studies WHERE key = $1',
         [key]
       );
-      return result.rows.length > 0 ? new CaseStudy(result.rows[0]) : null;
+      
+      if (result.rows.length === 0) {
+        console.log(`❌ Case study not found: ${key}`);
+        return null;
+      }
+      
+      console.log(`✅ Found case study: ${key}`);
+      return new CaseStudy(result.rows[0]);
     } catch (error) {
-      console.error('Error finding case study by key:', error);
+      console.error('❌ Error fetching case study by key:', error);
       throw error;
     }
   }
@@ -57,66 +69,79 @@ class CaseStudy {
   // Create new case study
   static async create(data) {
     try {
+      console.log(`📝 Creating case study: ${data.key}`);
       const result = await query(
-        `INSERT INTO case_studies (key, name, objective, process_answer, key_considerations_answer)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO case_studies (key, type, name, objective, process_answer, key_considerations_answer)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
         [
           data.key,
+          data.type,
           data.name,
           data.objective,
           JSON.stringify(data.process_answer),
           JSON.stringify(data.key_considerations_answer)
         ]
       );
+      
+      console.log(`✅ Case study created: ${data.key}`);
       return new CaseStudy(result.rows[0]);
     } catch (error) {
-      console.error('Error creating case study:', error);
+      console.error('❌ Error creating case study:', error);
       throw error;
     }
   }
 
-  // Update case study
-  async update(updates) {
+  // Update existing case study
+  static async update(key, data) {
     try {
-      const setClause = [];
-      const values = [];
-      let paramIndex = 1;
-
-      if (updates.name) {
-        setClause.push(`name = $${paramIndex++}`);
-        values.push(updates.name);
-      }
-      if (updates.objective) {
-        setClause.push(`objective = $${paramIndex++}`);
-        values.push(updates.objective);
-      }
-      if (updates.process_answer) {
-        setClause.push(`process_answer = $${paramIndex++}`);
-        values.push(JSON.stringify(updates.process_answer));
-      }
-      if (updates.key_considerations_answer) {
-        setClause.push(`key_considerations_answer = $${paramIndex++}`);
-        values.push(JSON.stringify(updates.key_considerations_answer));
-      }
-
-      if (setClause.length === 0) {
-        return this;
-      }
-
-      values.push(this.id);
+      console.log(`📝 Updating case study: ${key}`);
       const result = await query(
-        `UPDATE case_studies SET ${setClause.join(', ')}, updated_at = CURRENT_TIMESTAMP 
-         WHERE id = $${paramIndex} RETURNING *`,
-        values
+        `UPDATE case_studies 
+         SET type = $2, name = $3, objective = $4, process_answer = $5, key_considerations_answer = $6
+         WHERE key = $1
+         RETURNING *`,
+        [
+          key,
+          data.type,
+          data.name,
+          data.objective,
+          JSON.stringify(data.process_answer),
+          JSON.stringify(data.key_considerations_answer)
+        ]
       );
-
-      if (result.rows.length > 0) {
-        Object.assign(this, result.rows[0]);
+      
+      if (result.rows.length === 0) {
+        console.log(`❌ Case study not found for update: ${key}`);
+        return null;
       }
-      return this;
+      
+      console.log(`✅ Case study updated: ${key}`);
+      return new CaseStudy(result.rows[0]);
     } catch (error) {
-      console.error('Error updating case study:', error);
+      console.error('❌ Error updating case study:', error);
+      throw error;
+    }
+  }
+
+  // Delete case study
+  static async delete(key) {
+    try {
+      console.log(`🗑️ Deleting case study: ${key}`);
+      const result = await query(
+        'DELETE FROM case_studies WHERE key = $1 RETURNING *',
+        [key]
+      );
+      
+      if (result.rows.length === 0) {
+        console.log(`❌ Case study not found for deletion: ${key}`);
+        return false;
+      }
+      
+      console.log(`✅ Case study deleted: ${key}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Error deleting case study:', error);
       throw error;
     }
   }
@@ -172,75 +197,46 @@ class CaseStudy {
     }
   }
 
-  // Get process answer as array
-  getProcessAnswer() {
-    try {
-      return typeof this.process_answer === 'string' 
-        ? JSON.parse(this.process_answer) 
-        : this.process_answer;
-    } catch (error) {
-      console.error('Error parsing process answer:', error);
-      return [];
-    }
-  }
-
-  // Get key considerations as array
-  getKeyConsiderationsAnswer() {
-    try {
-      return typeof this.key_considerations_answer === 'string' 
-        ? JSON.parse(this.key_considerations_answer) 
-        : this.key_considerations_answer;
-    } catch (error) {
-      console.error('Error parsing key considerations answer:', error);
-      return [];
-    }
-  }
-
-  // Convert to JSON
+  // Convert to JSON format (compatible with frontend)
   toJSON() {
     return {
       id: this.id,
       key: this.key,
+      type: this.type,
       name: this.name,
       objective: this.objective,
-      process_answer: this.getProcessAnswer(),
-      key_considerations_answer: this.getKeyConsiderationsAnswer(),
+      process_answer: this.process_answer,
+      key_considerations_answer: this.key_considerations_answer,
       created_at: this.created_at,
-      updated_at: this.updated_at,
-      is_active: this.is_active
+      updated_at: this.updated_at
     };
   }
 
-  // Convert to legacy format (for backward compatibility)
-  toLegacyFormat() {
+  // Convert to frontend format (same as original JSON structure)
+  toFrontendFormat() {
     return {
-      [this.key]: {
-        name: this.name,
-        objective: this.objective,
-        process_answer: this.getProcessAnswer(),
-        key_considerations_answer: this.getKeyConsiderationsAnswer()
-      }
+      type: this.type,
+      name: this.name,
+      objective: this.objective,
+      process_answer: this.process_answer,
+      key_considerations_answer: this.key_considerations_answer
     };
   }
 
-  // Convert all case studies to legacy format
-  static async getAllInLegacyFormat() {
+  // Convert all case studies to frontend format
+  static async getAllForFrontend() {
     try {
       const caseStudies = await CaseStudy.findAll();
-      const legacyFormat = {};
+      const result = {};
       
       caseStudies.forEach(caseStudy => {
-        legacyFormat[caseStudy.key] = {
-          name: caseStudy.name,
-          objective: caseStudy.objective,
-          process_answer: caseStudy.getProcessAnswer(),
-          key_considerations_answer: caseStudy.getKeyConsiderationsAnswer()
-        };
+        result[caseStudy.key] = caseStudy.toFrontendFormat();
       });
       
-      return legacyFormat;
+      console.log(`✅ Converted ${caseStudies.length} case studies to frontend format`);
+      return result;
     } catch (error) {
-      console.error('Error getting case studies in legacy format:', error);
+      console.error('❌ Error converting case studies to frontend format:', error);
       throw error;
     }
   }

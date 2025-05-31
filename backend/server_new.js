@@ -298,28 +298,29 @@ app.get('/api/case-studies', AuthService.authenticateToken(), async (req, res) =
   try {
     console.log('📚 Fetching case studies for user:', req.user.email);
     
-    // Get case studies in legacy format for backward compatibility
-    const caseStudies = await CaseStudy.getAllInLegacyFormat();
+    // Get case studies from database in frontend format
+    const caseStudies = await CaseStudy.getAllForFrontend();
     
     console.log('📊 Case studies found:', Object.keys(caseStudies).length);
     
-    // If no case studies found, try to seed the database
+    // If no case studies found, try to run migration
     if (Object.keys(caseStudies).length === 0) {
-      console.log('⚠️ No case studies found, attempting to seed database...');
+      console.log('⚠️ No case studies found, attempting to run migration...');
       try {
-        await seedCaseStudies();
-        const reloadedCaseStudies = await CaseStudy.getAllInLegacyFormat();
-        console.log('✅ Database seeded, case studies found:', Object.keys(reloadedCaseStudies).length);
+        const { migrateCaseStudies } = require('./scripts/migrate-case-studies');
+        await migrateCaseStudies();
+        const reloadedCaseStudies = await CaseStudy.getAllForFrontend();
+        console.log('✅ Migration completed, case studies found:', Object.keys(reloadedCaseStudies).length);
         return res.json(reloadedCaseStudies);
-      } catch (seedError) {
-        console.error('❌ Failed to seed database:', seedError);
-        return res.status(500).json({ error: 'No case studies available and failed to seed database' });
+      } catch (migrationError) {
+        console.error('❌ Failed to run migration:', migrationError);
+        return res.status(500).json({ error: 'No case studies available and failed to run migration' });
       }
     }
     
     return res.json(caseStudies);
   } catch (error) {
-    console.error('Error fetching case studies:', error);
+    console.error('❌ Error fetching case studies:', error);
     return res.status(500).json({ error: 'Failed to fetch case studies' });
   }
 });
@@ -348,8 +349,8 @@ app.post('/api/evaluate', AuthService.authenticateToken(), async (req, res) => {
     
     // Prepare expert solution
     const expertSolution = {
-      process: caseStudy.getProcessAnswer(),
-      considerations: caseStudy.getKeyConsiderationsAnswer()
+      process: caseStudy.process_answer,
+      considerations: caseStudy.key_considerations_answer
     };
     
     // Evaluate the answers using OpenAI

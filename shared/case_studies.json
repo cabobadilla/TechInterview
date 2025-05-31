@@ -1,22 +1,24 @@
 {
-    "cloud_migration_1": {
+    "cloud_migration": {
         "type": "Cloud Migration",
         "name": "Cloud Migration Strategy",
-        "objective": "Define a main strategy to migrate workloads to the cloud from on-premise applications, focusing on application modernization, avoiding obsolescence, and reducing IT service costs.",
+        "objective": "Define a comprehensive strategy to migrate workloads to the cloud from on-premise applications, focusing on application modernization, avoiding obsolescence, and reducing IT service costs.",
         "process_answer": [
             "Evaluate current applications and workloads",
             "Assess cloud providers and service options",
-            "Develop a migration roadmap and timeline",
-            "Implement migration in phases"
+            "Prioritize applications for migration based on complexity and business impact",
+            "Develop a phased migration roadmap and timeline",
+            "Implement migration with proper testing and rollback plans"
         ],
         "key_considerations_answer": [
-            "Identify critical business functions",
+            "Identify critical business functions and dependencies",
             "Consider security, compliance, and scalability requirements",
-            "Prioritize applications based on complexity and impact",
-            "Conduct thorough testing and have rollback plans"
+            "Evaluate cost optimization opportunities",
+            "Ensure proper backup and recovery strategy",
+            "Plan for organizational change management"
         ]
     },
-    "it_optimization_2": {
+    "it_optimization": {
         "type": "IT Optimization",
         "name": "Improving IT Efficiency in a Banking Company",
         "objective": "Define a strategy to achieve efficiencies and reduce costs in IT services without compromising service quality.",
@@ -27,143 +29,107 @@
             "Monitor and review efficiency gains"
         ],
         "key_considerations_answer": [
-            "Maintain service quality",
+            "Maintain service quality and availability",
             "Ensure regulatory compliance",
             "Involve stakeholders in change management",
-            "Track and report cost savings"
+            "Track and report cost savings and ROI"
         ]
     },
-    "data_governance_3": {
+    "data_governance": {
         "type": "Data Governance",
-        "name": "Data Governance in a Multinational Company #1",
+        "name": "Data Governance in a Multinational Company",
         "objective": "Define a data governance framework that ensures quality, security, and regulatory compliance in all regions where the company operates.",
         "process_answer": [
             "Assess the current state of data management",
-            "Define clear data governance policies",
+            "Define clear data governance policies and standards",
             "Establish data roles and responsibilities",
-            "Implement data quality and cataloging tools"
+            "Implement data quality and cataloging tools",
+            "Create data lineage and documentation processes"
         ],
         "key_considerations_answer": [
             "Ensure compliance with GDPR, CCPA and other local regulations",
             "Promote data culture throughout the organization",
             "Automate quality controls and auditing",
-            "Align governance with business objectives"
+            "Align governance with business objectives",
+            "Establish data privacy and security protocols"
         ]
     },
-    "enterprise_architecture_4": {
+    "enterprise_architecture": {
         "type": "Enterprise Architecture",
-        "name": "Digital Transformation of Business Processes #2",
+        "name": "Digital Transformation of Business Processes",
         "objective": "Modernize key business processes through digital technologies, seeking operational efficiency and improved customer experience.",
         "process_answer": [
-            "Map current processes and pain points",
+            "Map current processes and identify pain points",
             "Identify automation and digitization opportunities",
-            "Select technologies aligned with strategy",
-            "Execute pilots and scale effective solutions"
+            "Select technologies aligned with business strategy",
+            "Execute pilots and validate solutions",
+            "Scale effective solutions across the organization"
         ],
         "key_considerations_answer": [
-            "Organizational change management",
-            "Alignment with strategic objectives",
-            "Measurement of impact KPIs",
-            "Interoperability between systems"
-        ]
-    },
-    "data_architecture_5": {
-        "type": "Data Architecture",
-        "name": "Real-Time Data Platform Architecture #3",
-        "objective": "Design an architecture that enables real-time data processing and analysis to support immediate operational decisions.",
-        "process_answer": [
-            "Identify real-time data sources",
-            "Select appropriate streaming and storage technologies",
-            "Design resilient and scalable pipelines",
-            "Implement dashboards and interfaces for consumption"
-        ],
-        "key_considerations_answer": [
-            "Low latency and high availability",
-            "Efficient management of events and data flows",
-            "Security in transit and at rest",
-            "Processing and storage costs"
-        ]
-    },
-    "devops_iac_6": {
-        "type": "DevOps / IaC",
-        "name": "Implementation of Infrastructure as Code (IaC) #4",
-        "objective": "Implement an IaC solution to improve consistency, repeatability, and scalability of cloud environments across multiple regions.",
-        "process_answer": [
-            "Select appropriate IaC tools (Terraform, Pulumi, etc.)",
-            "Design reusable and modular templates",
-            "Integrate IaC with CI/CD",
-            "Test and version infrastructure changes"
-        ],
-        "key_considerations_answer": [
-            "Secret management and secure configuration",
-            "Change control and auditing",
-            "Team training in IaC best practices",
-            "Avoiding configuration drift"
-        ]
-    },
-    "enterprise_architecture_8": {
-        "type": "Enterprise Architecture",
-        "name": "Digital Transformation of Business Processes #6",
-        "objective": "Modernize key business processes through digital technologies, seeking operational efficiency and improved customer experience.",
-        "process_answer": [
-            "Map current processes and pain points",
-            "Identify automation and digitization opportunities",
-            "Select technologies aligned with strategy",
-            "Execute pilots and scale effective solutions"
-        ],
-        "key_considerations_answer": [
-            "Organizational change management",
-            "Alignment with strategic objectives",
-            "Measurement of impact KPIs",
-            "Interoperability between systems"
-        ]
-    },
-    "cloud_migration": {
-        "name": "Cloud Migration",
-        "objective": "Develop a strategy for migrating on-premise applications to the cloud",
-        "process_answer": [
-            "Evaluate existing infrastructure and applications",
-            "Prioritize applications for migration",
-            "Select cloud deployment model (IaaS, PaaS, SaaS)",
-            "Develop a phased migration plan"
-        ],
-        "key_considerations_answer": [
-            "Application dependencies",
-            "Security and compliance requirements",
-            "Backup and recovery strategy",
-            "Cost optimization"
-        ]
-    },
-    "microservices_transformation": {
-        "name": "Microservices Transformation",
-        "objective": "Design a strategy to transform a monolithic application into microservices",
-        "process_answer": [
-            "Analyze the existing monolithic application",
-            "Identify context boundaries and potential services",
-            "Define decomposition strategy",
-            "Establish communication patterns between services"
-        ],
-        "key_considerations_answer": [
-            "Data management and consistency",
-            "Communication patterns (synchronous vs. asynchronous)",
-            "Observability and monitoring",
-            "CI/CD strategy"
+            "Organizational change management and training",
+            "Alignment with strategic business objectives",
+            "Measurement of impact KPIs and ROI",
+            "Interoperability between existing and new systems",
+            "Risk management and mitigation strategies"
         ]
     },
     "data_architecture": {
-        "name": "Data Architecture",
-        "objective": "Design a data architecture for real-time analytics and batch processing",
+        "type": "Data Architecture",
+        "name": "Real-Time Data Platform Architecture",
+        "objective": "Design a comprehensive data architecture that enables real-time data processing and analysis to support immediate operational decisions and batch analytics.",
         "process_answer": [
             "Identify data sources and processing requirements",
-            "Design the data ingestion layer",
-            "Define processing architecture (streaming and batch)",
-            "Establish data storage strategy"
+            "Design the data ingestion layer for real-time and batch",
+            "Select appropriate streaming and storage technologies",
+            "Design resilient and scalable data pipelines",
+            "Implement dashboards and interfaces for data consumption"
         ],
         "key_considerations_answer": [
-            "Data volume, velocity, and variety",
-            "Latency requirements for real-time analytics",
-            "Scalability and performance",
-            "Data governance and quality"
+            "Data volume, velocity, and variety requirements",
+            "Low latency and high availability for real-time processing",
+            "Efficient management of events and data flows",
+            "Security in transit and at rest",
+            "Processing and storage cost optimization",
+            "Data governance and quality assurance"
+        ]
+    },
+    "devops_iac": {
+        "type": "DevOps / IaC",
+        "name": "Implementation of Infrastructure as Code (IaC)",
+        "objective": "Implement an IaC solution to improve consistency, repeatability, and scalability of cloud environments across multiple regions.",
+        "process_answer": [
+            "Select appropriate IaC tools (Terraform, Pulumi, CloudFormation)",
+            "Design reusable and modular infrastructure templates",
+            "Integrate IaC with CI/CD pipelines",
+            "Implement testing and validation for infrastructure changes",
+            "Establish version control and change management"
+        ],
+        "key_considerations_answer": [
+            "Secret management and secure configuration",
+            "Change control and infrastructure auditing",
+            "Team training in IaC best practices",
+            "Avoiding configuration drift",
+            "Disaster recovery and backup strategies"
+        ]
+    },
+    "microservices_transformation": {
+        "type": "Microservices Architecture",
+        "name": "Microservices Transformation",
+        "objective": "Design a strategy to transform a monolithic application into microservices architecture for improved scalability and maintainability.",
+        "process_answer": [
+            "Analyze the existing monolithic application architecture",
+            "Identify domain boundaries and potential services",
+            "Define decomposition strategy and migration approach",
+            "Establish communication patterns between services",
+            "Implement observability and monitoring solutions"
+        ],
+        "key_considerations_answer": [
+            "Data management and consistency across services",
+            "Communication patterns (synchronous vs. asynchronous)",
+            "Service discovery and load balancing",
+            "Distributed system complexity management",
+            "CI/CD strategy for multiple services",
+            "Testing strategies for distributed systems"
         ]
     }
 }

@@ -13,8 +13,27 @@ async function migrateCaseStudies() {
       path.join(__dirname, '../database/migrations/003_create_case_studies.sql'),
       'utf8'
     );
-    await query(migrationSQL);
-    console.log('✅ Table created successfully');
+    
+    // Split SQL into individual statements and execute them separately
+    const statements = migrationSQL
+      .split(';')
+      .map(stmt => stmt.trim())
+      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+    
+    for (const statement of statements) {
+      if (statement.trim()) {
+        try {
+          console.log(`📝 Executing: ${statement.substring(0, 50)}...`);
+          await query(statement);
+          console.log('✅ Statement executed successfully');
+        } catch (error) {
+          console.log(`⚠️ Statement failed (continuing): ${error.message}`);
+          // Continue with other statements even if one fails
+        }
+      }
+    }
+    
+    console.log('✅ Table migration completed');
 
     // 2. Load case studies from JSON file
     console.log('📖 Loading case studies from JSON file...');

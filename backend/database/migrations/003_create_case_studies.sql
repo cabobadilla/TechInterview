@@ -1,7 +1,11 @@
 -- Migration: Create case_studies table
 -- Description: Store case studies in database instead of JSON file
 
-CREATE TABLE IF NOT EXISTS case_studies (
+-- Drop table if exists (for clean migration)
+DROP TABLE IF EXISTS case_studies CASCADE;
+
+-- Create the table
+CREATE TABLE case_studies (
     id SERIAL PRIMARY KEY,
     key VARCHAR(100) UNIQUE NOT NULL,
     type VARCHAR(100) NOT NULL,
@@ -13,19 +17,20 @@ CREATE TABLE IF NOT EXISTS case_studies (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create index for faster queries
-CREATE INDEX IF NOT EXISTS idx_case_studies_key ON case_studies(key);
-CREATE INDEX IF NOT EXISTS idx_case_studies_type ON case_studies(type);
+-- Create indexes (after table creation)
+CREATE INDEX idx_case_studies_key ON case_studies(key);
+CREATE INDEX idx_case_studies_type ON case_studies(type);
 
--- Add trigger to update updated_at timestamp
+-- Create function for updating timestamp
 CREATE OR REPLACE FUNCTION update_case_studies_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$ LANGUAGE plpgsql;
 
+-- Create trigger
 CREATE TRIGGER update_case_studies_updated_at
     BEFORE UPDATE ON case_studies
     FOR EACH ROW

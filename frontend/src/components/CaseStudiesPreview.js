@@ -180,18 +180,18 @@ const CaseStudiesPreview = () => {
       backgroundColor: 'rgba(125, 225, 195, 0.02)'
     }}>
       <Typography 
-        variant="h5" 
+        variant="h6" 
         gutterBottom 
         sx={{ 
           fontWeight: 400, 
-          mb: 3,
+          mb: 2,
           color: '#1E3A54',
           display: 'flex',
           alignItems: 'center',
           gap: 1
         }}
       >
-        <BusinessIcon sx={{ color: '#7DE1C3' }} />
+        <BusinessIcon sx={{ color: '#7DE1C3', fontSize: 20 }} />
         Available Case Studies ({caseStudiesArray.length})
       </Typography>
       
@@ -199,14 +199,14 @@ const CaseStudiesPreview = () => {
         variant="body2" 
         color="text.secondary" 
         paragraph 
-        sx={{ mb: 3 }}
+        sx={{ mb: 2, fontSize: '0.85rem' }}
       >
         These are the case studies our system can analyze. Make sure your interview covers one of these topics for optimal results.
       </Typography>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={1.5}>
         {caseStudiesArray.map(([key, caseStudy]) => (
-          <Grid item xs={12} md={6} key={key}>
+          <Grid item xs={12} md={6} lg={4} key={key}>
             <Accordion 
               elevation={0}
               sx={{ 
@@ -217,11 +217,13 @@ const CaseStudiesPreview = () => {
               }}
             >
               <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
+                expandIcon={<ExpandMoreIcon sx={{ fontSize: 18 }} />}
                 sx={{ 
+                  py: 1,
                   '& .MuiAccordionSummary-content': { 
                     alignItems: 'center',
-                    gap: 2
+                    gap: 1.5,
+                    my: 0.5
                   }
                 }}
               >
@@ -230,11 +232,11 @@ const CaseStudiesPreview = () => {
                   display: 'flex',
                   alignItems: 'center'
                 }}>
-                  {getTypeIcon(caseStudy.type)}
+                  {React.cloneElement(getTypeIcon(caseStudy.type), { sx: { fontSize: 18 } })}
                 </Box>
                 
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 500, fontSize: '0.85rem', lineHeight: 1.2 }}>
                     {caseStudy.name}
                   </Typography>
                   <Chip 
@@ -244,27 +246,30 @@ const CaseStudiesPreview = () => {
                       mt: 0.5,
                       backgroundColor: getTypeColor(caseStudy.type),
                       color: 'white',
-                      fontSize: '0.7rem',
-                      height: 20
+                      fontSize: '0.65rem',
+                      height: 18,
+                      '& .MuiChip-label': {
+                        px: 1
+                      }
                     }} 
                   />
                 </Box>
               </AccordionSummary>
               
-              <AccordionDetails sx={{ pt: 0 }}>
-                <Typography variant="body2" color="text.secondary" paragraph>
+              <AccordionDetails sx={{ pt: 0, pb: 1.5, px: 2 }}>
+                <Typography variant="body2" color="text.secondary" paragraph sx={{ fontSize: '0.8rem', mb: 1.5 }}>
                   <strong>Objective:</strong> {caseStudy.objective}
                 </Typography>
                 
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: '0.8rem' }}>
                   <strong>Key Areas Covered:</strong>
                 </Typography>
                 
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500, fontSize: '0.7rem' }}>
                     Process Steps:
                   </Typography>
-                  <Box sx={{ mt: 1 }}>
+                  <Box sx={{ mt: 0.5 }}>
                     {caseStudy.process_answer?.slice(0, 3).map((step, index) => (
                       <Chip 
                         key={index}
@@ -272,10 +277,13 @@ const CaseStudiesPreview = () => {
                         size="small" 
                         variant="outlined"
                         sx={{ 
-                          mr: 1, 
-                          mb: 1, 
-                          fontSize: '0.7rem',
-                          height: 24
+                          mr: 0.5, 
+                          mb: 0.5, 
+                          fontSize: '0.65rem',
+                          height: 20,
+                          '& .MuiChip-label': {
+                            px: 0.5
+                          }
                         }} 
                       />
                     ))}
@@ -285,11 +293,14 @@ const CaseStudiesPreview = () => {
                         size="small" 
                         variant="outlined"
                         sx={{ 
-                          mr: 1, 
-                          mb: 1, 
-                          fontSize: '0.7rem',
-                          height: 24,
-                          color: 'text.secondary'
+                          mr: 0.5, 
+                          mb: 0.5, 
+                          fontSize: '0.65rem',
+                          height: 20,
+                          color: 'text.secondary',
+                          '& .MuiChip-label': {
+                            px: 0.5
+                          }
                         }} 
                       />
                     )}
@@ -297,10 +308,10 @@ const CaseStudiesPreview = () => {
                 </Box>
                 
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500, fontSize: '0.7rem' }}>
                     Key Considerations:
                   </Typography>
-                  <Box sx={{ mt: 1 }}>
+                  <Box sx={{ mt: 0.5 }}>
                     {caseStudy.key_considerations_answer?.slice(0, 3).map((consideration, index) => (
                       <Chip 
                         key={index}
@@ -308,12 +319,15 @@ const CaseStudiesPreview = () => {
                         size="small" 
                         variant="outlined"
                         sx={{ 
-                          mr: 1, 
-                          mb: 1, 
-                          fontSize: '0.7rem',
-                          height: 24,
+                          mr: 0.5, 
+                          mb: 0.5, 
+                          fontSize: '0.65rem',
+                          height: 20,
                           borderColor: '#7DE1C3',
-                          color: '#1E3A54'
+                          color: '#1E3A54',
+                          '& .MuiChip-label': {
+                            px: 0.5
+                          }
                         }} 
                       />
                     ))}
@@ -323,11 +337,14 @@ const CaseStudiesPreview = () => {
                         size="small" 
                         variant="outlined"
                         sx={{ 
-                          mr: 1, 
-                          mb: 1, 
-                          fontSize: '0.7rem',
-                          height: 24,
-                          color: 'text.secondary'
+                          mr: 0.5, 
+                          mb: 0.5, 
+                          fontSize: '0.65rem',
+                          height: 20,
+                          color: '#1E3A54',
+                          '& .MuiChip-label': {
+                            px: 0.5
+                          }
                         }} 
                       />
                     )}
@@ -342,15 +359,18 @@ const CaseStudiesPreview = () => {
       <Alert 
         severity="info" 
         sx={{ 
-          mt: 3,
+          mt: 2,
           backgroundColor: 'rgba(125, 225, 195, 0.1)',
           borderColor: '#7DE1C3',
           '& .MuiAlert-icon': {
             color: '#7DE1C3'
+          },
+          '& .MuiAlert-message': {
+            fontSize: '0.8rem'
           }
         }}
       >
-        <Typography variant="body2">
+        <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
           <strong>Tip:</strong> For best results, ensure your interview transcript discusses one of these case studies in detail. 
           The system will analyze how well the candidate's responses align with the expected approach and considerations.
         </Typography>

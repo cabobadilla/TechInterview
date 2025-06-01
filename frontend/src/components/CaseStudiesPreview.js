@@ -12,6 +12,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 import BuildIcon from '@mui/icons-material/Build';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import HubIcon from '@mui/icons-material/Hub';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useAuth } from '../context/AuthContext';
 import { useLogs } from '../context/LogsContext';
 
@@ -55,17 +56,32 @@ const CaseStudiesPreview = () => {
   useEffect(() => {
     const fetchCaseStudies = async () => {
       try {
-        addLog('📚 Fetching case studies preview...', 'info', 'CaseStudiesPreview');
+        addLog('📚 Fetching case studies from database...', 'info', 'CaseStudiesPreview');
         
         const response = await api.get('/api/case-studies');
         setCaseStudies(response.data);
         
         const count = Object.keys(response.data).length;
-        addLog(`✅ Loaded ${count} case studies for preview`, 'success', 'CaseStudiesPreview');
+        addLog(`✅ Successfully loaded ${count} case studies`, 'success', 'CaseStudiesPreview');
+        
+        if (count === 0) {
+          setError('No case studies available in the database. Please contact support.');
+        }
       } catch (error) {
         console.error('Error fetching case studies:', error);
-        addLog(`❌ Error fetching case studies: ${error.message}`, 'error', 'CaseStudiesPreview');
-        setError('Unable to load case studies. Please try again later.');
+        
+        let errorMessage = 'Unable to load case studies from the database.';
+        
+        if (error.response?.status === 401) {
+          errorMessage = 'Authentication required to load case studies. Please log in.';
+        } else if (error.response?.status === 500) {
+          errorMessage = 'Server error while loading case studies. Please try again later.';
+        } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+          errorMessage = 'Network error: Cannot connect to the server. Please check your internet connection.';
+        }
+        
+        addLog(`❌ Error fetching case studies: ${errorMessage}`, 'error', 'CaseStudiesPreview');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -85,7 +101,7 @@ const CaseStudiesPreview = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 4 }}>
           <CircularProgress size={24} sx={{ mr: 2, color: '#7DE1C3' }} />
           <Typography variant="body2" color="text.secondary">
-            Loading available case studies...
+            Loading available case studies from database...
           </Typography>
         </Box>
       </Paper>
@@ -94,13 +110,66 @@ const CaseStudiesPreview = () => {
 
   if (error) {
     return (
-      <Alert severity="warning" sx={{ mb: 4 }}>
-        {error}
-      </Alert>
+      <Paper elevation={0} sx={{ 
+        p: 3, 
+        borderRadius: 0, 
+        border: '1px solid #f44336',
+        mb: 4,
+        backgroundColor: 'rgba(244, 67, 54, 0.02)'
+      }}>
+        <Alert 
+          severity="error" 
+          icon={<ErrorOutlineIcon />}
+          sx={{ 
+            backgroundColor: 'transparent',
+            border: 'none',
+            padding: 0
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 500 }}>
+            Case Studies Unavailable
+          </Typography>
+          <Typography variant="body2" paragraph>
+            {error}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            The system analyzes interviews based on predefined case studies. 
+            Without access to these case studies, the analysis cannot proceed.
+          </Typography>
+        </Alert>
+      </Paper>
     );
   }
 
   const caseStudiesArray = Object.entries(caseStudies);
+
+  if (caseStudiesArray.length === 0) {
+    return (
+      <Paper elevation={0} sx={{ 
+        p: 3, 
+        borderRadius: 0, 
+        border: '1px solid #ff9800',
+        mb: 4,
+        backgroundColor: 'rgba(255, 152, 0, 0.02)'
+      }}>
+        <Alert 
+          severity="warning"
+          sx={{ 
+            backgroundColor: 'transparent',
+            border: 'none',
+            padding: 0
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 500 }}>
+            No Case Studies Available
+          </Typography>
+          <Typography variant="body2">
+            The case studies database appears to be empty. Please contact support to resolve this issue.
+          </Typography>
+        </Alert>
+      </Paper>
+    );
+  }
 
   return (
     <Paper elevation={0} sx={{ 

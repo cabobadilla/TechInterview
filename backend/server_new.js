@@ -156,10 +156,11 @@ async function autoMigrateCaseStudies() {
     // Load expected cases from JSON file
     const fs = require('fs');
     const path = require('path');
-    const caseStudiesPath = path.join(__dirname, 'shared/case_studies.json');
+    const caseStudiesPath = path.join(__dirname, '../shared/case_studies.json');
     
     if (!fs.existsSync(caseStudiesPath)) {
       console.log('⚠️ Case studies JSON file not found, skipping auto-migration');
+      console.log('📍 Searched path:', caseStudiesPath);
       return;
     }
     

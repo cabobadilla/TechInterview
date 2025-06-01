@@ -18,7 +18,7 @@ async function migrateCaseStudies() {
 
     // 2. Load case studies from JSON file
     console.log('📖 Loading case studies from JSON file...');
-    const caseStudiesPath = path.join(__dirname, '../shared/case_studies.json');
+    const caseStudiesPath = path.join(__dirname, '../../shared/case_studies.json');
     const caseStudiesData = JSON.parse(fs.readFileSync(caseStudiesPath, 'utf8'));
     
     console.log(`📋 Found ${Object.keys(caseStudiesData).length} case studies to migrate`);

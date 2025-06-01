@@ -324,9 +324,11 @@ const CaseStudiesPreview = () => {
                           fontSize: '0.65rem',
                           height: 20,
                           borderColor: '#7DE1C3',
-                          color: '#1E3A54',
+                          color: 'white',
+                          backgroundColor: 'rgba(125, 225, 195, 0.1)',
                           '& .MuiChip-label': {
-                            px: 0.5
+                            px: 0.5,
+                            color: 'white'
                           }
                         }} 
                       />
@@ -341,9 +343,12 @@ const CaseStudiesPreview = () => {
                           mb: 0.5, 
                           fontSize: '0.65rem',
                           height: 20,
-                          color: '#1E3A54',
+                          color: 'white',
+                          borderColor: '#7DE1C3',
+                          backgroundColor: 'rgba(125, 225, 195, 0.1)',
                           '& .MuiChip-label': {
-                            px: 0.5
+                            px: 0.5,
+                            color: 'white'
                           }
                         }} 
                       />

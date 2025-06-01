@@ -35,39 +35,64 @@ async function migrateCaseStudies() {
     
     console.log('✅ Table migration completed');
 
-    // 2. Load case studies from JSON file
+    // 2. Load case studies from JSON file and upsert them
     console.log('📖 Loading case studies from JSON file...');
     const caseStudiesPath = path.join(__dirname, '../../shared/case_studies.json');
     const caseStudiesData = JSON.parse(fs.readFileSync(caseStudiesPath, 'utf8'));
     
     console.log(`📋 Found ${Object.keys(caseStudiesData).length} case studies to migrate`);
 
-    // 3. Clear existing data (in case of re-migration)
-    console.log('🧹 Clearing existing case studies...');
-    await query('DELETE FROM case_studies');
-
-    // 4. Insert each case study
+    // 4. Upsert each case study (don't delete existing data)
+    console.log('🔄 Upserting case studies (preserving existing data)...');
     let successCount = 0;
     let errorCount = 0;
+    let updatedCount = 0;
+    let insertedCount = 0;
 
     for (const [key, caseData] of Object.entries(caseStudiesData)) {
       try {
-        console.log(`📝 Migrating: ${key}`);
+        console.log(`📝 Processing: ${key}`);
         
-        await CaseStudy.create({
-          key: key,
-          type: caseData.type,
-          name: caseData.name,
-          objective: caseData.objective,
-          process_answer: caseData.process_answer,
-          key_considerations_answer: caseData.key_considerations_answer
-        });
+        // Check if case study already exists
+        const existing = await CaseStudy.findByKey(key);
+        
+        if (existing) {
+          // Update existing case study
+          console.log(`🔄 Updating existing case study: ${key}`);
+          await query(`
+            UPDATE case_studies 
+            SET type = $1, name = $2, objective = $3, 
+                process_answer = $4, key_considerations_answer = $5,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE key = $6
+          `, [
+            caseData.type,
+            caseData.name,
+            caseData.objective,
+            JSON.stringify(caseData.process_answer),
+            JSON.stringify(caseData.key_considerations_answer),
+            key
+          ]);
+          updatedCount++;
+        } else {
+          // Insert new case study
+          console.log(`➕ Inserting new case study: ${key}`);
+          await CaseStudy.create({
+            key: key,
+            type: caseData.type,
+            name: caseData.name,
+            objective: caseData.objective,
+            process_answer: caseData.process_answer,
+            key_considerations_answer: caseData.key_considerations_answer
+          });
+          insertedCount++;
+        }
         
         successCount++;
-        console.log(`✅ Successfully migrated: ${key}`);
+        console.log(`✅ Successfully processed: ${key}`);
       } catch (error) {
         errorCount++;
-        console.error(`❌ Error migrating ${key}:`, error.message);
+        console.error(`❌ Error processing ${key}:`, error.message);
       }
     }
 
@@ -78,8 +103,10 @@ async function migrateCaseStudies() {
 
     // 6. Summary
     console.log('\n📈 Migration Summary:');
-    console.log(`✅ Successfully migrated: ${successCount} cases`);
-    console.log(`❌ Failed migrations: ${errorCount} cases`);
+    console.log(`✅ Successfully processed: ${successCount} cases`);
+    console.log(`➕ New cases inserted: ${insertedCount} cases`);
+    console.log(`🔄 Existing cases updated: ${updatedCount} cases`);
+    console.log(`❌ Failed operations: ${errorCount} cases`);
     console.log(`📊 Total in database: ${migratedCases.length} cases`);
 
     if (errorCount === 0) {

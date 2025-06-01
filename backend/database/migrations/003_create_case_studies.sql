@@ -1,11 +1,8 @@
 -- Migration: Create case_studies table
 -- Description: Store case studies in database instead of JSON file
 
--- Drop table if exists (for clean migration)
-DROP TABLE IF EXISTS case_studies CASCADE;
-
--- Create the table
-CREATE TABLE case_studies (
+-- Create the table only if it doesn't exist
+CREATE TABLE IF NOT EXISTS case_studies (
     id SERIAL PRIMARY KEY,
     key VARCHAR(100) UNIQUE NOT NULL,
     type VARCHAR(100) NOT NULL,
@@ -17,9 +14,17 @@ CREATE TABLE case_studies (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes (after table creation)
-CREATE INDEX idx_case_studies_key ON case_studies(key);
-CREATE INDEX idx_case_studies_type ON case_studies(type);
+-- Create indexes only if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_case_studies_key') THEN
+        CREATE INDEX idx_case_studies_key ON case_studies(key);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_case_studies_type') THEN
+        CREATE INDEX idx_case_studies_type ON case_studies(type);
+    END IF;
+END $$;
 
 -- Create function for updating timestamp
 CREATE OR REPLACE FUNCTION update_case_studies_updated_at()
@@ -30,8 +35,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create trigger
-CREATE TRIGGER update_case_studies_updated_at
-    BEFORE UPDATE ON case_studies
-    FOR EACH ROW
-    EXECUTE FUNCTION update_case_studies_updated_at(); 
+-- Create trigger only if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_case_studies_updated_at') THEN
+        CREATE TRIGGER update_case_studies_updated_at
+            BEFORE UPDATE ON case_studies
+            FOR EACH ROW
+            EXECUTE FUNCTION update_case_studies_updated_at();
+    END IF;
+END $$; 

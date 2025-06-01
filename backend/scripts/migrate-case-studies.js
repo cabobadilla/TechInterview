@@ -6,9 +6,52 @@ const { query } = require('../database/config');
 async function migrateCaseStudies() {
   console.log('🚀 Starting case studies migration...');
   
+  // Check CLEAN_DB environment variable
+  const shouldCleanDB = process.env.CLEAN_DB === 'true' || process.env.CLEAN_DB === 'TRUE';
+  console.log(`🎛️ CLEAN_DB setting: ${shouldCleanDB ? 'TRUE (will clean database)' : 'FALSE (will preserve historical data)'}`);
+  
   try {
-    // 1. Run the database migration first
-    console.log('📊 Creating/updating case_studies table...');
+    // 1. Handle database cleaning if requested
+    if (shouldCleanDB) {
+      console.log('\n🧹 CLEAN_DB=TRUE detected - Starting database cleanup...');
+      console.log('⚠️ WARNING: This will delete ALL historical data including evaluations and transcripts');
+      
+      // Get counts before deletion for logging
+      const evaluationsCount = await query('SELECT COUNT(*) as count FROM evaluations');
+      const transcriptsCount = await query('SELECT COUNT(*) as count FROM transcripts');
+      const caseStudiesCount = await query('SELECT COUNT(*) as count FROM case_studies');
+      
+      console.log(`📊 Current data counts:`);
+      console.log(`  - Evaluations: ${evaluationsCount.rows[0].count}`);
+      console.log(`  - Transcripts: ${transcriptsCount.rows[0].count}`);
+      console.log(`  - Case Studies: ${caseStudiesCount.rows[0].count}`);
+      
+      // Delete in correct order respecting foreign keys
+      console.log('\n🗑️ Deleting data in safe order (respecting foreign keys)...');
+      
+      // Step 1: Delete evaluations first (has FKs to case_studies, transcripts, users)
+      console.log('1️⃣ Deleting evaluations...');
+      const deletedEvaluations = await query('DELETE FROM evaluations');
+      console.log(`   ✅ Deleted ${deletedEvaluations.rowCount} evaluations`);
+      
+      // Step 2: Delete transcripts (has FK to users, referenced by evaluations)
+      console.log('2️⃣ Deleting transcripts...');
+      const deletedTranscripts = await query('DELETE FROM transcripts');
+      console.log(`   ✅ Deleted ${deletedTranscripts.rowCount} transcripts`);
+      
+      // Step 3: Delete case studies last (referenced by evaluations)
+      console.log('3️⃣ Deleting case studies...');
+      const deletedCaseStudies = await query('DELETE FROM case_studies');
+      console.log(`   ✅ Deleted ${deletedCaseStudies.rowCount} case studies`);
+      
+      console.log('\n🧹 Database cleanup completed successfully');
+      console.log('📊 All historical data has been removed');
+    } else {
+      console.log('\n✅ CLEAN_DB=FALSE - Preserving historical data');
+    }
+
+    // 2. Run the database migration (create/update table structure)
+    console.log('\n📊 Creating/updating case_studies table...');
     const migrationSQL = fs.readFileSync(
       path.join(__dirname, '../database/migrations/003_create_case_studies.sql'),
       'utf8'
@@ -25,7 +68,7 @@ async function migrateCaseStudies() {
       throw sqlError;
     }
     
-    // 2. Verify table structure
+    // 3. Verify table structure
     console.log('🔍 Verifying table structure...');
     try {
       const tableInfo = await query(`
@@ -56,14 +99,14 @@ async function migrateCaseStudies() {
       throw verifyError;
     }
 
-    // 3. Load case studies from JSON file and upsert them
+    // 4. Load case studies from JSON file and upsert them
     console.log('📖 Loading case studies from JSON file...');
     const caseStudiesPath = path.join(__dirname, '../../shared/case_studies.json');
     const caseStudiesData = JSON.parse(fs.readFileSync(caseStudiesPath, 'utf8'));
     
     console.log(`📋 Found ${Object.keys(caseStudiesData).length} case studies to migrate`);
 
-    // 4. Upsert each case study (don't delete existing data)
+    // 5. Upsert each case study (don't delete existing data)
     console.log('🔄 Upserting case studies (preserving existing data)...');
     let successCount = 0;
     let errorCount = 0;
@@ -142,13 +185,19 @@ async function migrateCaseStudies() {
       }
     }
 
-    // 5. Verify migration
+    // 6. Verify migration
     console.log('\n🔍 Verifying migration...');
     const migratedCases = await CaseStudy.findAll();
     console.log(`📊 Total cases in database: ${migratedCases.length}`);
 
-    // 6. Summary
+    // 7. Summary
     console.log('\n📈 Migration Summary:');
+    if (shouldCleanDB) {
+      console.log('🧹 Database was cleaned (CLEAN_DB=TRUE)');
+      console.log('📊 All historical data was removed');
+    } else {
+      console.log('✅ Historical data was preserved (CLEAN_DB=FALSE)');
+    }
     console.log(`✅ Successfully processed: ${successCount} cases`);
     console.log(`➕ New cases inserted: ${insertedCount} cases`);
     console.log(`🔄 Existing cases updated: ${updatedCount} cases`);
@@ -157,11 +206,15 @@ async function migrateCaseStudies() {
 
     if (errorCount === 0) {
       console.log('\n🎉 Migration completed successfully!');
+      if (shouldCleanDB) {
+        console.log('🧹 Database cleanup and migration completed');
+        console.log('📊 Only current case studies from JSON are now in database');
+      }
     } else {
       console.log('\n⚠️ Migration completed with some errors. Please review the logs above.');
     }
 
-    // 7. Test the new API format
+    // 8. Test the new API format
     console.log('\n🧪 Testing frontend format conversion...');
     const frontendFormat = await CaseStudy.getAllForFrontend();
     console.log(`✅ Frontend format ready with ${Object.keys(frontendFormat).length} cases`);
